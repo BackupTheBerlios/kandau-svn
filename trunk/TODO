@@ -1,0 +1,29 @@
+
+There are lots of things to think about. Here are some of them:
+
+	(PART) -> partially implemented
+	(WORK) -> work in progress
+
+
+
+(PART)	- Add the possibility to attach i18n() information to properties and
+	relations 1-1 and 1-n and n-n. This shouldn't be too complex (with a
+	simple approach, of course) but it is not a priority ATM.
+
+	- Add cardinality to the collection (minimum and maximum of elements)
+	but needs collaboration from the manager.
+
+(WORK)	- Think about transactions, undo and redo and how they could be held.
+	Leave it to the underlying system? how? Different kind of
+	locking/transaction handling could be implemented. A nice one would
+	be Optimistic Offline Lock. See Patterns Of Enterprise Application
+	Architecture, Martin Fowler (2003). Addison-Wesley.
+
+(WORK)	- It'd be nice if two (or more) different relations could be created between
+	two classes. A way of dealing with that has to be thought while keeping
+	everything as fast as possible.
+
+	- Avoid the need to specify the class in some cases would be nice. For example, when asking for to load an object. This is more interesting in dcop scripting. The dcop server asks for the class of the object when asking for a property. Needs: Oid, Class & Property. One solution to the problem (xess' idea!) would be to make Oid a String and store with it the classname and thus could be used by the SQL (or whatever) backend.
+
+	- A way to create complex queries is needed. The easier approach might be to implement it for sql backend only and parse the SQL. It might be done for XPath queries in the XML implementation too.
+

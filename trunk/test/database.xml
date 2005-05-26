@@ -1,0 +1,56 @@
+  <Database>
+    <Order>
+      <dboid>1</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-05-08</date>
+      </Properties>
+      <Objects/>
+      <Collections>
+        <Article>
+          <oid>2</oid>
+        </Article>
+      </Collections>
+    </Order>
+    <Article>
+      <dboid>2</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>Description of article number one</description>
+      </Properties>
+      <Objects/>
+      <Collections>
+        <Order>
+          <oid>1</oid>
+        </Order>
+      </Collections>
+    </Article>
+    <Order>
+      <dboid>3</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-05-12</date>
+      </Properties>
+      <Objects/>
+      <Collections>
+        <Article>
+          <oid>4</oid>
+        </Article>
+      </Collections>
+    </Order>
+    <Article>
+      <dboid>4</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>Description of article number one</description>
+      </Properties>
+      <Objects/>
+      <Collections>
+        <Order>
+          <oid>3</oid>
+        </Order>
+      </Collections>
+    </Article>
+  </Database>
