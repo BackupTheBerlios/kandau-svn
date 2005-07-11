@@ -201,7 +201,7 @@ bool InMemorySqlDbBackend::createSchema()
 		currentClass = *it;
 		// We need to create an object because it's the only way to iterate through a class' properties right now
 		object = currentClass->createInstance();
-		exec = "CREATE TABLE " +  currentClass->name().lower() + " ( dboid BIGINT PRIMARY KEY, ";
+		exec = "CREATE TABLE " +  currentClass->name() + " ( dboid BIGINT PRIMARY KEY, ";
 
 		// Create properties fields
 		PropertyIterator pIt( object->propertiesBegin() );
@@ -219,8 +219,8 @@ bool InMemorySqlDbBackend::createSchema()
 		RelatedObject *rObj;
 		for ( ; oIt != oEnd; ++oIt ) {
 			rObj = *oIt;
-			exec += rObj->name().lower() + " BIGINT DEFAULT NULL, ";
-			constraints << currentClass->name().lower() + "-" + rObj->name().lower() + "-" + rObj->relatedClassInfo()->name().lower();
+			exec += rObj->name() + " BIGINT DEFAULT NULL, ";
+			constraints << currentClass->name() + "-" + rObj->name() + "-" + rObj->relatedClassInfo()->name();
 			//constraints << rObj->name();
 			//constraints << tableName( object ) + "-" + tableName( oIt.key() );
 		}
@@ -237,8 +237,8 @@ bool InMemorySqlDbBackend::createSchema()
 			for ( ; colIt != colEnd; ++colIt ) {
 				rCol = *colIt;
 				if ( rCol->childrenClassInfo()->name() == currentClass->name() && rCol->isNToOne() ) {
-					exec += rCol->name().lower() + " BIGINT DEFAULT NULL, ";
-					constraints << currentClass->name().lower() + "-" + rCol->name().lower() + "-" + rCol->parentClassInfo()->name().lower();
+					exec += rCol->name() + " BIGINT DEFAULT NULL, ";
+					constraints << currentClass->name() + "-" + rCol->name() + "-" + rCol->parentClassInfo()->name();
 					//constraints << rCol->name();
 					//constraints << tableName( object ) + "-" + tableName( obj );
 				}
@@ -251,7 +251,7 @@ bool InMemorySqlDbBackend::createSchema()
 		for ( ; colIt != colEnd; ++colIt ) {
 			col = *colIt;
 			if ( ! tables.grep( col->name() ).count() > 0 && ! col->isNToOne() ) {
-				tables << col->name().lower() + "-"  + col->parentClassInfo()->name().lower() + "-" + idFieldName( col ).lower();
+				tables << col->name() + "-"  + col->parentClassInfo()->name() + "-" + idFieldName( col );
 			}
 		}
 
@@ -325,8 +325,14 @@ bool InMemorySqlDbBackend::commit()
 	// Remove all existing information
 	ClassInfoIterator m_it( Classes::begin() );
 	ClassInfoIterator m_end( Classes::end() );
-	for ( ; m_it != m_end; ++m_it )
+	for ( ; m_it != m_end; ++m_it ) {
 		m_db->exec( "DELETE FROM " + (*m_it)->name() );
+
+		RelatedCollectionsIterator m_cIt( (*m_it)->collectionsBegin() );
+		RelatedCollectionsIterator m_cEnd( (*m_it)->collectionsEnd() );
+		for ( ; m_cIt != m_cEnd; ++m_cIt )
+			m_db->exec( "DELETE FROM " + (*m_cIt)->name() );
+	}
 
 	m_savedCollections.clear();
 	ManagerObjectIterator it( Manager::self()->begin() );

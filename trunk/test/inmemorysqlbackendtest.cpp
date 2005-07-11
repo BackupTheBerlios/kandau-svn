@@ -20,6 +20,7 @@
 #include <qsqldatabase.h>
 
 #include <kdebug.h>
+#include <kprocess.h>
 
 #include <inmemorysqldbbackend.h>
 #include <manager.h>
@@ -36,8 +37,6 @@ void InMemorySqlBackendTest::commit()
 	order->setNumber( 50000 );
 	order->setDate( QDate::currentDate() );
 
-	printClasses();
-	
 	order->setOrder( order );
 
 	ObjectRef<Article> a1 = Article::create();
@@ -50,7 +49,7 @@ void InMemorySqlBackendTest::commit()
 	a2->setCode( "2" );
 	a2->setLabel( "Article Two" );
 	a2->setDescription( "Description of article number two" );
-	//a1->setArticle( a2 );
+	a1->setArticle( a2 );
 
 	ObjectRef<Customer> c = Customer::create();
 	c->setCode( "0001" );
@@ -60,6 +59,7 @@ void InMemorySqlBackendTest::commit()
 	c->setZipCode( "Zip Code" );
 	c->setCountry( "Country" );
 	order->setCustomer( c );
+	Manager::self()->commit();
 }
 
 void InMemorySqlBackendTest::rollback()
@@ -102,12 +102,32 @@ void InMemorySqlBackendTest::printClasses()
 	}
 }
 
-
 void InMemorySqlBackendTest::allTests()
 {
+	QString dbname = "testinmemory";
+
 	Classes::setup();
+
+	// Drop the database if already exists
+	KProcess *proc = new KProcess;
+	*proc << "dropdb";
+	*proc << dbname;
+	CHECK( proc->start(), true );
+	proc->wait();
+	delete proc;
+
+	// Create de database
+	proc = new KProcess;
+	*proc << "createdb";
+	*proc << dbname;
+	CHECK( proc->start(), true );
+	proc->wait();
+	CHECK( proc->normalExit(), true );
+	CHECK( proc->exitStatus(), 0 );
+	delete proc;
+	
 	QSqlDatabase *db = QSqlDatabase::addDatabase( "QPSQL7" );
-	db->setDatabaseName( "testinmemory" );
+	db->setDatabaseName( dbname );
 	db->setUserName( "albert" );
 	db->setPassword( "" );
 	db->setHostName( "localhost" );
