@@ -16,9 +16,9 @@
 
 SHELL = /bin/sh
 
-srcdir = /home/albert/kandau/test
-top_srcdir = /home/albert/kandau
-VPATH = /home/albert/kandau/test
+srcdir = /home/albert/kandi/test
+top_srcdir = /home/albert/kandi
+VPATH = /home/albert/kandi/test
 prefix = /opt/kde3
 exec_prefix = ${prefix}
 
@@ -39,10 +39,10 @@ pkglibdir = $(libdir)/kandau
 pkgincludedir = $(includedir)/kandau
 top_builddir = ..
 
-ACLOCAL = ${SHELL} /home/albert/kandau/admin/missing --run aclocal-1.6
+ACLOCAL = ${SHELL} /home/albert/kandi/admin/missing --run aclocal-1.6
 AUTOCONF = $(SHELL) $(top_srcdir)/admin/cvs.sh configure || touch configure
-AUTOMAKE = ${SHELL} /home/albert/kandau/admin/missing --run automake-1.6
-AUTOHEADER = ${SHELL} /home/albert/kandau/admin/missing --run autoheader
+AUTOMAKE = ${SHELL} /home/albert/kandi/admin/missing --run automake-1.6
+AUTOHEADER = ${SHELL} /home/albert/kandi/admin/missing --run autoheader
 
 am__cd = CDPATH="$${ZSH_VERSION+.}$(PATH_SEPARATOR)" && cd
 INSTALL = /usr/bin/install -c -p
@@ -70,7 +70,7 @@ target_triplet = i686-pc-linux-gnu
 EXEEXT = 
 OBJEXT = o
 PATH_SEPARATOR = :
-AMTAR = ${SHELL} /home/albert/kandau/admin/missing --run tar
+AMTAR = ${SHELL} /home/albert/kandi/admin/missing --run tar
 AR = ar
 ARTSCCONFIG = /opt/kde3/bin/artsc-config
 AS = @AS@
@@ -224,7 +224,7 @@ all_includes = -I/opt/kde3/include -I/usr/share/qt3/include -I/usr/X11R6/include
 all_libraries = -L/usr/X11R6/lib -L/usr/share/qt3/lib -L/opt/kde3/lib 
 am__include = include
 am__quote = 
-install_sh = /home/albert/kandau/admin/install-sh
+install_sh = /home/albert/kandi/admin/install-sh
 jni_includes = @jni_includes@
 kde_appsdir = ${datadir}/applnk
 kde_bindir = ${exec_prefix}/bin
@@ -656,13 +656,6 @@ dcopiface_skel.cpp: dcopiface.kidl
 	$(DCOPIDL2CPP) --c++-suffix cpp --no-signals --no-stub dcopiface.kidl
 
 #>+ 3
-customerorder.moc: $(srcdir)/customerorder.h
-	$(MOC) $(srcdir)/customerorder.h -o customerorder.moc
-
-#>+ 2
-mocs: customerorder.moc
-
-#>+ 3
 customer.moc: $(srcdir)/customer.h
 	$(MOC) $(srcdir)/customer.h -o customer.moc
 
@@ -699,7 +692,7 @@ mocs: qtester.moc
 
 #>+ 3
 clean-metasources:
-	-rm -f  customerorder.moc customer.moc article.moc kunittest.moc objectaccess.moc.cpp qtester.moc
+	-rm -f  customer.moc article.moc kunittest.moc objectaccess.moc.cpp qtester.moc
 
 #>+ 2
 KDE_DIST=database.xml kunittest.h tester.h qtester.h 
@@ -742,7 +735,7 @@ bcheck-am:
 
 
 #>+ 11
-dcoptester.all_cpp.cpp: $(srcdir)/Makefile.in $(srcdir)/dcoptester.cpp $(srcdir)/objectaccess.cpp $(srcdir)/article.cpp $(srcdir)/customer.cpp $(srcdir)/customerorder.cpp dcopiface_skel.cpp objectaccess.moc.cpp  customer.moc customerorder.moc article.moc
+dcoptester.all_cpp.cpp: $(srcdir)/Makefile.in $(srcdir)/dcoptester.cpp $(srcdir)/objectaccess.cpp $(srcdir)/article.cpp $(srcdir)/customer.cpp customerorder.cpp dcopiface_skel.cpp objectaccess.moc.cpp  customer.moc article.moc
 	@echo 'creating dcoptester.all_cpp.cpp ...'; \
 	rm -f dcoptester.all_cpp.files dcoptester.all_cpp.final; \
 	echo "#define KDE_USE_FINAL 1" >> dcoptester.all_cpp.final; \
@@ -754,7 +747,7 @@ dcoptester.all_cpp.cpp: $(srcdir)/Makefile.in $(srcdir)/dcoptester.cpp $(srcdir)
 	rm -f dcoptester.all_cpp.final dcoptester.all_cpp.files
 
 #>+ 11
-kunittest.all_cpp.cpp: $(srcdir)/Makefile.in $(srcdir)/main.cpp $(srcdir)/kunittest.cpp $(srcdir)/qtester.cpp $(srcdir)/article.cpp $(srcdir)/customer.cpp $(srcdir)/testbackendtest.cpp $(srcdir)/sqlbackendtest.cpp $(srcdir)/xmlbackendtest.cpp $(srcdir)/customerorder.cpp $(srcdir)/inmemorysqlbackendtest.cpp objectaccess.moc.cpp  customer.moc customerorder.moc article.moc kunittest.moc qtester.moc
+kunittest.all_cpp.cpp: $(srcdir)/Makefile.in $(srcdir)/main.cpp $(srcdir)/kunittest.cpp $(srcdir)/qtester.cpp $(srcdir)/article.cpp $(srcdir)/customer.cpp $(srcdir)/testbackendtest.cpp $(srcdir)/sqlbackendtest.cpp $(srcdir)/xmlbackendtest.cpp customerorder.cpp $(srcdir)/inmemorysqlbackendtest.cpp objectaccess.moc.cpp  customer.moc article.moc kunittest.moc qtester.moc
 	@echo 'creating kunittest.all_cpp.cpp ...'; \
 	rm -f kunittest.all_cpp.files kunittest.all_cpp.final; \
 	echo "#define KDE_USE_FINAL 1" >> kunittest.all_cpp.final; \
@@ -793,16 +786,14 @@ cvs-clean:
 kde-rpo-clean:
 	-rm -f *.rpo
 
-#>+ 13
+#>+ 11
 nmcheck: 
 kunittest.lo: kunittest.moc 
 nmcheck-am: nmcheck
-customerorder.lo: customerorder.moc 
-customerorder.o: customerorder.moc 
 article.lo: article.moc 
 customer.o: customer.moc 
 customer.lo: customer.moc 
 article.o: article.moc 
-qtester.lo: qtester.moc 
 kunittest.o: kunittest.moc 
+qtester.lo: qtester.moc 
 qtester.o: qtester.moc 
