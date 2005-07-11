@@ -85,7 +85,7 @@ void Article::setArticle( Article* article )
 
 Collection* Article::orders()
 {
-	return GETCOLLECTION( Order );
+	return GETCOLLECTION( CustomerOrder );
 }
 
 #include "article.moc"

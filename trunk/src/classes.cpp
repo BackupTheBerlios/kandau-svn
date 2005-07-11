@@ -25,7 +25,7 @@
 
 ClassInfoMap *Classes::m_classes = 0;
 ClassInfo* Classes::m_currentClass = 0;
-TmpClassMap* Classes::m_tmpClasses;
+TmpClassMap* Classes::m_tmpClasses = 0;
 
 /* RelatedObject */
 
@@ -353,6 +353,11 @@ CreateLabelsFunction TmpClass::createLabels() const
 
 void Classes::setup()
 {
+	// If m_tmpClasses is has not been initialized probably setup() has
+	// already been called.
+	if ( m_tmpClasses == 0 )
+		return;
+
 	TmpClassConstIterator it( m_tmpClasses->constBegin() );
 	TmpClassConstIterator end( m_tmpClasses->constEnd() );
 	TmpClass *tmp;
