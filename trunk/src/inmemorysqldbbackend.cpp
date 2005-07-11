@@ -339,8 +339,7 @@ bool InMemorySqlDbBackend::commit()
 	ManagerObjectIterator end( Manager::self()->end() );
 	for ( ; it != end; ++it )
 		saveObject( *it );
-	m_db->commit();
-	return true;
+	return m_db->commit();
 }
 
 QString InMemorySqlDbBackend::sqlType( QVariant::Type type )
