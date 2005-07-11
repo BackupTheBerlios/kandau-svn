@@ -17,29 +17,34 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#ifndef XMLDBBACKEND_H
-#define XMLDBBACKEND_H
+#ifndef INMEMORYSQLDBBACKEND_H
+#define INMEMORYSQLDBBACKEND_H
 
 #include <dbbackendiface.h>
+#include "oidtype.h"
+#include "seqtype.h"
+#include "object.h"
 
-class QDomDocument;
-class QDomElement;
+class QSqlDatabase;
+class QSqlCursor;
 
 /**
 @author Albert Cervera Areny
 */
-class XmlDbBackend : public DbBackendIface
+class InMemorySqlDbBackend : public DbBackendIface
 {
 public:
-	XmlDbBackend( const QString& fileName );
-	virtual ~XmlDbBackend();
+	InMemorySqlDbBackend( QSqlDatabase* db );
+	virtual ~InMemorySqlDbBackend();
+
+	void loadObject( const QSqlCursor& cursor, ObjectRef<Object> object );
+	void saveObject( ObjectRef<Object> object );
+
+	QString idFieldName( RelatedCollection *collection ) const;
 
 	/* Called at the Manager constructor */
 	virtual void setup();
 	virtual void shutdown();
-
-	OidType elementToObject( const QDomElement& e );
-	void objectToElement( Object* object, QDomDocument *doc, QDomElement *parent );
 
 	/* Object management related functions */
 	virtual bool load( const OidType& oid, Object *object );
@@ -81,9 +86,12 @@ public:
 	bool rollback();
 
 	void reset() {};
+
+	QString sqlType( QVariant::Type type );
 private:
-	QString m_fileName;
+	QSqlDatabase *m_db;
 	OidType m_currentOid;
+	QStringList m_savedCollections;
 };
 
 #endif

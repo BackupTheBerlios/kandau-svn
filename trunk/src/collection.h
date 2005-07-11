@@ -61,7 +61,6 @@ public:
 	bool load();
 
 	bool modified() const;
-
 	void setModified( bool m );
 
 	ObjectIterator begin();

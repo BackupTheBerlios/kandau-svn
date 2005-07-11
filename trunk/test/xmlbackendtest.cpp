@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2004 by Albert Cervera Areny                            *
- *   albertca.com                                                   *
+ *   albertca@hotpop.com                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -22,15 +22,15 @@
 #include <manager.h>
 #include <xmldbbackend.h>
 #include <object.h>
-#include "order.h"
+#include "customerorder.h"
 #include "article.h"
 
 void XmlBackendTest::commit()
 {
-	ObjectRef<Order> order = Order::create();
+	ObjectRef<CustomerOrder> order = CustomerOrder::create();
 	order->setNumber( 50000 );
 	order->setDate( QDate::currentDate() );
-	
+
 
 	ObjectRef<Article> a1 = Article::create();
 	a1->setCode( "1" );

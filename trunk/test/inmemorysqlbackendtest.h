@@ -17,45 +17,25 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#ifndef ORDER_H
-#define ORDER_H
+#ifndef INMEMORYSQLBACKENDTEST_H
+#define INMEMORYSQLBACKENDTEST_H
 
-#include <qdatetime.h>
-
-#include <object.h>
-
-class Customer;
+#include <tester.h>
 
 /**
 @author Albert Cervera Areny
 */
-
-class Order : public Object
+class InMemorySqlBackendTest : public Tester
 {
-	Q_OBJECT
-	Q_PROPERTY( Q_ULLONG number READ number WRITE setNumber )
-	Q_PROPERTY( QDate date READ date WRITE setDate )
-
 public:
-	DCLASS( Order );
+	void commit();
+	void rollback();
 
-	Q_ULLONG number() const;
-	void setNumber( Q_ULLONG num );
+	void printClasses();
 
-	const QDate& date() const;
-	void setDate( const QDate& date );
-
-	Collection* articles();
-
-	Customer* customer();
-	void setCustomer( Customer* customer );
-
-	Order* order();
-	void setOrder( Order* order );
-
+	void allTests();
 private:
-	Q_ULLONG m_number;
-	QDate m_date;
+	Manager *m_manager;
 };
 
 #endif

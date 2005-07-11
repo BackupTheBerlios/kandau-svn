@@ -273,13 +273,15 @@ INCLUDES = $(all_includes)
 lib_LTLIBRARIES = libkandau.la
 libkandau_la_LDFLAGS = $(all_libraries)
 libkandau_la_SOURCES = collection.cpp dbbackendiface.cpp manager.cpp \
-	object.cpp oidtype.cpp testbackend.cpp labels.cpp sqldbbackend.cpp seqtype.cpp \
-	xmldbbackend.cpp classes.cpp
+		object.cpp oidtype.cpp testbackend.cpp labels.cpp sqldbbackend.cpp seqtype.cpp \
+		xmldbbackend.cpp classes.cpp inmemorysqldbbackend.cpp
 
 include_HEADERS = collection.h dbbackendiface.h defs.h manager.h \
 		object.h	oidtype.h testbackend.h xmldbbackend.h classes.h labels.h seqtype.h \
 	sqldbbackend.h
 
+
+noinst_HEADERS = inmemorysqldbbackend.h
 subdir = src
 mkinstalldirs = $(SHELL) $(top_srcdir)/admin/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/config.h
@@ -289,13 +291,13 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 libkandau_la_LIBADD =
 am_libkandau_la_OBJECTS = collection.lo dbbackendiface.lo manager.lo \
 	object.lo oidtype.lo testbackend.lo labels.lo sqldbbackend.lo \
-	seqtype.lo xmldbbackend.lo classes.lo
+	seqtype.lo xmldbbackend.lo classes.lo inmemorysqldbbackend.lo
 #>- libkandau_la_OBJECTS = $(am_libkandau_la_OBJECTS)
 #>+ 6
 libkandau_la_final_OBJECTS = libkandau_la.all_cpp.lo 
 libkandau_la_nofinal_OBJECTS = collection.lo dbbackendiface.lo manager.lo \
 	object.lo oidtype.lo testbackend.lo labels.lo sqldbbackend.lo \
-	seqtype.lo xmldbbackend.lo classes.lo
+	seqtype.lo xmldbbackend.lo classes.lo inmemorysqldbbackend.lo
 @KDE_USE_FINAL_FALSE@libkandau_la_OBJECTS = $(libkandau_la_nofinal_OBJECTS)
 @KDE_USE_FINAL_TRUE@libkandau_la_OBJECTS = $(libkandau_la_final_OBJECTS)
 
@@ -309,16 +311,18 @@ am__depfiles_maybe = depfiles
 #>- @AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/classes.Plo \
 #>- @AMDEP_TRUE@	./$(DEPDIR)/collection.Plo \
 #>- @AMDEP_TRUE@	./$(DEPDIR)/dbbackendiface.Plo \
+#>- @AMDEP_TRUE@	./$(DEPDIR)/inmemorysqldbbackend.Plo \
 #>- @AMDEP_TRUE@	./$(DEPDIR)/labels.Plo ./$(DEPDIR)/manager.Plo \
 #>- @AMDEP_TRUE@	./$(DEPDIR)/object.Plo ./$(DEPDIR)/oidtype.Plo \
 #>- @AMDEP_TRUE@	./$(DEPDIR)/seqtype.Plo \
 #>- @AMDEP_TRUE@	./$(DEPDIR)/sqldbbackend.Plo \
 #>- @AMDEP_TRUE@	./$(DEPDIR)/testbackend.Plo \
 #>- @AMDEP_TRUE@	./$(DEPDIR)/xmldbbackend.Plo
-#>+ 18
+#>+ 20
 @AMDEP_TRUE@@KDE_USE_FINAL_TRUE@DEP_FILES =   $(DEPDIR)/libkandau_la.all_cpp.P ./$(DEPDIR)/classes.Plo \
 @AMDEP_TRUE@@KDE_USE_FINAL_TRUE@	@AMDEP_TRUE@	./$(DEPDIR)/collection.Plo \
 @AMDEP_TRUE@@KDE_USE_FINAL_TRUE@	@AMDEP_TRUE@	./$(DEPDIR)/dbbackendiface.Plo \
+@AMDEP_TRUE@@KDE_USE_FINAL_TRUE@	@AMDEP_TRUE@	./$(DEPDIR)/inmemorysqldbbackend.Plo \
 @AMDEP_TRUE@@KDE_USE_FINAL_TRUE@	@AMDEP_TRUE@	./$(DEPDIR)/labels.Plo ./$(DEPDIR)/manager.Plo \
 @AMDEP_TRUE@@KDE_USE_FINAL_TRUE@	@AMDEP_TRUE@	./$(DEPDIR)/object.Plo ./$(DEPDIR)/oidtype.Plo \
 @AMDEP_TRUE@@KDE_USE_FINAL_TRUE@	@AMDEP_TRUE@	./$(DEPDIR)/seqtype.Plo \
@@ -328,6 +332,7 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@@KDE_USE_FINAL_FALSE@DEP_FILES =  ./$(DEPDIR)/classes.Plo \
 @AMDEP_TRUE@@KDE_USE_FINAL_FALSE@	@AMDEP_TRUE@	./$(DEPDIR)/collection.Plo \
 @AMDEP_TRUE@@KDE_USE_FINAL_FALSE@	@AMDEP_TRUE@	./$(DEPDIR)/dbbackendiface.Plo \
+@AMDEP_TRUE@@KDE_USE_FINAL_FALSE@	@AMDEP_TRUE@	./$(DEPDIR)/inmemorysqldbbackend.Plo \
 @AMDEP_TRUE@@KDE_USE_FINAL_FALSE@	@AMDEP_TRUE@	./$(DEPDIR)/labels.Plo ./$(DEPDIR)/manager.Plo \
 @AMDEP_TRUE@@KDE_USE_FINAL_FALSE@	@AMDEP_TRUE@	./$(DEPDIR)/object.Plo ./$(DEPDIR)/oidtype.Plo \
 @AMDEP_TRUE@@KDE_USE_FINAL_FALSE@	@AMDEP_TRUE@	./$(DEPDIR)/seqtype.Plo \
@@ -354,9 +359,10 @@ CXXLINK = $(LIBTOOL) --mode=link --tag=CXX $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
 CXXFLAGS = @CXXFLAGS@
 DIST_SOURCES = $(libkandau_la_SOURCES)
-HEADERS = $(include_HEADERS)
+HEADERS = $(include_HEADERS) $(noinst_HEADERS)
 
-DIST_COMMON = $(include_HEADERS) Makefile.am Makefile.in
+DIST_COMMON = $(include_HEADERS) $(noinst_HEADERS) Makefile.am \
+	Makefile.in
 SOURCES = $(libkandau_la_SOURCES)
 
 #>- all: all-am
@@ -414,6 +420,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/classes.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/collection.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dbbackendiface.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/inmemorysqldbbackend.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/labels.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/manager.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/object.Plo@am__quote@
@@ -508,7 +515,9 @@ GTAGS:
 
 distclean-tags:
 	-rm -f TAGS ID GTAGS GRTAGS GSYMS GPATH
-DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
+#>- DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
+#>+ 1
+DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST) $(KDE_DIST)
 
 top_distdir = ..
 distdir = $(top_distdir)/$(PACKAGE)-$(VERSION)
@@ -642,6 +651,9 @@ clean-metasources:
 	-rm -f  object.moc
 
 #>+ 2
+KDE_DIST=DEADJOE 
+
+#>+ 2
 docs-am:
 
 #>+ 6
@@ -658,7 +670,7 @@ clean-bcheck:
 bcheck: bcheck-am
 
 bcheck-am:
-	@for i in $(include_HEADERS); do \
+	@for i in $(include_HEADERS) ; do \
 	    if test $(srcdir)/$$i -nt $$i.bchecktest.cc; then \
 	        echo "int main() {return 0;}" > $$i.bchecktest.cc ; \
 	        echo "#include \"$$i\"" >> $$i.bchecktest.cc ; \
@@ -674,11 +686,11 @@ bcheck-am:
 
 
 #>+ 11
-libkandau_la.all_cpp.cpp: $(srcdir)/Makefile.in $(srcdir)/collection.cpp $(srcdir)/dbbackendiface.cpp $(srcdir)/manager.cpp $(srcdir)/object.cpp $(srcdir)/oidtype.cpp $(srcdir)/testbackend.cpp $(srcdir)/labels.cpp $(srcdir)/sqldbbackend.cpp $(srcdir)/seqtype.cpp $(srcdir)/xmldbbackend.cpp $(srcdir)/classes.cpp  object.moc
+libkandau_la.all_cpp.cpp: $(srcdir)/Makefile.in $(srcdir)/collection.cpp $(srcdir)/dbbackendiface.cpp $(srcdir)/manager.cpp $(srcdir)/object.cpp $(srcdir)/oidtype.cpp $(srcdir)/testbackend.cpp $(srcdir)/labels.cpp $(srcdir)/sqldbbackend.cpp $(srcdir)/seqtype.cpp $(srcdir)/xmldbbackend.cpp $(srcdir)/classes.cpp $(srcdir)/inmemorysqldbbackend.cpp  object.moc
 	@echo 'creating libkandau_la.all_cpp.cpp ...'; \
 	rm -f libkandau_la.all_cpp.files libkandau_la.all_cpp.final; \
 	echo "#define KDE_USE_FINAL 1" >> libkandau_la.all_cpp.final; \
-	for file in collection.cpp dbbackendiface.cpp manager.cpp object.cpp oidtype.cpp testbackend.cpp labels.cpp sqldbbackend.cpp seqtype.cpp xmldbbackend.cpp classes.cpp ; do \
+	for file in collection.cpp dbbackendiface.cpp manager.cpp object.cpp oidtype.cpp testbackend.cpp labels.cpp sqldbbackend.cpp seqtype.cpp xmldbbackend.cpp classes.cpp inmemorysqldbbackend.cpp ; do \
 	  echo "#include \"$$file\"" >> libkandau_la.all_cpp.files; \
 	  test ! -f $(srcdir)/$$file || egrep '^#pragma +implementation' $(srcdir)/$$file >> libkandau_la.all_cpp.final; \
 	done; \

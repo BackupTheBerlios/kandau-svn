@@ -56,7 +56,7 @@ void SqlDbBackend::setup()
 void SqlDbBackend::shutdown()
 {
 	assert( m_db );
-	m_db->exec( "ROLLBACK;" );
+//	m_db->exec( "ROLLBACK;" );
 }
 
 bool SqlDbBackend::load( const OidType& oid, Object *object )
@@ -65,7 +65,7 @@ bool SqlDbBackend::load( const OidType& oid, Object *object )
 	if ( oid == 0 )
 		ERROR( "Oid cannot be zero" );
 	object->setOid( 0 );
-	QSqlCursor cursor( tableName( object ) );
+	QSqlCursor cursor( object->classInfo()->name() );
 	cursor.select( "to_number( dboid, '9999999999G0') = " + oidToString( oid ) );
 	if ( ! cursor.next() )
 		ERROR( "Oid not found" );
@@ -112,20 +112,28 @@ bool SqlDbBackend::load( const QSqlCursor &cursor, Object *object )
 	ObjectIterator oIt( object->objectsBegin() );
 	ObjectIterator oEnd( object->objectsEnd() );
 	for (; oIt != oEnd; ++oIt ) {
-		if ( ! cursor.contains( tableName( oIt.key() ) ) )
+		if ( ! cursor.contains( oIt.key() ) )
 			continue;
-		object->setObject( oIt.key(), variantToOid( cursor.value( tableName( oIt.key() ) ) ) );
+		object->setObject( oIt.key(), variantToOid( cursor.value( oIt.key() ) ) );
 	}
 
 	return true;
 }
+/*
+bool SqlDbBackend::save( Collection *collection )
+{
+	assert( collection );
 
+}
+*/
 bool SqlDbBackend::save( Object *object )
 {
 	assert( object );
 	bool update;
 	QSqlRecord *record;
-	QSqlCursor cursor( tableName( object ) );
+	QSqlCursor cursor( object->classInfo()->name() );
+
+	kdDebug() << k_funcinfo << endl;
 
 	if ( object->oid() == 0 ) {
 		// Crea un oid únic
@@ -180,12 +188,12 @@ bool SqlDbBackend::save( Object *object )
 	Object *obj;
 	for ( ; oIt != oEnd; ++oIt ) {
 		obj = (*oIt);
-		if ( ! cursor.contains( tableName( oIt.key() ) ) )
+		if ( ! cursor.contains( oIt.key() ) )
 			continue;
 		if ( obj )
-			record->setValue( tableName( oIt.key() ), obj->oid() );
+			record->setValue( oIt.key(), obj->oid() );
 		else
-			record->setNull( tableName( oIt.key() ) );
+			record->setNull( oIt.key() );
 
 		/*
 		if ( ! obj->isNull() )
@@ -224,7 +232,7 @@ bool SqlDbBackend::remove( Object *object )
 		ERROR( "Oid = 0" );
 
 	QSqlQuery query;
-	query.prepare( "DELETE FROM " + tableName( object ) + " WHERE to_number( dboid, '9999999999G0') = " + oidToString( object->oid() ) );
+	query.prepare( "DELETE FROM " + object->classInfo()->name().lower() + " WHERE to_number( dboid, '9999999999G0') = " + oidToString( object->oid() ) );
 	query.exec();
 
 	if ( query.numRowsAffected() > 0 ) {
@@ -235,22 +243,25 @@ bool SqlDbBackend::remove( Object *object )
 		return false;
 }
 
-QString SqlDbBackend::tableName( const QString &name ) const
-{
-	QString tmp = name;
-	return tmp.replace( "-", "_" ) + QString( "_" );
-}
+// QString SqlDbBackend::tableName( const QString &name ) const
+// {
+// 	QString tmp = name;
+// 	return tmp.replace( "-", "_" ) + QString( "_" );
+// }
+//
+// QString SqlDbBackend::tableName( const Object *object ) const
+// {
+// 	assert( object );
+// 	return tableName( object->classInfo()->name() );
+// }
 
-QString SqlDbBackend::tableName( const Object *object ) const
-{
-	assert( object );
-	return tableName( object->classInfo()->name() );
-}
-
+/*!
+Generates a new Oid from the database sequence
+*/
 OidType SqlDbBackend::newOid()
 {
 	//QSqlSelectCursor cursor( "SELECT nextval('seq_dboid') AS Oid" );
-	m_db->exec( "ROLLBACK;" );
+	//m_db->exec( "ROLLBACK;" );
 	QSqlQuery query = m_db->exec( "SELECT nextval('seq_dboid');" );
 //	kdDebug() << k_funcinfo << m_db->lastError().text()  << endl;
 //	if ( ! query.isValid() )
@@ -264,7 +275,8 @@ OidType SqlDbBackend::newOid()
 SeqType SqlDbBackend::newSeq()
 {
 	//QSqlSelectCursor cursor( "SELECT nextval('seq_dbseq') AS Seq" );
-	QSqlQuery query = m_db->exec( "SELECT nextval('seq_dbseq');" );
+	kdDebug() << k_funcinfo << m_db->lastError().text()  << endl;
+	QSqlQuery query = m_db->exec( "SELECT nextval('seq_dbseq')" );
 	kdDebug() << k_funcinfo << m_db->lastError().text()  << endl;
 	if ( ! query.next() )
 		ERROR( "Could not read next value from the sequence" );
@@ -282,7 +294,7 @@ bool SqlDbBackend::load( Collection *collection )
 
 	QSqlCursor *cursor;
 
-	cursor = new QSqlCursor(  tableName( collection->collectionInfo() )   );
+	cursor = new QSqlCursor( collection->collectionInfo()->name() );
 	cursor->select( filterFieldName( collection->collectionInfo() ) + " = " + QString::number( filterValue( collection ) ) );
 
 	int i = 0;
@@ -309,22 +321,26 @@ bool SqlDbBackend::load( Collection *collection )
 	return true;
 }
 
-QString SqlDbBackend::tableName( RelatedCollection *collection ) const
-{
-	assert( collection );
-	if ( collection->isNToOne() )
-		return tableName( collection->childrenClassInfo()->name() );
-
-	QStringList names ( collection->parentClassInfo()->name() );
-	names << collection->childrenClassInfo()->name();
-	names.sort();
-	return "rel_" + names.join( "_" );
-}
+// QString SqlDbBackend::tableName( RelatedCollection *collection ) const
+// {
+// 	assert( collection );
+//
+// /*
+// 	assert( collection );
+// 	if ( collection->isNToOne() )
+// 		return tableName( collection->childrenClassInfo()->name() );
+//
+// 	QStringList names ( collection->parentClassInfo()->name() );
+// 	names << collection->childrenClassInfo()->name();
+// 	names.sort();
+// 	return "rel_" + names.join( "_" );
+// */
+// }
 
 QString SqlDbBackend::filterFieldName( RelatedCollection *collection ) const
 {
 	assert( collection );
-	return tableName( collection->parentClassInfo()->name() );
+	return collection->parentClassInfo()->name();
 }
 
 OidType SqlDbBackend::filterValue( Collection *collection ) const
@@ -351,7 +367,7 @@ QString SqlDbBackend::idFieldName( RelatedCollection *collection ) const
 	if ( collection->isNToOne() )
 		return "dboid";
 	else
-		return tableName( collection->childrenClassInfo()->name() );
+		return collection->childrenClassInfo()->name();
 }
 
 bool SqlDbBackend::add( Collection *collection, Object *object )
@@ -374,7 +390,7 @@ bool SqlDbBackend::add( Collection *collection, Object *object )
 	}
 	*/
 
-	QSqlCursor cursor( tableName( collection->collectionInfo() ) );
+	QSqlCursor cursor( collection->collectionInfo()->name() );
 
 	QSqlRecord *record;
 	if ( collection->collectionInfo()->isNToOne() ) {
@@ -417,10 +433,10 @@ bool SqlDbBackend::remove( Collection *collection, const OidType& oid )
 	// TODO: Comprovar si no és preferible fer-ho mitjançant Cursors
 	QSqlQuery query;
 	if ( ! collection->collectionInfo()->isNToOne() ) {
-		query.prepare( "DELETE FROM " + tableName( collection->collectionInfo() ) + " WHERE to_number( " + filterFieldName( collection->collectionInfo() ) + ",'9999999999G0') = " + QString::number( filterValue( collection ) ) + " AND to_number(" + idFieldName( collection->collectionInfo() ) + ",'9999999999G0') = " + oidToString( oid ) );
+		query.prepare( "DELETE FROM " + collection->collectionInfo()->name().lower() + " WHERE to_number( " + filterFieldName( collection->collectionInfo() ) + ",'9999999999G0') = " + QString::number( filterValue( collection ) ) + " AND to_number(" + idFieldName( collection->collectionInfo() ) + ",'9999999999G0') = " + oidToString( oid ) );
 		query.exec();
 	} else {
-		query.prepare( "UPDATE " + tableName( collection->collectionInfo() ) + " SET " + filterFieldName( collection->collectionInfo() ) + " = NULL WHERE to_number(" + idFieldName( collection->collectionInfo() ) + ",'9999999999G0') = " + oidToString( oid ) );
+		query.prepare( "UPDATE " + collection->collectionInfo()->name().lower() + " SET " + filterFieldName( collection->collectionInfo() ) + " = NULL WHERE to_number(" + idFieldName( collection->collectionInfo() ) + ",'9999999999G0') = " + oidToString( oid ) );
 		query.exec();
 	}
 
@@ -439,11 +455,12 @@ bool SqlDbBackend::createSchema()
 	Property prop;
 	uint i;
 
-	m_db->exec( "ROLLBACK;" );
-	// This s
+	//m_db->exec( "ROLLBACK;" );
+
+	// This sequence is incremented every time a new object is created
 	m_db->exec( "CREATE SEQUENCE seq_dboid;" );
 
-	// This sequence is incremented every time an record is created or modified and is used in the dbseq field that will be created in each table.
+	// This sequence is incremented every time a record is created or modified and is used in the dbseq field that will be created in each table.
 	m_db->exec( "CREATE SEQUENCE seq_dbseq;" );
 
 	// Create the tables
@@ -452,34 +469,33 @@ bool SqlDbBackend::createSchema()
 	ClassInfo *currentClass;
 	for ( ; it != end; ++it ) {
 		currentClass = *it;
-		// We need to create an object because it's the only way to iterate through the class properties right now
+		// We need to create an object because it's the only way to iterate through a class' properties right now
 		object = currentClass->createInstance();
-		exec = "CREATE TABLE " + tableName( object )+ " ( dboid BIGINT PRIMARY KEY, dbseq BIGINT NOT NULL, ";
+		exec = "CREATE TABLE " +  currentClass->name().lower() + " ( dboid BIGINT PRIMARY KEY, dbseq BIGINT NOT NULL, ";
 
+		// Create properties fields
 		PropertyIterator pIt( object->propertiesBegin() );
 		PropertyIterator pEnd( object->propertiesEnd() );
 		for ( ; pIt != pEnd; ++pIt ) {
 			prop = *pIt;
-			kdDebug() << "propietat: " << prop.name() << endl;
+			kdDebug() << "property: " << prop.name() << endl;
 			exec += prop.name() + " " + sqlType( prop.type() ) + ", ";
 		}
 		delete object;
 
+		// Create related objects fields
 		RelatedObjectsConstIterator oIt( currentClass->objectsBegin() );
 		RelatedObjectsConstIterator oEnd( currentClass->objectsEnd() );
 		RelatedObject *rObj;
 		for ( ; oIt != oEnd; ++oIt ) {
 			rObj = *oIt;
-			exec += tableName( rObj->name() ) + " BIGINT DEFAULT NULL, ";
-			constraints << tableName( rObj->name() );
+			exec += rObj->name().lower() + " BIGINT DEFAULT NULL, ";
+			constraints << currentClass->name().lower() + "-" + rObj->name().lower() + "-" + rObj->relatedClassInfo()->name().lower();
 			//constraints << rObj->name();
 			//constraints << tableName( object ) + "-" + tableName( oIt.key() );
 		}
 
-
-		// Cerquem en el conjunt de classes quines tenen referències del tipus N - 1
-		// amb la classe actual.
-
+		// Search in all the classes if they have N - 1 relations with the current class
 		ClassInfoIterator cIt( Classes::begin() );
 		ClassInfoIterator cEnd( Classes::end() );
 		ClassInfo *cInfo;
@@ -491,10 +507,8 @@ bool SqlDbBackend::createSchema()
 			for ( ; colIt != colEnd; ++colIt ) {
 				rCol = *colIt;
 				if ( rCol->childrenClassInfo()->name() == currentClass->name() && rCol->isNToOne() ) {
-					QString str;
-					str = rCol->name();
-					exec += str.replace( "-", "_" ) + " BIGINT DEFAULT NULL, ";
-					constraints << tableName( rCol->name() );
+					exec += rCol->name().lower() + " BIGINT DEFAULT NULL, ";
+					constraints << currentClass->name().lower() + "-" + rCol->name().lower() + "-" + rCol->parentClassInfo()->name().lower();
 					//constraints << rCol->name();
 					//constraints << tableName( object ) + "-" + tableName( obj );
 				}
@@ -506,8 +520,8 @@ bool SqlDbBackend::createSchema()
 		RelatedCollection *col;
 		for ( ; colIt != colEnd; ++colIt ) {
 			col = *colIt;
-			if ( ! tables.grep( tableName( col ) ).count() > 0 && ! col->isNToOne() ) {
-				tables << tableName( col ) + "-"  + filterFieldName( col ) + "-" + idFieldName( col );
+			if ( ! tables.grep( col->name() ).count() > 0 && ! col->isNToOne() ) {
+				tables << col->name().lower() + "-"  + filterFieldName( col ).lower() + "-" + idFieldName( col ).lower();
 			}
 		}
 
@@ -524,7 +538,7 @@ bool SqlDbBackend::createSchema()
 	for ( i = 0; i < tables.count(); ++i ) {
 		list = QStringList::split( QString( "-" ), tables[ i ] );
 		kdDebug() << "Creant taula... " << list[0] << endl;
-   		exec = "CREATE TABLE " + list[ 0 ] + " ( " + list[ 1 ] + " BIGINT NOT NULL REFERENCES " + list[ 1 ] + ", "+ list[ 2 ] + " BIGINT NOT NULL REFERENCES "+ list[2] +", dbseq BIGINT NOT NULL , PRIMARY KEY( "+ list[1] +" , " + list[2] +"  ) );";
+   		exec = "CREATE TABLE " + list[ 0 ] + " ( " + list[ 1 ] + " BIGINT NOT NULL REFERENCES " + list[ 1 ] + ", "+ list[ 2 ] + " BIGINT NOT NULL REFERENCES " + list[2] +", dbseq BIGINT NOT NULL , PRIMARY KEY( "+ list[1] +" , " + list[2] + " ) );";
 
 		kdDebug() << exec << endl;
 		m_db->exec( exec );
@@ -533,7 +547,7 @@ bool SqlDbBackend::createSchema()
 
 	for ( i = 0; i < constraints.count(); ++i ) {
 		list = QStringList::split( QString( "-" ), constraints[ i ] );
-		exec = "ALTER TABLE " + list[ 0 ] + " ADD FOREIGN KEY (" + list[ 1 ] + ") REFERENCES " + list[ 1 ] + "( dboid )";
+		exec = "ALTER TABLE " + list[ 0 ] + " ADD FOREIGN KEY (" + list[ 1 ] + ") REFERENCES " + list[ 2 ] + "( dboid )";
 		kdDebug() << exec << endl;
 		m_db->exec( exec );
 	}
@@ -585,7 +599,7 @@ SqlDbBackend* SqlDbBackend::SqlBackend( )
 
 bool SqlDbBackend::hasChanged( Object * object )
 {
-	QSqlSelectCursor cursor( "SELECT dbseq FROM " + tableName( object ) + " WHERE to_number( dboid, '9999999999G0') = " + oidToString( object->oid() ) );
+	QSqlSelectCursor cursor( "SELECT dbseq FROM " + object->classInfo()->name() + " WHERE to_number( dboid, '9999999999G0') = " + oidToString( object->oid() ) );
 
 	// Is it been deleted?
 	if ( ! cursor.next() )
@@ -614,10 +628,13 @@ Commits the current transaction
 */
 bool SqlDbBackend::commit()
 {
-	m_db->exec( "BEGIN;" );
+	kdDebug() << k_funcinfo << endl;
+	//m_db->exec( "BEGIN;" );
+	//m_db->
+	m_db->transaction();
 	m_db->exec( "SET CONSTRAINTS ALL DEFERRED;" );
 	QMapIterator<OidType, Object*> it( Manager::self()->begin() );
-	QMapIterator<OidType, Object*> end( Manager::self()->begin() );
+	QMapIterator<OidType, Object*> end( Manager::self()->end() );
 	Object *obj;
 	for ( ; it != end; ++it ) {
 		obj = (*it);
@@ -627,11 +644,9 @@ bool SqlDbBackend::commit()
 		}
 	}
 
-
 	QMap<OidType, QMap<QString, QPair<OidType, bool> > > &relations = Manager::self()->relations();
 	QMapIterator<OidType, QMap<QString, QPair<OidType, bool> > > mit( relations.begin() );
 	QMapIterator<OidType, QMap<QString, QPair<OidType, bool> > > mend( relations.end() );
-
 	for ( ; mit != mend; ++mit ) {
 		QMapIterator<QString, QPair<OidType, bool> > mmit( (*mit).begin() );
 		QMapIterator<QString, QPair<OidType, bool> > mmend( (*mit).end() );
@@ -642,25 +657,37 @@ bool SqlDbBackend::commit()
 		}
 	}
 
-	QMap<OidType, QMap<QString, Collection*> > m_collections;
-
-
-
+	commitCollections();
 
 	m_db->exec( "COMMIT;" );
 
-
-
-//	start();
 	return true;
 }
+
+void SqlDbBackend::commitCollections()
+{
+	QMap<OidType, QMap<QString, Collection*> > m_collections;
+
+	QMapIterator<OidType, QMap<QString, Collection*> > cit( Manager::self()->collections().begin() ) ;
+	QMapIterator<OidType, QMap<QString, Collection*> > cend( Manager::self()->collections().end() );
+	Collection *c;
+	for ( ; cit != cend; ++cit ) {
+		QMapIterator<QString, Collection*> it( (*cit).begin() );
+		QMapIterator<QString, Collection*> end( (*cit).end() );
+		for ( ; it != end; ++it ) {
+			c = *it;
+			if ( c->modified() ) {
+//				save( c );
+			}
+		}
+	}
+}
+
 
 /*!
 Aborts the current transaction
 */
 bool SqlDbBackend::rollback()
 {
-	m_db->exec( "ROLLBACK;" );
-	start();
 	return true;
 }

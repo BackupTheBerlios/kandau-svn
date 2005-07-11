@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2004 by Albert Cervera Areny                            *
- *   albertca.com                                                   *
+ *   albertca@hotpop.com                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -24,14 +24,14 @@
 #include <labels.h>
 
 #include "article.h"
-#include "order.h"
+#include "customerorder.h"
 
 ICLASS( Article );
 
 void Article::createRelations()
 {
 	OBJECT( Article );
-	COLLECTION( Order );
+	COLLECTION( CustomerOrder );
 }
 
 void Article::createLabels()

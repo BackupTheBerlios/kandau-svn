@@ -37,7 +37,7 @@
 
 #include "article.h"
 #include "customer.h"
-#include "order.h"
+#include "customerorder.h"
 
 TestBackendTest::TestBackendTest()
     : Tester()
@@ -241,7 +241,7 @@ void TestBackendTest::general()
 	customer->setCountry( "Australia" );
 	//customer->save();
 
-	ObjectRef<Order> order = Order::create();
+	ObjectRef<CustomerOrder> order = CustomerOrder::create();
 	order->setNumber( 040001 );
 	order->setDate( QDate::currentDate() );
 	order->setCustomer( customer );
@@ -276,7 +276,7 @@ void TestBackendTest::general()
 	ObjectIterator it4( first->orders()->begin() );
 	ObjectIterator end4( first->orders()->end() );
 	for ( ; it4 != end4; ++it4 ) {
-		Order *o = (Order*)*it4;
+		CustomerOrder *o = (CustomerOrder*)*it4;
 		kdDebug() << "=> [" << oidToString( o->oid() ) << ";" << QString::number( o->number() ) << "," << o->date().toString() << "]" << endl;
 	}
 	kdDebug() << "LAST" << endl;
@@ -297,7 +297,7 @@ void TestBackendTest::general()
 	ObjectIterator it3( first->orders()->begin() );
 	ObjectIterator end3( first->orders()->end() );
 	for ( ; it3 != end3; ++it3 ) {
-		Order *o = (Order*)*it3;
+		CustomerOrder *o = (CustomerOrder*)*it3;
 		kdDebug() << "=> [" << oidToString( o->oid() ) << ";" << QString::number( o->number() ) << "," << o->date().toString() << "]" << endl;
 	}
 	CHECK( order->articles()->count(), 45 );
@@ -308,9 +308,9 @@ void TestBackendTest::references()
 	kdDebug() << k_funcinfo << endl;
 	Manager::self()->reset();
 
-	ObjectRef<Order> o1 = Order::create();
+	ObjectRef<CustomerOrder> o1 = CustomerOrder::create();
 	CHECK( o1->oid(), 1 );
-	ObjectRef<Order> o2 = Order::create();
+	ObjectRef<CustomerOrder> o2 = CustomerOrder::create();
 	CHECK( o2->oid(), 2 );
 
 	o1->setOrder( o2 );
@@ -318,8 +318,8 @@ void TestBackendTest::references()
 	CHECK( o2->order()->oid(), 1 );
 
 	o2->setOrder( 0 );
-	CHECK( o2->order(), (Order*)0 );
-	CHECK( o1->order(), (Order*)0 );
+	CHECK( o2->order(), (CustomerOrder*)0 );
+	CHECK( o1->order(), (CustomerOrder*)0 );
 
 	o1->remove();
 	o2->remove();
@@ -330,8 +330,8 @@ void TestBackendTest::rollback()
 {
 	kdDebug() << k_funcinfo << endl;
 	Manager::self()->reset();
-	ObjectRef<Order> o1 = Order::create();
-	ObjectRef<Order> o2 = Order::create();
+	ObjectRef<CustomerOrder> o1 = CustomerOrder::create();
+	ObjectRef<CustomerOrder> o2 = CustomerOrder::create();
 	o1->setOrder( o2 );
 	CHECK( Manager::self()->count(), 2 );
 	CHECK( Manager::self()->rollback(), true );
@@ -343,8 +343,8 @@ void TestBackendTest::commit()
 	kdDebug() << k_funcinfo << endl;
 	uint num = 0;
 	Manager::self()->reset();
-	ObjectRef<Order> o1 = Order::create();
-	ObjectRef<Order> o2 = Order::create();
+	ObjectRef<CustomerOrder> o1 = CustomerOrder::create();
+	ObjectRef<CustomerOrder> o2 = CustomerOrder::create();
 	o1->setOrder( o2 );
 	CHECK( Manager::self()->count(), num + 2 );
 	CHECK( Manager::self()->commit(), true );

@@ -75,11 +75,11 @@
   <kdevdebugger>
     <general>
       <dbgshell>libtool</dbgshell>
-      <programargs></programargs>
-      <gdbpath></gdbpath>
-      <configGdbScript></configGdbScript>
-      <runShellScript></runShellScript>
-      <runGdbScript></runGdbScript>
+      <programargs/>
+      <gdbpath/>
+      <configGdbScript/>
+      <runShellScript/>
+      <runGdbScript/>
       <breakonloadinglibs>true</breakonloadinglibs>
       <separatetty>false</separatetty>
       <floatingtoolbar>false</floatingtoolbar>
@@ -128,10 +128,8 @@
     </general>
     <configurations>
       <default>
-        <envvars>
-          <envvar value="/opt/kde3/lib" name="LD_LIBRARY_PATH" />
-        </envvars>
-        <configargs>--enable-debug=full --prefix=/opt/kde3 --with-qt-dir=/opt/kde3</configargs>
+        <envvars/>
+        <configargs>--enable-debug=full --prefix=/opt/kde3</configargs>
         <builddir/>
         <topsourcedir/>
         <cppflags>-DDEBUG</cppflags>
@@ -170,10 +168,9 @@
     <references>
       <pcs>KDElibs</pcs>
       <pcs>Qt</pcs>
-      <pcs>kandau</pcs>
     </references>
     <creategettersetter>
-      <prefixGet></prefixGet>
+      <prefixGet/>
       <prefixSet>set</prefixSet>
       <prefixVariable>m_,_</prefixVariable>
       <parameterName>theValue</parameterName>
@@ -190,11 +187,15 @@
   </kdevdocumentation>
   <kdevvisualadvance>
     <emulator>VisualBoyAdvance</emulator>
-    <binary></binary>
-    <addOptions></addOptions>
+    <binary/>
+    <addOptions/>
     <terminal>false</terminal>
     <fullscreen>false</fullscreen>
     <graphicFilter>-f0</graphicFilter>
     <scaling>-1</scaling>
   </kdevvisualadvance>
+  <ctagspart>
+    <customArguments/>
+    <customTagfilePath/>
+  </ctagspart>
 </kdevelop>

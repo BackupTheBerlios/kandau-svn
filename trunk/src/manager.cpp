@@ -520,6 +520,7 @@ void Manager::removeRelation( const Object* object, const QString& relationName,
 
 void Manager::setRelation( const OidType& oid, ClassInfo* classInfo, const QString& relationName, const OidType& oidRelated, bool recursive )
 {
+	assert( classInfo );
 	kdDebug() << "Hello from setRelation" << endl;
 	QString relation = ClassInfo::relationName( relationName, classInfo->name() );
 	kdDebug() << "SETRELATION: " << relation << endl;
@@ -542,6 +543,7 @@ void Manager::setRelation( const OidType& oid, ClassInfo* classInfo, const QStri
 			return;
 		} else {
 			// There is an error !!!
+			kdDebug() << "ClassInfo: " << classInfo->name() << ", Relation: " << relation << endl;
 			assert( false );
 		}
 	}
@@ -678,4 +680,14 @@ void Manager::reset()
 	m_relations.clear();
 	m_objects.clear();
 	m_dbBackend->reset();
+}
+
+QMap<OidType, QMap<QString, QPair<OidType, bool> > >& Manager::relations()
+{
+	return m_relations;
+}
+
+QMap<OidType, QMap<QString, Collection*> >& Manager::collections()
+{
+	return m_collections;
 }

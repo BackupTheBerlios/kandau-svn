@@ -78,7 +78,7 @@ void RelatedObject::cacheData()
 	} else {
 		m_oneToOne = false;
 	}
-	
+
 	/*
 	// Only if we haven't been explicitly told that it is N-to-N we will
 	// search in the related class
@@ -213,7 +213,7 @@ void ClassInfo::addObject( const QString& className, const QString& relationName
 void ClassInfo::addCollection( const QString& className, const QString& relationName, bool nToOne )
 {
 	QString name;
-	
+
 	if ( relationName.isNull() )
 		name = ClassInfo::relationName( className, m_name );
 	else
@@ -317,12 +317,12 @@ QString ClassInfo::relationName( const QString& relation, const QString& classNa
 {
 	if ( ! Classes::contains( relation ) )
 		return relation;
-	
+
 	QStringList list;
 	list << relation;
 	list << className;
 	list.sort();
-	return list.join( "-" );
+	return list.join( "_" );
 }
 
 /* TmpClass */

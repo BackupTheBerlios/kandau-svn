@@ -257,7 +257,6 @@ bool XmlDbBackend::remove( Collection* /*collection*/, const OidType& /*object*/
 	return true;
 }
 
-/* Database Schema related functions */
 bool XmlDbBackend::createSchema()
 {
 	return true;

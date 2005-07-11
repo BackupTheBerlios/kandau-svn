@@ -21,20 +21,23 @@
 
 #include <kdebug.h>
 
-#include <sqldbbackend.h>
+#include <inmemorysqldbbackend.h>
 #include <manager.h>
 #include <object.h>
 
-#include "sqlbackendtest.h"
+#include "inmemorysqlbackendtest.h"
 #include "customerorder.h"
 #include "article.h"
 #include "customer.h"
 
-void SqlBackendTest::commit()
+void InMemorySqlBackendTest::commit()
 {
 	ObjectRef<CustomerOrder> order = CustomerOrder::create();
 	order->setNumber( 50000 );
 	order->setDate( QDate::currentDate() );
+
+	printClasses();
+	
 	order->setOrder( order );
 
 	ObjectRef<Article> a1 = Article::create();
@@ -47,7 +50,7 @@ void SqlBackendTest::commit()
 	a2->setCode( "2" );
 	a2->setLabel( "Article Two" );
 	a2->setDescription( "Description of article number two" );
-	a1->setArticle( a2 );
+	//a1->setArticle( a2 );
 
 	ObjectRef<Customer> c = Customer::create();
 	c->setCode( "0001" );
@@ -57,19 +60,54 @@ void SqlBackendTest::commit()
 	c->setZipCode( "Zip Code" );
 	c->setCountry( "Country" );
 	order->setCustomer( c );
-
-	Manager::self()->commit();
 }
 
-void SqlBackendTest::rollback()
+void InMemorySqlBackendTest::rollback()
 {
 }
 
-void SqlBackendTest::allTests()
+void InMemorySqlBackendTest::printClasses()
 {
-//	Classes::setup();
+	kdDebug() << k_funcinfo << endl;
+
+	ClassInfoIterator cit( Classes::begin() );
+	ClassInfoIterator cend( Classes::end() );
+	ClassInfo *current;
+	for ( ; cit != cend; ++cit ) {
+		current = (*cit);
+
+		kdDebug() << "Class: " << current->name() << endl;
+		kdDebug() << "    Objects:" << endl;
+		RelatedObjectsIterator oit( current->objectsBegin() );
+		RelatedObjectsIterator oend( current->objectsEnd() );
+		RelatedObject *obj;
+		for ( ; oit != oend; ++oit ) {
+			obj = (*oit);
+			QString n;
+			n = obj->isOneToOne() ? "1-1" : "N-1";
+			kdDebug() << "        Name: " << obj->name() << "  Class: " << obj->relatedClassInfo()->name() << "  Relation: " << n << endl;
+		}
+
+		kdDebug() << "    Collections:" << endl;
+		RelatedCollectionsIterator lit( current->collectionsBegin() );
+		RelatedCollectionsIterator lend( current->collectionsEnd() );
+		RelatedCollection *col;
+		for ( ; lit != lend; ++lit ) {
+			col = (*lit);
+
+			QString n;
+			n = col->isNToOne() ? "N-1" : "N-N";
+			kdDebug() << "        Name: " << col->name() << "  Class: " << col->childrenClassInfo()->name() << "  Relation: " << n << endl;
+		}
+	}
+}
+
+
+void InMemorySqlBackendTest::allTests()
+{
+	Classes::setup();
 	QSqlDatabase *db = QSqlDatabase::addDatabase( "QPSQL7" );
-	db->setDatabaseName( "test" );
+	db->setDatabaseName( "testinmemory" );
 	db->setUserName( "albert" );
 	db->setPassword( "" );
 	db->setHostName( "localhost" );
@@ -77,7 +115,7 @@ void SqlBackendTest::allTests()
 		kdDebug() << "Failed to open database: " << db->lastError().text() << endl;
 		return;
 	}
-	DbBackendIface *backend = new SqlDbBackend( db );
+	DbBackendIface *backend = new InMemorySqlDbBackend( db );
 
 	m_manager = new Manager( backend );
 	m_manager->createSchema();
@@ -87,3 +125,4 @@ void SqlBackendTest::allTests()
 
 	delete m_manager;
 }
+

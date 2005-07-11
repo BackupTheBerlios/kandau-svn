@@ -154,8 +154,8 @@ protected:
 	void removeObjectReferences( const OidType& oid, Filter filter );
 
 public:
-	QMap<OidType, QMap<QString, QPair<OidType, bool> > >& relations() const;
-	QMap<OidType, QMap<QString, Collection*> >& collections() const;
+	QMap<OidType, QMap<QString, QPair<OidType, bool> > >& relations();
+	QMap<OidType, QMap<QString, Collection*> >& collections();
 
 private:
 	/*

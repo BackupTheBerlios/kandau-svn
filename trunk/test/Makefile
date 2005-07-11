@@ -16,10 +16,10 @@
 
 SHELL = /bin/sh
 
-srcdir = .
-top_srcdir = ..
-VPATH = .
-prefix = /usr/local/kde
+srcdir = /home/albert/kandau/test
+top_srcdir = /home/albert/kandau
+VPATH = /home/albert/kandau/test
+prefix = /opt/kde3
 exec_prefix = ${prefix}
 
 bindir = ${exec_prefix}/bin
@@ -39,10 +39,10 @@ pkglibdir = $(libdir)/kandau
 pkgincludedir = $(includedir)/kandau
 top_builddir = ..
 
-ACLOCAL = ${SHELL} /home/albert/prog/kandau/admin/missing --run aclocal-1.6
+ACLOCAL = ${SHELL} /home/albert/kandau/admin/missing --run aclocal-1.6
 AUTOCONF = $(SHELL) $(top_srcdir)/admin/cvs.sh configure || touch configure
-AUTOMAKE = ${SHELL} /home/albert/prog/kandau/admin/missing --run automake-1.6
-AUTOHEADER = ${SHELL} /home/albert/prog/kandau/admin/missing --run autoheader
+AUTOMAKE = ${SHELL} /home/albert/kandau/admin/missing --run automake-1.6
+AUTOHEADER = ${SHELL} /home/albert/kandau/admin/missing --run autoheader
 
 am__cd = CDPATH="$${ZSH_VERSION+.}$(PATH_SEPARATOR)" && cd
 INSTALL = /usr/bin/install -c -p
@@ -70,9 +70,9 @@ target_triplet = i686-pc-linux-gnu
 EXEEXT = 
 OBJEXT = o
 PATH_SEPARATOR = :
-AMTAR = ${SHELL} /home/albert/prog/kandau/admin/missing --run tar
+AMTAR = ${SHELL} /home/albert/kandau/admin/missing --run tar
 AR = ar
-ARTSCCONFIG = /usr/bin/artsc-config
+ARTSCCONFIG = /opt/kde3/bin/artsc-config
 AS = @AS@
 AUTODIRS = 
 AWK = gawk
@@ -81,8 +81,8 @@ CONF_FILES =  $(top_srcdir)/./admin/configure.in.min $(top_srcdir)/configure.in.
 CPP = gcc -E
 CXX = g++
 CXXCPP = g++ -E
-DCOPIDL = /usr/bin/dcopidl
-DCOPIDL2CPP = /usr/bin/dcopidl2cpp
+DCOPIDL = /opt/kde3/bin/dcopidl
+DCOPIDL2CPP = /opt/kde3/bin/dcopidl2cpp
 DCOPIDLNG = 
 DCOP_DEPENDENCIES = $(DCOPIDL)
 DEPDIR = .deps
@@ -108,12 +108,12 @@ JAVAH = @JAVAH@
 JVMLIBS = @JVMLIBS@
 KCFG_DEPENDENCIES = 
 KCONFIG_COMPILER = 
-KDECONFIG = /usr/bin/kde-config
+KDECONFIG = /opt/kde3/bin/kde-config
 KDE_EXTRA_RPATH = 
 KDE_HAS_DOXYGEN = @KDE_HAS_DOXYGEN@
 KDE_HAVE_DOT = @KDE_HAVE_DOT@
-KDE_INCLUDES = -I/usr/include/kde
-KDE_LDFLAGS = -L/usr/lib
+KDE_INCLUDES = -I/opt/kde3/include
+KDE_LDFLAGS = -L/opt/kde3/lib
 KDE_MT_LDFLAGS = 
 KDE_MT_LIBS = -lpthread
 KDE_NO_UNDEFINED = -Wl,--no-undefined -Wl,--allow-shlib-undefined
@@ -174,8 +174,8 @@ LIB_X11 = -lX11 $(LIBSOCKET)
 LIB_XEXT = -lXext
 LIB_XRENDER = 
 LN_S = ln -s
-MCOPIDL = /usr/bin/mcopidl
-MEINPROC = /usr/bin/meinproc
+MCOPIDL = /opt/kde3/bin/mcopidl
+MEINPROC = /opt/kde3/bin/meinproc
 MOC = /usr/share/qt3/bin/moc
 MSGFMT = /usr/bin/msgfmt
 NOOPT_CFLAGS = -O0
@@ -210,7 +210,7 @@ USE_EXCEPTIONS = -fexceptions
 USE_RTTI = 
 USE_THREADS = 
 VERSION = 0.1
-WOVERLOADED_VIRTUAL = 
+WOVERLOADED_VIRTUAL = -Woverloaded-virtual
 XGETTEXT = /usr/bin/xgettext
 XMLLINT = /usr/bin/xmllint
 XPMINC = @XPMINC@
@@ -220,11 +220,11 @@ X_INCLUDES = -I/usr/X11R6/include
 X_LDFLAGS = -L/usr/X11R6/lib
 X_PRE_LIBS = 
 X_RPATH = -R $(x_libraries)
-all_includes = -I/usr/include/kde -I/usr/share/qt3/include -I/usr/X11R6/include 
-all_libraries = -L/usr/X11R6/lib -L/usr/share/qt3/lib -L/usr/lib 
+all_includes = -I/opt/kde3/include -I/usr/share/qt3/include -I/usr/X11R6/include 
+all_libraries = -L/usr/X11R6/lib -L/usr/share/qt3/lib -L/opt/kde3/lib 
 am__include = include
 am__quote = 
-install_sh = /home/albert/prog/kandau/admin/install-sh
+install_sh = /home/albert/kandau/admin/install-sh
 jni_includes = @jni_includes@
 kde_appsdir = ${datadir}/applnk
 kde_bindir = ${exec_prefix}/bin
@@ -232,11 +232,11 @@ kde_confdir = ${datadir}/config
 kde_datadir = ${datadir}/apps
 kde_htmldir = ${datadir}/doc/HTML
 kde_icondir = ${datadir}/icons
-kde_includes = /usr/include/kde
+kde_includes = /opt/kde3/include
 kde_kcfgdir = ${datadir}/config.kcfg
-kde_libraries = /usr/lib
-kde_libs_htmldir = /usr/share/doc/kde/HTML
-kde_libs_prefix = /usr
+kde_libraries = /opt/kde3/lib
+kde_libs_htmldir = /opt/kde3/share/doc/HTML
+kde_libs_prefix = /opt/kde3
 kde_locale = ${datadir}/locale
 kde_mimedir = ${datadir}/mimelnk
 kde_moduledir = ${libdir}/kde3
@@ -247,7 +247,7 @@ kde_sounddir = ${datadir}/sounds
 kde_styledir = ${libdir}/kde3/plugins/styles
 kde_templatesdir = ${datadir}/templates
 kde_wallpaperdir = ${datadir}/wallpapers
-kde_widgetdir = /usr/lib/kde3/plugins/designer
+kde_widgetdir = /opt/kde3/lib/kde3/plugins/designer
 kdeinitdir = $(kde_moduledir)
 qt_includes = /usr/share/qt3/include
 qt_libraries = /usr/share/qt3/lib
@@ -262,15 +262,16 @@ check_PROGRAMS = kunittest
 
 #>- METASOURCES = AUTO
 
-kunittest_SOURCES = main.cpp kunittest.cpp qtester.cpp article.cpp order.cpp \
-	customer.cpp testbackendtest.cpp sqlbackendtest.cpp xmlbackendtest.cpp
+kunittest_SOURCES = main.cpp kunittest.cpp qtester.cpp article.cpp customer.cpp \
+	testbackendtest.cpp sqlbackendtest.cpp xmlbackendtest.cpp customerorder.cpp \
+	inmemorysqlbackendtest.cpp
 
 kunittest_LDFLAGS = $(all_libraries) $(KDE_RPATH) -lkandau \
-	-L/usr/local/kde/lib
+	-L/usr/local/kde/lib -lpq
 
 kunittest_LDADD = $(LIB_KDECORE)
-noinst_HEADERS = article.h order.h customer.h testbackendtest.h \
-	sqlbackendtest.h xmlbackendtest.h dcopiface.h objectaccess.h
+noinst_HEADERS = article.h customer.h testbackendtest.h sqlbackendtest.h \
+	xmlbackendtest.h dcopiface.h objectaccess.h customerorder.h inmemorysqlbackendtest.h
 
 AM_CFLAGS = -I../src
 AM_CXXFLAGS = -I../src
@@ -280,10 +281,10 @@ dcoptester_LDFLAGS = $(all_libraries) $(KDE_RPATH) -lkandau \
 
 dcoptester_LDADD = $(LIB_KDECORE) $(LIB_KDEUI)
 #>- dcoptester_SOURCES = dcoptester.cpp objectaccess.cpp dcopiface.skel article.cpp \
-#>- 	customer.cpp order.cpp
+#>- 	customer.cpp customerorder.cpp
 #>+ 2
 dcoptester_SOURCES=dcoptester.cpp objectaccess.cpp  article.cpp \
-	customer.cpp order.cpp dcopiface_skel.cpp
+	customer.cpp customerorder.cpp dcopiface_skel.cpp
 
 subdir = test
 mkinstalldirs = $(SHELL) $(top_srcdir)/admin/mkinstalldirs
@@ -294,57 +295,65 @@ check_PROGRAMS = kunittest$(EXEEXT)
 PROGRAMS = $(bin_PROGRAMS)
 
 am_dcoptester_OBJECTS = dcoptester.$(OBJEXT) objectaccess.$(OBJEXT) \
-	article.$(OBJEXT) customer.$(OBJEXT) order.$(OBJEXT)
+	article.$(OBJEXT) customer.$(OBJEXT) customerorder.$(OBJEXT)
 #>- dcoptester_OBJECTS = $(am_dcoptester_OBJECTS)
 #>+ 6
 dcoptester_final_OBJECTS = dcoptester.all_cpp.o 
 dcoptester_nofinal_OBJECTS = dcoptester.$(OBJEXT) objectaccess.$(OBJEXT) \
-	article.$(OBJEXT) customer.$(OBJEXT) order.$(OBJEXT) dcopiface_skel.$(OBJEXT)\
+	article.$(OBJEXT) customer.$(OBJEXT) customerorder.$(OBJEXT) dcopiface_skel.$(OBJEXT)\
 objectaccess.moc.o 
 dcoptester_OBJECTS = $(dcoptester_nofinal_OBJECTS)
 #dcoptester_OBJECTS = $(dcoptester_final_OBJECTS)
 dcoptester_DEPENDENCIES =
 am_kunittest_OBJECTS = main.$(OBJEXT) kunittest.$(OBJEXT) \
-	qtester.$(OBJEXT) article.$(OBJEXT) order.$(OBJEXT) \
-	customer.$(OBJEXT) testbackendtest.$(OBJEXT) \
-	sqlbackendtest.$(OBJEXT) xmlbackendtest.$(OBJEXT)
+	qtester.$(OBJEXT) article.$(OBJEXT) customer.$(OBJEXT) \
+	testbackendtest.$(OBJEXT) sqlbackendtest.$(OBJEXT) \
+	xmlbackendtest.$(OBJEXT) customerorder.$(OBJEXT) \
+	inmemorysqlbackendtest.$(OBJEXT)
 #>- kunittest_OBJECTS = $(am_kunittest_OBJECTS)
-#>+ 7
+#>+ 8
 kunittest_final_OBJECTS = kunittest.all_cpp.o 
 kunittest_nofinal_OBJECTS = main.$(OBJEXT) kunittest.$(OBJEXT) \
-	qtester.$(OBJEXT) article.$(OBJEXT) order.$(OBJEXT) \
-	customer.$(OBJEXT) testbackendtest.$(OBJEXT) \
-	sqlbackendtest.$(OBJEXT) xmlbackendtest.$(OBJEXT)
+	qtester.$(OBJEXT) article.$(OBJEXT) customer.$(OBJEXT) \
+	testbackendtest.$(OBJEXT) sqlbackendtest.$(OBJEXT) \
+	xmlbackendtest.$(OBJEXT) customerorder.$(OBJEXT) \
+	inmemorysqlbackendtest.$(OBJEXT)
 kunittest_OBJECTS = $(kunittest_nofinal_OBJECTS)
 #kunittest_OBJECTS = $(kunittest_final_OBJECTS)
 kunittest_DEPENDENCIES =
 
 DEFS = -DHAVE_CONFIG_H
 DEFAULT_INCLUDES =  -I. -I$(srcdir) -I$(top_builddir)
-CPPFLAGS =  -DQT_THREAD_SUPPORT  -D_REENTRANT
+CPPFLAGS =  -DQT_THREAD_SUPPORT -DDEBUG -D_REENTRANT
 LDFLAGS = 
 LIBS = 
 depcomp = $(SHELL) $(top_srcdir)/admin/depcomp
 am__depfiles_maybe = depfiles
 #>- DEP_FILES = ./$(DEPDIR)/article.Po ./$(DEPDIR)/customer.Po \
-#>- 	./$(DEPDIR)/dcoptester.Po ./$(DEPDIR)/kunittest.Po \
-#>- 	./$(DEPDIR)/main.Po ./$(DEPDIR)/objectaccess.Po \
-#>- 	./$(DEPDIR)/order.Po ./$(DEPDIR)/qtester.Po \
+#>- 	./$(DEPDIR)/customerorder.Po \
+#>- 	./$(DEPDIR)/dcoptester.Po \
+#>- 	./$(DEPDIR)/inmemorysqlbackendtest.Po \
+#>- 	./$(DEPDIR)/kunittest.Po ./$(DEPDIR)/main.Po \
+#>- 	./$(DEPDIR)/objectaccess.Po ./$(DEPDIR)/qtester.Po \
 #>- 	./$(DEPDIR)/sqlbackendtest.Po \
 #>- 	./$(DEPDIR)/testbackendtest.Po \
 #>- 	./$(DEPDIR)/xmlbackendtest.Po
-#>+ 14
+#>+ 18
 #DEP_FILES =  $(DEPDIR)/dcopiface_skel.P $(DEPDIR)/objectaccess.moc.P  $(DEPDIR)/dcoptester.all_cpp.P $(DEPDIR)/kunittest.all_cpp.P ./$(DEPDIR)/article.Po ./$(DEPDIR)/customer.Po \
-#		./$(DEPDIR)/dcoptester.Po ./$(DEPDIR)/kunittest.Po \
-#		./$(DEPDIR)/main.Po ./$(DEPDIR)/objectaccess.Po \
-#		./$(DEPDIR)/order.Po ./$(DEPDIR)/qtester.Po \
+#		./$(DEPDIR)/customerorder.Po \
+#		./$(DEPDIR)/dcoptester.Po \
+#		./$(DEPDIR)/inmemorysqlbackendtest.Po \
+#		./$(DEPDIR)/kunittest.Po ./$(DEPDIR)/main.Po \
+#		./$(DEPDIR)/objectaccess.Po ./$(DEPDIR)/qtester.Po \
 #		./$(DEPDIR)/sqlbackendtest.Po \
 #		./$(DEPDIR)/testbackendtest.Po \
 #		./$(DEPDIR)/xmlbackendtest.Po
 DEP_FILES =  $(DEPDIR)/dcopiface_skel.P $(DEPDIR)/objectaccess.moc.P ./$(DEPDIR)/article.Po ./$(DEPDIR)/customer.Po \
-		./$(DEPDIR)/dcoptester.Po ./$(DEPDIR)/kunittest.Po \
-		./$(DEPDIR)/main.Po ./$(DEPDIR)/objectaccess.Po \
-		./$(DEPDIR)/order.Po ./$(DEPDIR)/qtester.Po \
+		./$(DEPDIR)/customerorder.Po \
+		./$(DEPDIR)/dcoptester.Po \
+		./$(DEPDIR)/inmemorysqlbackendtest.Po \
+		./$(DEPDIR)/kunittest.Po ./$(DEPDIR)/main.Po \
+		./$(DEPDIR)/objectaccess.Po ./$(DEPDIR)/qtester.Po \
 		./$(DEPDIR)/sqlbackendtest.Po \
 		./$(DEPDIR)/testbackendtest.Po \
 		./$(DEPDIR)/xmlbackendtest.Po
@@ -366,7 +375,7 @@ CXXLD = $(CXX)
 #>+ 2
 CXXLINK = $(LIBTOOL) --mode=link --tag=CXX $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(KDE_CXXFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-CXXFLAGS = -Wnon-virtual-dtor -Wno-long-long -Wundef -Wall -W -Wpointer-arith -Wwrite-strings -ansi -D_XOPEN_SOURCE=500 -D_BSD_SOURCE -Wcast-align -Wconversion -Wchar-subscripts -O2 -Wformat-security -Wmissing-format-attribute -fno-exceptions -fno-check-new -fno-common
+CXXFLAGS = -Wnon-virtual-dtor -Wno-long-long -Wundef -Wall -W -Wpointer-arith -Wwrite-strings -ansi -D_XOPEN_SOURCE=500 -D_BSD_SOURCE -Wcast-align -Wconversion -Wchar-subscripts -g3 -fno-inline -Wformat-security -Wmissing-format-attribute -fno-exceptions -fno-check-new -fno-common
 DIST_SOURCES = $(dcoptester_SOURCES) $(kunittest_SOURCES)
 HEADERS = $(noinst_HEADERS)
 
@@ -439,11 +448,12 @@ distclean-compile:
 
 include ./$(DEPDIR)/article.Po
 include ./$(DEPDIR)/customer.Po
+include ./$(DEPDIR)/customerorder.Po
 include ./$(DEPDIR)/dcoptester.Po
+include ./$(DEPDIR)/inmemorysqlbackendtest.Po
 include ./$(DEPDIR)/kunittest.Po
 include ./$(DEPDIR)/main.Po
 include ./$(DEPDIR)/objectaccess.Po
-include ./$(DEPDIR)/order.Po
 include ./$(DEPDIR)/qtester.Po
 include ./$(DEPDIR)/sqlbackendtest.Po
 include ./$(DEPDIR)/testbackendtest.Po
@@ -646,11 +656,11 @@ dcopiface_skel.cpp: dcopiface.kidl
 	$(DCOPIDL2CPP) --c++-suffix cpp --no-signals --no-stub dcopiface.kidl
 
 #>+ 3
-order.moc: $(srcdir)/order.h
-	$(MOC) $(srcdir)/order.h -o order.moc
+customerorder.moc: $(srcdir)/customerorder.h
+	$(MOC) $(srcdir)/customerorder.h -o customerorder.moc
 
 #>+ 2
-mocs: order.moc
+mocs: customerorder.moc
 
 #>+ 3
 customer.moc: $(srcdir)/customer.h
@@ -689,7 +699,7 @@ mocs: qtester.moc
 
 #>+ 3
 clean-metasources:
-	-rm -f  order.moc customer.moc article.moc kunittest.moc objectaccess.moc.cpp qtester.moc
+	-rm -f  customerorder.moc customer.moc article.moc kunittest.moc objectaccess.moc.cpp qtester.moc
 
 #>+ 2
 KDE_DIST=database.xml kunittest.h tester.h qtester.h 
@@ -732,11 +742,11 @@ bcheck-am:
 
 
 #>+ 11
-dcoptester.all_cpp.cpp: $(srcdir)/Makefile.in $(srcdir)/dcoptester.cpp $(srcdir)/objectaccess.cpp $(srcdir)/article.cpp $(srcdir)/customer.cpp $(srcdir)/order.cpp dcopiface_skel.cpp objectaccess.moc.cpp  customer.moc order.moc article.moc
+dcoptester.all_cpp.cpp: $(srcdir)/Makefile.in $(srcdir)/dcoptester.cpp $(srcdir)/objectaccess.cpp $(srcdir)/article.cpp $(srcdir)/customer.cpp $(srcdir)/customerorder.cpp dcopiface_skel.cpp objectaccess.moc.cpp  customer.moc customerorder.moc article.moc
 	@echo 'creating dcoptester.all_cpp.cpp ...'; \
 	rm -f dcoptester.all_cpp.files dcoptester.all_cpp.final; \
 	echo "#define KDE_USE_FINAL 1" >> dcoptester.all_cpp.final; \
-	for file in dcoptester.cpp objectaccess.cpp article.cpp customer.cpp order.cpp dcopiface_skel.cpp objectaccess.moc.cpp ; do \
+	for file in dcoptester.cpp objectaccess.cpp article.cpp customer.cpp customerorder.cpp dcopiface_skel.cpp objectaccess.moc.cpp ; do \
 	  echo "#include \"$$file\"" >> dcoptester.all_cpp.files; \
 	  test ! -f $(srcdir)/$$file || egrep '^#pragma +implementation' $(srcdir)/$$file >> dcoptester.all_cpp.final; \
 	done; \
@@ -744,11 +754,11 @@ dcoptester.all_cpp.cpp: $(srcdir)/Makefile.in $(srcdir)/dcoptester.cpp $(srcdir)
 	rm -f dcoptester.all_cpp.final dcoptester.all_cpp.files
 
 #>+ 11
-kunittest.all_cpp.cpp: $(srcdir)/Makefile.in $(srcdir)/main.cpp $(srcdir)/kunittest.cpp $(srcdir)/qtester.cpp $(srcdir)/article.cpp $(srcdir)/order.cpp $(srcdir)/customer.cpp $(srcdir)/testbackendtest.cpp $(srcdir)/sqlbackendtest.cpp $(srcdir)/xmlbackendtest.cpp objectaccess.moc.cpp  customer.moc order.moc article.moc kunittest.moc qtester.moc
+kunittest.all_cpp.cpp: $(srcdir)/Makefile.in $(srcdir)/main.cpp $(srcdir)/kunittest.cpp $(srcdir)/qtester.cpp $(srcdir)/article.cpp $(srcdir)/customer.cpp $(srcdir)/testbackendtest.cpp $(srcdir)/sqlbackendtest.cpp $(srcdir)/xmlbackendtest.cpp $(srcdir)/customerorder.cpp $(srcdir)/inmemorysqlbackendtest.cpp objectaccess.moc.cpp  customer.moc customerorder.moc article.moc kunittest.moc qtester.moc
 	@echo 'creating kunittest.all_cpp.cpp ...'; \
 	rm -f kunittest.all_cpp.files kunittest.all_cpp.final; \
 	echo "#define KDE_USE_FINAL 1" >> kunittest.all_cpp.final; \
-	for file in main.cpp kunittest.cpp qtester.cpp article.cpp order.cpp customer.cpp testbackendtest.cpp sqlbackendtest.cpp xmlbackendtest.cpp objectaccess.moc.cpp ; do \
+	for file in main.cpp kunittest.cpp qtester.cpp article.cpp customer.cpp testbackendtest.cpp sqlbackendtest.cpp xmlbackendtest.cpp customerorder.cpp inmemorysqlbackendtest.cpp objectaccess.moc.cpp ; do \
 	  echo "#include \"$$file\"" >> kunittest.all_cpp.files; \
 	  test ! -f $(srcdir)/$$file || egrep '^#pragma +implementation' $(srcdir)/$$file >> kunittest.all_cpp.final; \
 	done; \
@@ -786,13 +796,13 @@ kde-rpo-clean:
 #>+ 13
 nmcheck: 
 kunittest.lo: kunittest.moc 
-order.o: order.moc 
 nmcheck-am: nmcheck
+customerorder.lo: customerorder.moc 
+customerorder.o: customerorder.moc 
 article.lo: article.moc 
 customer.o: customer.moc 
 customer.lo: customer.moc 
 article.o: article.moc 
-kunittest.o: kunittest.moc 
 qtester.lo: qtester.moc 
+kunittest.o: kunittest.moc 
 qtester.o: qtester.moc 
-order.lo: order.moc 

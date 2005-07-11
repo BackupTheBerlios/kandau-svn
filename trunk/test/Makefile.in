@@ -262,15 +262,16 @@ check_PROGRAMS = kunittest
 
 #>- METASOURCES = AUTO
 
-kunittest_SOURCES = main.cpp kunittest.cpp qtester.cpp article.cpp order.cpp \
-	customer.cpp testbackendtest.cpp sqlbackendtest.cpp xmlbackendtest.cpp
+kunittest_SOURCES = main.cpp kunittest.cpp qtester.cpp article.cpp customer.cpp \
+	testbackendtest.cpp sqlbackendtest.cpp xmlbackendtest.cpp customerorder.cpp \
+	inmemorysqlbackendtest.cpp
 
 kunittest_LDFLAGS = $(all_libraries) $(KDE_RPATH) -lkandau \
-	-L/usr/local/kde/lib
+	-L/usr/local/kde/lib -lpq
 
 kunittest_LDADD = $(LIB_KDECORE)
-noinst_HEADERS = article.h order.h customer.h testbackendtest.h \
-	sqlbackendtest.h xmlbackendtest.h dcopiface.h objectaccess.h
+noinst_HEADERS = article.h customer.h testbackendtest.h sqlbackendtest.h \
+	xmlbackendtest.h dcopiface.h objectaccess.h customerorder.h inmemorysqlbackendtest.h
 
 AM_CFLAGS = -I../src
 AM_CXXFLAGS = -I../src
@@ -280,10 +281,10 @@ dcoptester_LDFLAGS = $(all_libraries) $(KDE_RPATH) -lkandau \
 
 dcoptester_LDADD = $(LIB_KDECORE) $(LIB_KDEUI)
 #>- dcoptester_SOURCES = dcoptester.cpp objectaccess.cpp dcopiface.skel article.cpp \
-#>- 	customer.cpp order.cpp
+#>- 	customer.cpp customerorder.cpp
 #>+ 2
 dcoptester_SOURCES=dcoptester.cpp objectaccess.cpp  article.cpp \
-	customer.cpp order.cpp dcopiface_skel.cpp
+	customer.cpp customerorder.cpp dcopiface_skel.cpp
 
 subdir = test
 mkinstalldirs = $(SHELL) $(top_srcdir)/admin/mkinstalldirs
@@ -294,27 +295,29 @@ check_PROGRAMS = kunittest$(EXEEXT)
 PROGRAMS = $(bin_PROGRAMS)
 
 am_dcoptester_OBJECTS = dcoptester.$(OBJEXT) objectaccess.$(OBJEXT) \
-	article.$(OBJEXT) customer.$(OBJEXT) order.$(OBJEXT)
+	article.$(OBJEXT) customer.$(OBJEXT) customerorder.$(OBJEXT)
 #>- dcoptester_OBJECTS = $(am_dcoptester_OBJECTS)
 #>+ 6
 dcoptester_final_OBJECTS = dcoptester.all_cpp.o 
 dcoptester_nofinal_OBJECTS = dcoptester.$(OBJEXT) objectaccess.$(OBJEXT) \
-	article.$(OBJEXT) customer.$(OBJEXT) order.$(OBJEXT) dcopiface_skel.$(OBJEXT)\
+	article.$(OBJEXT) customer.$(OBJEXT) customerorder.$(OBJEXT) dcopiface_skel.$(OBJEXT)\
 objectaccess.moc.o 
 @KDE_USE_FINAL_FALSE@dcoptester_OBJECTS = $(dcoptester_nofinal_OBJECTS)
 @KDE_USE_FINAL_TRUE@dcoptester_OBJECTS = $(dcoptester_final_OBJECTS)
 dcoptester_DEPENDENCIES =
 am_kunittest_OBJECTS = main.$(OBJEXT) kunittest.$(OBJEXT) \
-	qtester.$(OBJEXT) article.$(OBJEXT) order.$(OBJEXT) \
-	customer.$(OBJEXT) testbackendtest.$(OBJEXT) \
-	sqlbackendtest.$(OBJEXT) xmlbackendtest.$(OBJEXT)
+	qtester.$(OBJEXT) article.$(OBJEXT) customer.$(OBJEXT) \
+	testbackendtest.$(OBJEXT) sqlbackendtest.$(OBJEXT) \
+	xmlbackendtest.$(OBJEXT) customerorder.$(OBJEXT) \
+	inmemorysqlbackendtest.$(OBJEXT)
 #>- kunittest_OBJECTS = $(am_kunittest_OBJECTS)
-#>+ 7
+#>+ 8
 kunittest_final_OBJECTS = kunittest.all_cpp.o 
 kunittest_nofinal_OBJECTS = main.$(OBJEXT) kunittest.$(OBJEXT) \
-	qtester.$(OBJEXT) article.$(OBJEXT) order.$(OBJEXT) \
-	customer.$(OBJEXT) testbackendtest.$(OBJEXT) \
-	sqlbackendtest.$(OBJEXT) xmlbackendtest.$(OBJEXT)
+	qtester.$(OBJEXT) article.$(OBJEXT) customer.$(OBJEXT) \
+	testbackendtest.$(OBJEXT) sqlbackendtest.$(OBJEXT) \
+	xmlbackendtest.$(OBJEXT) customerorder.$(OBJEXT) \
+	inmemorysqlbackendtest.$(OBJEXT)
 @KDE_USE_FINAL_FALSE@kunittest_OBJECTS = $(kunittest_nofinal_OBJECTS)
 @KDE_USE_FINAL_TRUE@kunittest_OBJECTS = $(kunittest_final_OBJECTS)
 kunittest_DEPENDENCIES =
@@ -327,24 +330,30 @@ LIBS = @LIBS@
 depcomp = $(SHELL) $(top_srcdir)/admin/depcomp
 am__depfiles_maybe = depfiles
 #>- @AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/article.Po ./$(DEPDIR)/customer.Po \
-#>- @AMDEP_TRUE@	./$(DEPDIR)/dcoptester.Po ./$(DEPDIR)/kunittest.Po \
-#>- @AMDEP_TRUE@	./$(DEPDIR)/main.Po ./$(DEPDIR)/objectaccess.Po \
-#>- @AMDEP_TRUE@	./$(DEPDIR)/order.Po ./$(DEPDIR)/qtester.Po \
+#>- @AMDEP_TRUE@	./$(DEPDIR)/customerorder.Po \
+#>- @AMDEP_TRUE@	./$(DEPDIR)/dcoptester.Po \
+#>- @AMDEP_TRUE@	./$(DEPDIR)/inmemorysqlbackendtest.Po \
+#>- @AMDEP_TRUE@	./$(DEPDIR)/kunittest.Po ./$(DEPDIR)/main.Po \
+#>- @AMDEP_TRUE@	./$(DEPDIR)/objectaccess.Po ./$(DEPDIR)/qtester.Po \
 #>- @AMDEP_TRUE@	./$(DEPDIR)/sqlbackendtest.Po \
 #>- @AMDEP_TRUE@	./$(DEPDIR)/testbackendtest.Po \
 #>- @AMDEP_TRUE@	./$(DEPDIR)/xmlbackendtest.Po
-#>+ 14
+#>+ 18
 @AMDEP_TRUE@@KDE_USE_FINAL_TRUE@DEP_FILES =  $(DEPDIR)/dcopiface_skel.P $(DEPDIR)/objectaccess.moc.P  $(DEPDIR)/dcoptester.all_cpp.P $(DEPDIR)/kunittest.all_cpp.P ./$(DEPDIR)/article.Po ./$(DEPDIR)/customer.Po \
-@AMDEP_TRUE@@KDE_USE_FINAL_TRUE@	@AMDEP_TRUE@	./$(DEPDIR)/dcoptester.Po ./$(DEPDIR)/kunittest.Po \
-@AMDEP_TRUE@@KDE_USE_FINAL_TRUE@	@AMDEP_TRUE@	./$(DEPDIR)/main.Po ./$(DEPDIR)/objectaccess.Po \
-@AMDEP_TRUE@@KDE_USE_FINAL_TRUE@	@AMDEP_TRUE@	./$(DEPDIR)/order.Po ./$(DEPDIR)/qtester.Po \
+@AMDEP_TRUE@@KDE_USE_FINAL_TRUE@	@AMDEP_TRUE@	./$(DEPDIR)/customerorder.Po \
+@AMDEP_TRUE@@KDE_USE_FINAL_TRUE@	@AMDEP_TRUE@	./$(DEPDIR)/dcoptester.Po \
+@AMDEP_TRUE@@KDE_USE_FINAL_TRUE@	@AMDEP_TRUE@	./$(DEPDIR)/inmemorysqlbackendtest.Po \
+@AMDEP_TRUE@@KDE_USE_FINAL_TRUE@	@AMDEP_TRUE@	./$(DEPDIR)/kunittest.Po ./$(DEPDIR)/main.Po \
+@AMDEP_TRUE@@KDE_USE_FINAL_TRUE@	@AMDEP_TRUE@	./$(DEPDIR)/objectaccess.Po ./$(DEPDIR)/qtester.Po \
 @AMDEP_TRUE@@KDE_USE_FINAL_TRUE@	@AMDEP_TRUE@	./$(DEPDIR)/sqlbackendtest.Po \
 @AMDEP_TRUE@@KDE_USE_FINAL_TRUE@	@AMDEP_TRUE@	./$(DEPDIR)/testbackendtest.Po \
 @AMDEP_TRUE@@KDE_USE_FINAL_TRUE@	@AMDEP_TRUE@	./$(DEPDIR)/xmlbackendtest.Po
 @AMDEP_TRUE@@KDE_USE_FINAL_FALSE@DEP_FILES =  $(DEPDIR)/dcopiface_skel.P $(DEPDIR)/objectaccess.moc.P ./$(DEPDIR)/article.Po ./$(DEPDIR)/customer.Po \
-@AMDEP_TRUE@@KDE_USE_FINAL_FALSE@	@AMDEP_TRUE@	./$(DEPDIR)/dcoptester.Po ./$(DEPDIR)/kunittest.Po \
-@AMDEP_TRUE@@KDE_USE_FINAL_FALSE@	@AMDEP_TRUE@	./$(DEPDIR)/main.Po ./$(DEPDIR)/objectaccess.Po \
-@AMDEP_TRUE@@KDE_USE_FINAL_FALSE@	@AMDEP_TRUE@	./$(DEPDIR)/order.Po ./$(DEPDIR)/qtester.Po \
+@AMDEP_TRUE@@KDE_USE_FINAL_FALSE@	@AMDEP_TRUE@	./$(DEPDIR)/customerorder.Po \
+@AMDEP_TRUE@@KDE_USE_FINAL_FALSE@	@AMDEP_TRUE@	./$(DEPDIR)/dcoptester.Po \
+@AMDEP_TRUE@@KDE_USE_FINAL_FALSE@	@AMDEP_TRUE@	./$(DEPDIR)/inmemorysqlbackendtest.Po \
+@AMDEP_TRUE@@KDE_USE_FINAL_FALSE@	@AMDEP_TRUE@	./$(DEPDIR)/kunittest.Po ./$(DEPDIR)/main.Po \
+@AMDEP_TRUE@@KDE_USE_FINAL_FALSE@	@AMDEP_TRUE@	./$(DEPDIR)/objectaccess.Po ./$(DEPDIR)/qtester.Po \
 @AMDEP_TRUE@@KDE_USE_FINAL_FALSE@	@AMDEP_TRUE@	./$(DEPDIR)/sqlbackendtest.Po \
 @AMDEP_TRUE@@KDE_USE_FINAL_FALSE@	@AMDEP_TRUE@	./$(DEPDIR)/testbackendtest.Po \
 @AMDEP_TRUE@@KDE_USE_FINAL_FALSE@	@AMDEP_TRUE@	./$(DEPDIR)/xmlbackendtest.Po
@@ -439,11 +448,12 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/article.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/customer.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/customerorder.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dcoptester.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/inmemorysqlbackendtest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/kunittest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/objectaccess.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/order.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/qtester.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sqlbackendtest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/testbackendtest.Po@am__quote@
@@ -646,11 +656,11 @@ dcopiface_skel.cpp: dcopiface.kidl
 	$(DCOPIDL2CPP) --c++-suffix cpp --no-signals --no-stub dcopiface.kidl
 
 #>+ 3
-order.moc: $(srcdir)/order.h
-	$(MOC) $(srcdir)/order.h -o order.moc
+customerorder.moc: $(srcdir)/customerorder.h
+	$(MOC) $(srcdir)/customerorder.h -o customerorder.moc
 
 #>+ 2
-mocs: order.moc
+mocs: customerorder.moc
 
 #>+ 3
 customer.moc: $(srcdir)/customer.h
@@ -689,7 +699,7 @@ mocs: qtester.moc
 
 #>+ 3
 clean-metasources:
-	-rm -f  order.moc customer.moc article.moc kunittest.moc objectaccess.moc.cpp qtester.moc
+	-rm -f  customerorder.moc customer.moc article.moc kunittest.moc objectaccess.moc.cpp qtester.moc
 
 #>+ 2
 KDE_DIST=database.xml kunittest.h tester.h qtester.h 
@@ -732,11 +742,11 @@ bcheck-am:
 
 
 #>+ 11
-dcoptester.all_cpp.cpp: $(srcdir)/Makefile.in $(srcdir)/dcoptester.cpp $(srcdir)/objectaccess.cpp $(srcdir)/article.cpp $(srcdir)/customer.cpp $(srcdir)/order.cpp dcopiface_skel.cpp objectaccess.moc.cpp  customer.moc order.moc article.moc
+dcoptester.all_cpp.cpp: $(srcdir)/Makefile.in $(srcdir)/dcoptester.cpp $(srcdir)/objectaccess.cpp $(srcdir)/article.cpp $(srcdir)/customer.cpp $(srcdir)/customerorder.cpp dcopiface_skel.cpp objectaccess.moc.cpp  customer.moc customerorder.moc article.moc
 	@echo 'creating dcoptester.all_cpp.cpp ...'; \
 	rm -f dcoptester.all_cpp.files dcoptester.all_cpp.final; \
 	echo "#define KDE_USE_FINAL 1" >> dcoptester.all_cpp.final; \
-	for file in dcoptester.cpp objectaccess.cpp article.cpp customer.cpp order.cpp dcopiface_skel.cpp objectaccess.moc.cpp ; do \
+	for file in dcoptester.cpp objectaccess.cpp article.cpp customer.cpp customerorder.cpp dcopiface_skel.cpp objectaccess.moc.cpp ; do \
 	  echo "#include \"$$file\"" >> dcoptester.all_cpp.files; \
 	  test ! -f $(srcdir)/$$file || egrep '^#pragma +implementation' $(srcdir)/$$file >> dcoptester.all_cpp.final; \
 	done; \
@@ -744,11 +754,11 @@ dcoptester.all_cpp.cpp: $(srcdir)/Makefile.in $(srcdir)/dcoptester.cpp $(srcdir)
 	rm -f dcoptester.all_cpp.final dcoptester.all_cpp.files
 
 #>+ 11
-kunittest.all_cpp.cpp: $(srcdir)/Makefile.in $(srcdir)/main.cpp $(srcdir)/kunittest.cpp $(srcdir)/qtester.cpp $(srcdir)/article.cpp $(srcdir)/order.cpp $(srcdir)/customer.cpp $(srcdir)/testbackendtest.cpp $(srcdir)/sqlbackendtest.cpp $(srcdir)/xmlbackendtest.cpp objectaccess.moc.cpp  customer.moc order.moc article.moc kunittest.moc qtester.moc
+kunittest.all_cpp.cpp: $(srcdir)/Makefile.in $(srcdir)/main.cpp $(srcdir)/kunittest.cpp $(srcdir)/qtester.cpp $(srcdir)/article.cpp $(srcdir)/customer.cpp $(srcdir)/testbackendtest.cpp $(srcdir)/sqlbackendtest.cpp $(srcdir)/xmlbackendtest.cpp $(srcdir)/customerorder.cpp $(srcdir)/inmemorysqlbackendtest.cpp objectaccess.moc.cpp  customer.moc customerorder.moc article.moc kunittest.moc qtester.moc
 	@echo 'creating kunittest.all_cpp.cpp ...'; \
 	rm -f kunittest.all_cpp.files kunittest.all_cpp.final; \
 	echo "#define KDE_USE_FINAL 1" >> kunittest.all_cpp.final; \
-	for file in main.cpp kunittest.cpp qtester.cpp article.cpp order.cpp customer.cpp testbackendtest.cpp sqlbackendtest.cpp xmlbackendtest.cpp objectaccess.moc.cpp ; do \
+	for file in main.cpp kunittest.cpp qtester.cpp article.cpp customer.cpp testbackendtest.cpp sqlbackendtest.cpp xmlbackendtest.cpp customerorder.cpp inmemorysqlbackendtest.cpp objectaccess.moc.cpp ; do \
 	  echo "#include \"$$file\"" >> kunittest.all_cpp.files; \
 	  test ! -f $(srcdir)/$$file || egrep '^#pragma +implementation' $(srcdir)/$$file >> kunittest.all_cpp.final; \
 	done; \
@@ -786,13 +796,13 @@ kde-rpo-clean:
 #>+ 13
 nmcheck: 
 kunittest.lo: kunittest.moc 
-order.o: order.moc 
 nmcheck-am: nmcheck
+customerorder.lo: customerorder.moc 
+customerorder.o: customerorder.moc 
 article.lo: article.moc 
 customer.o: customer.moc 
 customer.lo: customer.moc 
 article.o: article.moc 
-kunittest.o: kunittest.moc 
 qtester.lo: qtester.moc 
+kunittest.o: kunittest.moc 
 qtester.o: qtester.moc 
-order.lo: order.moc 

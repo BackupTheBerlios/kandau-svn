@@ -32,7 +32,6 @@ class RelatedCollection;
 @author Albert Cervera Areny
 */
 
-//#define SQL( name ) _#name_
 #define ERROR( msg ) { kdDebug() << msg << endl; return false; }
 
 /*!
@@ -41,16 +40,10 @@ class RelatedCollection;
 class SqlDbBackend : public DbBackendIface
 {
 public:
-
-	/*!
-	La constructora SQLDataObjetManager espera com a paràmetre un apuntador a una
-	base de dades oberta.
-	*/
 	SqlDbBackend( QSqlDatabase *db );
 	virtual ~SqlDbBackend();
 
 	QSqlDatabase *database();
-
 
 	void setup();
 	void shutdown();
@@ -61,11 +54,9 @@ public:
 	*/
 	virtual bool load( const OidType& oid, Object *object );
 
-	/*
-	(Heredada de SQLObjectManagerIface)
-	*/
 //	virtual bool load( Collection *collection , QString criteria = "");
-	virtual bool load( Collection *collection);
+
+	virtual bool load( Collection *collection );
 
 	/*!
 	This function saves an object to the database using a pointer to an Object.
@@ -102,15 +93,6 @@ public:
 	virtual bool hasChanged( Object * object );
 
 	/*!
-	Aquesta funció retorna el nom de la taula corresponent a un objecte, actualment
-	retorna: className() + "_", però podria variar. La funció és pública per permetre
-	a aquelles aplicacions que necessitin accés directe a les taules de la base de dades
-	accedir als noms correctes de les taules.
-	*/
-	virtual QString tableName( const Object *object ) const;
-
-
-	/*!
 	Starts a transaction
 	 */
 	bool start();
@@ -125,33 +107,18 @@ public:
 	 */
 	bool rollback();
 
-	/*!
-	Té el mateix comportament que la funció anterior però a partir del nom d'una classe.
-	*/
-	virtual QString tableName( const QString &className ) const;
-
-	/*!
-	Genera un nou Oid a partir d'una seqüència de la base de dades.
-	*/
 	virtual OidType newOid();
 
 	virtual SqlDbBackend* SqlBackend( );
 
-	/*!
-	Aquesta funció no s'hereda de ObjectManagerIface. Hauria de ser protegida o privada,
-	però es fa pública per permetre hagilitzar aquelles funcions que treballen directament sobre
-	la base de dades i volen carregar objectes segons un criteri de consulta.
-	*/
-	virtual bool load( const QSqlCursor &cursor, Object *object );
-
 	virtual void reset() {};
 protected:
-	/*!
-	Retorna un nou número de seqüència. NO necessàriament ha de ser nou,
-	newSeq pot gestionar els números de seqüència com li doni la gana.
-	*/
+	virtual bool load( const QSqlCursor &cursor, Object *object );
+
+	virtual void commitCollections();
+
 	virtual SeqType newSeq();
-	virtual QString tableName( RelatedCollection *collection ) const;
+
 	virtual QString filterFieldName( RelatedCollection *collection ) const;
 	virtual OidType filterValue( Collection *collection ) const;
 	virtual QString idFieldName( RelatedCollection *collection ) const;

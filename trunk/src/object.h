@@ -156,7 +156,7 @@ private:
 	int m_pos;
 };
 
-
+// TODO: Add a method to SET the object like in setObject function of Object class.
 class ObjectIterator
 {
 public:

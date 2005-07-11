@@ -16,10 +16,10 @@
 
 SHELL = /bin/sh
 
-srcdir = .
-top_srcdir = ..
-VPATH = .
-prefix = /usr/local/kde
+srcdir = /home/albert/kandau/src
+top_srcdir = /home/albert/kandau
+VPATH = /home/albert/kandau/src
+prefix = /opt/kde3
 exec_prefix = ${prefix}
 
 bindir = ${exec_prefix}/bin
@@ -39,10 +39,10 @@ pkglibdir = $(libdir)/kandau
 pkgincludedir = $(includedir)/kandau
 top_builddir = ..
 
-ACLOCAL = ${SHELL} /home/albert/prog/kandau/admin/missing --run aclocal-1.6
+ACLOCAL = ${SHELL} /home/albert/kandau/admin/missing --run aclocal-1.6
 AUTOCONF = $(SHELL) $(top_srcdir)/admin/cvs.sh configure || touch configure
-AUTOMAKE = ${SHELL} /home/albert/prog/kandau/admin/missing --run automake-1.6
-AUTOHEADER = ${SHELL} /home/albert/prog/kandau/admin/missing --run autoheader
+AUTOMAKE = ${SHELL} /home/albert/kandau/admin/missing --run automake-1.6
+AUTOHEADER = ${SHELL} /home/albert/kandau/admin/missing --run autoheader
 
 am__cd = CDPATH="$${ZSH_VERSION+.}$(PATH_SEPARATOR)" && cd
 INSTALL = /usr/bin/install -c -p
@@ -70,9 +70,9 @@ target_triplet = i686-pc-linux-gnu
 EXEEXT = 
 OBJEXT = o
 PATH_SEPARATOR = :
-AMTAR = ${SHELL} /home/albert/prog/kandau/admin/missing --run tar
+AMTAR = ${SHELL} /home/albert/kandau/admin/missing --run tar
 AR = ar
-ARTSCCONFIG = /usr/bin/artsc-config
+ARTSCCONFIG = /opt/kde3/bin/artsc-config
 AS = @AS@
 AUTODIRS = 
 AWK = gawk
@@ -81,8 +81,8 @@ CONF_FILES =  $(top_srcdir)/./admin/configure.in.min $(top_srcdir)/configure.in.
 CPP = gcc -E
 CXX = g++
 CXXCPP = g++ -E
-DCOPIDL = /usr/bin/dcopidl
-DCOPIDL2CPP = /usr/bin/dcopidl2cpp
+DCOPIDL = /opt/kde3/bin/dcopidl
+DCOPIDL2CPP = /opt/kde3/bin/dcopidl2cpp
 DCOPIDLNG = 
 DCOP_DEPENDENCIES = $(DCOPIDL)
 DEPDIR = .deps
@@ -108,12 +108,12 @@ JAVAH = @JAVAH@
 JVMLIBS = @JVMLIBS@
 KCFG_DEPENDENCIES = 
 KCONFIG_COMPILER = 
-KDECONFIG = /usr/bin/kde-config
+KDECONFIG = /opt/kde3/bin/kde-config
 KDE_EXTRA_RPATH = 
 KDE_HAS_DOXYGEN = @KDE_HAS_DOXYGEN@
 KDE_HAVE_DOT = @KDE_HAVE_DOT@
-KDE_INCLUDES = -I/usr/include/kde
-KDE_LDFLAGS = -L/usr/lib
+KDE_INCLUDES = -I/opt/kde3/include
+KDE_LDFLAGS = -L/opt/kde3/lib
 KDE_MT_LDFLAGS = 
 KDE_MT_LIBS = -lpthread
 KDE_NO_UNDEFINED = -Wl,--no-undefined -Wl,--allow-shlib-undefined
@@ -174,8 +174,8 @@ LIB_X11 = -lX11 $(LIBSOCKET)
 LIB_XEXT = -lXext
 LIB_XRENDER = 
 LN_S = ln -s
-MCOPIDL = /usr/bin/mcopidl
-MEINPROC = /usr/bin/meinproc
+MCOPIDL = /opt/kde3/bin/mcopidl
+MEINPROC = /opt/kde3/bin/meinproc
 MOC = /usr/share/qt3/bin/moc
 MSGFMT = /usr/bin/msgfmt
 NOOPT_CFLAGS = -O0
@@ -210,7 +210,7 @@ USE_EXCEPTIONS = -fexceptions
 USE_RTTI = 
 USE_THREADS = 
 VERSION = 0.1
-WOVERLOADED_VIRTUAL = 
+WOVERLOADED_VIRTUAL = -Woverloaded-virtual
 XGETTEXT = /usr/bin/xgettext
 XMLLINT = /usr/bin/xmllint
 XPMINC = @XPMINC@
@@ -220,11 +220,11 @@ X_INCLUDES = -I/usr/X11R6/include
 X_LDFLAGS = -L/usr/X11R6/lib
 X_PRE_LIBS = 
 X_RPATH = -R $(x_libraries)
-all_includes = -I/usr/include/kde -I/usr/share/qt3/include -I/usr/X11R6/include 
-all_libraries = -L/usr/X11R6/lib -L/usr/share/qt3/lib -L/usr/lib 
+all_includes = -I/opt/kde3/include -I/usr/share/qt3/include -I/usr/X11R6/include 
+all_libraries = -L/usr/X11R6/lib -L/usr/share/qt3/lib -L/opt/kde3/lib 
 am__include = include
 am__quote = 
-install_sh = /home/albert/prog/kandau/admin/install-sh
+install_sh = /home/albert/kandau/admin/install-sh
 jni_includes = @jni_includes@
 kde_appsdir = ${datadir}/applnk
 kde_bindir = ${exec_prefix}/bin
@@ -232,11 +232,11 @@ kde_confdir = ${datadir}/config
 kde_datadir = ${datadir}/apps
 kde_htmldir = ${datadir}/doc/HTML
 kde_icondir = ${datadir}/icons
-kde_includes = /usr/include/kde
+kde_includes = /opt/kde3/include
 kde_kcfgdir = ${datadir}/config.kcfg
-kde_libraries = /usr/lib
-kde_libs_htmldir = /usr/share/doc/kde/HTML
-kde_libs_prefix = /usr
+kde_libraries = /opt/kde3/lib
+kde_libs_htmldir = /opt/kde3/share/doc/HTML
+kde_libs_prefix = /opt/kde3
 kde_locale = ${datadir}/locale
 kde_mimedir = ${datadir}/mimelnk
 kde_moduledir = ${libdir}/kde3
@@ -247,7 +247,7 @@ kde_sounddir = ${datadir}/sounds
 kde_styledir = ${libdir}/kde3/plugins/styles
 kde_templatesdir = ${datadir}/templates
 kde_wallpaperdir = ${datadir}/wallpapers
-kde_widgetdir = /usr/lib/kde3/plugins/designer
+kde_widgetdir = /opt/kde3/lib/kde3/plugins/designer
 kdeinitdir = $(kde_moduledir)
 qt_includes = /usr/share/qt3/include
 qt_libraries = /usr/share/qt3/lib
@@ -273,13 +273,15 @@ INCLUDES = $(all_includes)
 lib_LTLIBRARIES = libkandau.la
 libkandau_la_LDFLAGS = $(all_libraries)
 libkandau_la_SOURCES = collection.cpp dbbackendiface.cpp manager.cpp \
-	object.cpp oidtype.cpp testbackend.cpp labels.cpp sqldbbackend.cpp seqtype.cpp \
-	xmldbbackend.cpp classes.cpp
+		object.cpp oidtype.cpp testbackend.cpp labels.cpp sqldbbackend.cpp seqtype.cpp \
+		xmldbbackend.cpp classes.cpp inmemorysqldbbackend.cpp
 
 include_HEADERS = collection.h dbbackendiface.h defs.h manager.h \
 		object.h	oidtype.h testbackend.h xmldbbackend.h classes.h labels.h seqtype.h \
 	sqldbbackend.h
 
+
+noinst_HEADERS = inmemorysqldbbackend.h
 subdir = src
 mkinstalldirs = $(SHELL) $(top_srcdir)/admin/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/config.h
@@ -289,19 +291,19 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 libkandau_la_LIBADD =
 am_libkandau_la_OBJECTS = collection.lo dbbackendiface.lo manager.lo \
 	object.lo oidtype.lo testbackend.lo labels.lo sqldbbackend.lo \
-	seqtype.lo xmldbbackend.lo classes.lo
+	seqtype.lo xmldbbackend.lo classes.lo inmemorysqldbbackend.lo
 #>- libkandau_la_OBJECTS = $(am_libkandau_la_OBJECTS)
 #>+ 6
 libkandau_la_final_OBJECTS = libkandau_la.all_cpp.lo 
 libkandau_la_nofinal_OBJECTS = collection.lo dbbackendiface.lo manager.lo \
 	object.lo oidtype.lo testbackend.lo labels.lo sqldbbackend.lo \
-	seqtype.lo xmldbbackend.lo classes.lo
+	seqtype.lo xmldbbackend.lo classes.lo inmemorysqldbbackend.lo
 libkandau_la_OBJECTS = $(libkandau_la_nofinal_OBJECTS)
 #libkandau_la_OBJECTS = $(libkandau_la_final_OBJECTS)
 
 DEFS = -DHAVE_CONFIG_H
 DEFAULT_INCLUDES =  -I. -I$(srcdir) -I$(top_builddir)
-CPPFLAGS =  -DQT_THREAD_SUPPORT  -D_REENTRANT
+CPPFLAGS =  -DQT_THREAD_SUPPORT -DDEBUG -D_REENTRANT
 LDFLAGS = 
 LIBS = 
 depcomp = $(SHELL) $(top_srcdir)/admin/depcomp
@@ -309,16 +311,18 @@ am__depfiles_maybe = depfiles
 #>- DEP_FILES = ./$(DEPDIR)/classes.Plo \
 #>- 	./$(DEPDIR)/collection.Plo \
 #>- 	./$(DEPDIR)/dbbackendiface.Plo \
+#>- 	./$(DEPDIR)/inmemorysqldbbackend.Plo \
 #>- 	./$(DEPDIR)/labels.Plo ./$(DEPDIR)/manager.Plo \
 #>- 	./$(DEPDIR)/object.Plo ./$(DEPDIR)/oidtype.Plo \
 #>- 	./$(DEPDIR)/seqtype.Plo \
 #>- 	./$(DEPDIR)/sqldbbackend.Plo \
 #>- 	./$(DEPDIR)/testbackend.Plo \
 #>- 	./$(DEPDIR)/xmldbbackend.Plo
-#>+ 18
+#>+ 20
 #DEP_FILES =   $(DEPDIR)/libkandau_la.all_cpp.P ./$(DEPDIR)/classes.Plo \
 #		./$(DEPDIR)/collection.Plo \
 #		./$(DEPDIR)/dbbackendiface.Plo \
+#		./$(DEPDIR)/inmemorysqldbbackend.Plo \
 #		./$(DEPDIR)/labels.Plo ./$(DEPDIR)/manager.Plo \
 #		./$(DEPDIR)/object.Plo ./$(DEPDIR)/oidtype.Plo \
 #		./$(DEPDIR)/seqtype.Plo \
@@ -328,6 +332,7 @@ am__depfiles_maybe = depfiles
 DEP_FILES =  ./$(DEPDIR)/classes.Plo \
 		./$(DEPDIR)/collection.Plo \
 		./$(DEPDIR)/dbbackendiface.Plo \
+		./$(DEPDIR)/inmemorysqldbbackend.Plo \
 		./$(DEPDIR)/labels.Plo ./$(DEPDIR)/manager.Plo \
 		./$(DEPDIR)/object.Plo ./$(DEPDIR)/oidtype.Plo \
 		./$(DEPDIR)/seqtype.Plo \
@@ -352,11 +357,12 @@ CXXLD = $(CXX)
 #>+ 2
 CXXLINK = $(LIBTOOL) --mode=link --tag=CXX $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(KDE_CXXFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-CXXFLAGS = -Wnon-virtual-dtor -Wno-long-long -Wundef -Wall -W -Wpointer-arith -Wwrite-strings -ansi -D_XOPEN_SOURCE=500 -D_BSD_SOURCE -Wcast-align -Wconversion -Wchar-subscripts -O2 -Wformat-security -Wmissing-format-attribute -fno-exceptions -fno-check-new -fno-common
+CXXFLAGS = -Wnon-virtual-dtor -Wno-long-long -Wundef -Wall -W -Wpointer-arith -Wwrite-strings -ansi -D_XOPEN_SOURCE=500 -D_BSD_SOURCE -Wcast-align -Wconversion -Wchar-subscripts -g3 -fno-inline -Wformat-security -Wmissing-format-attribute -fno-exceptions -fno-check-new -fno-common
 DIST_SOURCES = $(libkandau_la_SOURCES)
-HEADERS = $(include_HEADERS)
+HEADERS = $(include_HEADERS) $(noinst_HEADERS)
 
-DIST_COMMON = $(include_HEADERS) Makefile.am Makefile.in
+DIST_COMMON = $(include_HEADERS) $(noinst_HEADERS) Makefile.am \
+	Makefile.in
 SOURCES = $(libkandau_la_SOURCES)
 
 #>- all: all-am
@@ -414,6 +420,7 @@ distclean-compile:
 include ./$(DEPDIR)/classes.Plo
 include ./$(DEPDIR)/collection.Plo
 include ./$(DEPDIR)/dbbackendiface.Plo
+include ./$(DEPDIR)/inmemorysqldbbackend.Plo
 include ./$(DEPDIR)/labels.Plo
 include ./$(DEPDIR)/manager.Plo
 include ./$(DEPDIR)/object.Plo
@@ -508,7 +515,9 @@ GTAGS:
 
 distclean-tags:
 	-rm -f TAGS ID GTAGS GRTAGS GSYMS GPATH
-DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
+#>- DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
+#>+ 1
+DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST) $(KDE_DIST)
 
 top_distdir = ..
 distdir = $(top_distdir)/$(PACKAGE)-$(VERSION)
@@ -642,6 +651,9 @@ clean-metasources:
 	-rm -f  object.moc
 
 #>+ 2
+KDE_DIST=DEADJOE 
+
+#>+ 2
 docs-am:
 
 #>+ 6
@@ -658,7 +670,7 @@ clean-bcheck:
 bcheck: bcheck-am
 
 bcheck-am:
-	@for i in $(include_HEADERS); do \
+	@for i in $(include_HEADERS) ; do \
 	    if test $(srcdir)/$$i -nt $$i.bchecktest.cc; then \
 	        echo "int main() {return 0;}" > $$i.bchecktest.cc ; \
 	        echo "#include \"$$i\"" >> $$i.bchecktest.cc ; \
@@ -674,11 +686,11 @@ bcheck-am:
 
 
 #>+ 11
-libkandau_la.all_cpp.cpp: $(srcdir)/Makefile.in $(srcdir)/collection.cpp $(srcdir)/dbbackendiface.cpp $(srcdir)/manager.cpp $(srcdir)/object.cpp $(srcdir)/oidtype.cpp $(srcdir)/testbackend.cpp $(srcdir)/labels.cpp $(srcdir)/sqldbbackend.cpp $(srcdir)/seqtype.cpp $(srcdir)/xmldbbackend.cpp $(srcdir)/classes.cpp  object.moc
+libkandau_la.all_cpp.cpp: $(srcdir)/Makefile.in $(srcdir)/collection.cpp $(srcdir)/dbbackendiface.cpp $(srcdir)/manager.cpp $(srcdir)/object.cpp $(srcdir)/oidtype.cpp $(srcdir)/testbackend.cpp $(srcdir)/labels.cpp $(srcdir)/sqldbbackend.cpp $(srcdir)/seqtype.cpp $(srcdir)/xmldbbackend.cpp $(srcdir)/classes.cpp $(srcdir)/inmemorysqldbbackend.cpp  object.moc
 	@echo 'creating libkandau_la.all_cpp.cpp ...'; \
 	rm -f libkandau_la.all_cpp.files libkandau_la.all_cpp.final; \
 	echo "#define KDE_USE_FINAL 1" >> libkandau_la.all_cpp.final; \
-	for file in collection.cpp dbbackendiface.cpp manager.cpp object.cpp oidtype.cpp testbackend.cpp labels.cpp sqldbbackend.cpp seqtype.cpp xmldbbackend.cpp classes.cpp ; do \
+	for file in collection.cpp dbbackendiface.cpp manager.cpp object.cpp oidtype.cpp testbackend.cpp labels.cpp sqldbbackend.cpp seqtype.cpp xmldbbackend.cpp classes.cpp inmemorysqldbbackend.cpp ; do \
 	  echo "#include \"$$file\"" >> libkandau_la.all_cpp.files; \
 	  test ! -f $(srcdir)/$$file || egrep '^#pragma +implementation' $(srcdir)/$$file >> libkandau_la.all_cpp.final; \
 	done; \
