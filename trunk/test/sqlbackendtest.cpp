@@ -20,6 +20,7 @@
 #include <qsqldatabase.h>
 
 #include <kdebug.h>
+#include <kprocess.h>
 
 #include <sqldbbackend.h>
 #include <manager.h>
@@ -67,9 +68,30 @@ void SqlBackendTest::rollback()
 
 void SqlBackendTest::allTests()
 {
-//	Classes::setup();
+	QString dbname = "test";
+
+	Classes::setup();
+
+	// Drop the database if already exists
+	KProcess *proc = new KProcess;
+	*proc << "dropdb";
+	*proc << dbname;
+	CHECK( proc->start(), true );
+	proc->wait();
+	delete proc;
+
+	// Create de database
+	proc = new KProcess;
+	*proc << "createdb";
+	*proc << dbname;
+	CHECK( proc->start(), true );
+	proc->wait();
+	CHECK( proc->normalExit(), true );
+	CHECK( proc->exitStatus(), 0 );
+	delete proc;
+
 	QSqlDatabase *db = QSqlDatabase::addDatabase( "QPSQL7" );
-	db->setDatabaseName( "test" );
+	db->setDatabaseName( dbname );
 	db->setUserName( "albert" );
 	db->setPassword( "" );
 	db->setHostName( "localhost" );
