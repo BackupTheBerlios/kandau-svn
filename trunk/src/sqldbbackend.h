@@ -63,6 +63,9 @@ public:
 	*/
 	virtual bool save( Object *object );
 
+	virtual bool save( Collection *collection );
+
+
 	/*!
 	This function deletes an object from the database from a pointer to the Object
 	*/

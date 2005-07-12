@@ -119,13 +119,27 @@ bool SqlDbBackend::load( const QSqlCursor &cursor, Object *object )
 
 	return true;
 }
-/*
+
 bool SqlDbBackend::save( Collection *collection )
 {
 	assert( collection );
+	m_db->exec( "DELETE FROM " + collection->collectionInfo()->name() + " WHERE " + collection->collectionInfo()->parentClassInfo()->name() + " = " + oidToString( collection->parentOid() ) );
 
+	QSqlCursor cursor( collection->collectionInfo()->name() );
+	QSqlRecord *record;
+
+	ObjectIterator it( collection->begin() );
+	ObjectIterator end( collection->end() );
+	for ( ; it != end; ++it ) {
+		record = cursor.primeInsert();
+		record->setValue( collection->collectionInfo()->parentClassInfo()->name(), collection->parentOid() );
+		record->setValue( collection->collectionInfo()->childrenClassInfo()->name(), (*it)->oid() );
+		record->setValue( "dbseq", newSeq() );
+		cursor.insert();
+	}
+	return true;
 }
-*/
+
 bool SqlDbBackend::save( Object *object )
 {
 	assert( object );
@@ -538,7 +552,7 @@ bool SqlDbBackend::createSchema()
 	for ( i = 0; i < tables.count(); ++i ) {
 		list = QStringList::split( QString( "-" ), tables[ i ] );
 		kdDebug() << "Creant taula... " << list[0] << endl;
-   		exec = "CREATE TABLE " + list[ 0 ] + " ( " + list[ 1 ] + " BIGINT NOT NULL REFERENCES " + list[ 1 ] + ", "+ list[ 2 ] + " BIGINT NOT NULL REFERENCES " + list[2] +", dbseq BIGINT NOT NULL , PRIMARY KEY( "+ list[1] +" , " + list[2] + " ) );";
+   		exec = "CREATE TABLE " + list[ 0 ] + " ( " + list[ 1 ] + " BIGINT NOT NULL REFERENCES " + list[ 1 ] + " DEFERRABLE INITIALLY DEFERRED, "+ list[ 2 ] + " BIGINT NOT NULL REFERENCES " + list[2] + " DEFERRABLE INITIALLY DEFERRED, dbseq BIGINT NOT NULL , PRIMARY KEY( "+ list[1] +" , " + list[2] + " ) );";
 
 		kdDebug() << exec << endl;
 		m_db->exec( exec );
@@ -547,7 +561,7 @@ bool SqlDbBackend::createSchema()
 
 	for ( i = 0; i < constraints.count(); ++i ) {
 		list = QStringList::split( QString( "-" ), constraints[ i ] );
-		exec = "ALTER TABLE " + list[ 0 ] + " ADD FOREIGN KEY (" + list[ 1 ] + ") REFERENCES " + list[ 2 ] + "( dboid )";
+		exec = "ALTER TABLE " + list[ 0 ] + " ADD FOREIGN KEY (" + list[ 1 ] + ") REFERENCES " + list[ 2 ] + "( dboid ) DEFERRABLE INITIALLY DEFERRED";
 		kdDebug() << exec << endl;
 		m_db->exec( exec );
 	}
@@ -629,10 +643,9 @@ Commits the current transaction
 bool SqlDbBackend::commit()
 {
 	kdDebug() << k_funcinfo << endl;
-	//m_db->exec( "BEGIN;" );
-	//m_db->
+
 	m_db->transaction();
-	m_db->exec( "SET CONSTRAINTS ALL DEFERRED;" );
+	m_db->exec( "SET CONSTRAINTS ALL DEFERRED" );
 	QMapIterator<OidType, Object*> it( Manager::self()->begin() );
 	QMapIterator<OidType, Object*> end( Manager::self()->end() );
 	Object *obj;
@@ -659,9 +672,7 @@ bool SqlDbBackend::commit()
 
 	commitCollections();
 
-	m_db->exec( "COMMIT;" );
-
-	return true;
+	return m_db->commit();
 }
 
 void SqlDbBackend::commitCollections()
@@ -677,7 +688,7 @@ void SqlDbBackend::commitCollections()
 		for ( ; it != end; ++it ) {
 			c = *it;
 			if ( c->modified() ) {
-//				save( c );
+				save( c );
 			}
 		}
 	}

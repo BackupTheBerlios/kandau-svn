@@ -1,17 +1,4 @@
   <Database>
-    <Order>
-      <dboid>1</dboid>
-      <Properties>
-        <number>50000</number>
-        <date>2005-05-08</date>
-      </Properties>
-      <Objects/>
-      <Collections>
-        <Article>
-          <oid>2</oid>
-        </Article>
-      </Collections>
-    </Order>
     <Article>
       <dboid>2</dboid>
       <Properties>
@@ -21,24 +8,9 @@
       </Properties>
       <Objects/>
       <Collections>
-        <Order>
-          <oid>1</oid>
-        </Order>
+        <CustomerOrder/>
       </Collections>
     </Article>
-    <Order>
-      <dboid>3</dboid>
-      <Properties>
-        <number>50000</number>
-        <date>2005-05-12</date>
-      </Properties>
-      <Objects/>
-      <Collections>
-        <Article>
-          <oid>4</oid>
-        </Article>
-      </Collections>
-    </Order>
     <Article>
       <dboid>4</dboid>
       <Properties>
@@ -48,9 +20,331 @@
       </Properties>
       <Objects/>
       <Collections>
-        <Order>
-          <oid>3</oid>
-        </Order>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <CustomerOrder>
+      <dboid>5</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-07-12</date>
+      </Properties>
+      <Objects/>
+      <Collections>
+        <Article>
+          <oid>6</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>6</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>Description of article number one</description>
+      </Properties>
+      <Objects/>
+      <Collections>
+        <CustomerOrder>
+          <oid>5</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <CustomerOrder>
+      <dboid>7</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-07-12</date>
+      </Properties>
+      <Objects/>
+      <Collections>
+        <Article>
+          <oid>8</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>8</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>Description of article number one</description>
+      </Properties>
+      <Objects/>
+      <Collections>
+        <CustomerOrder>
+          <oid>7</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <CustomerOrder>
+      <dboid>9</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-07-12</date>
+      </Properties>
+      <Objects/>
+      <Collections>
+        <Article>
+          <oid>10</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>10</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>Description of article number one</description>
+      </Properties>
+      <Objects/>
+      <Collections>
+        <CustomerOrder>
+          <oid>9</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <CustomerOrder>
+      <dboid>11</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-07-12</date>
+      </Properties>
+      <Objects/>
+      <Collections>
+        <Article>
+          <oid>12</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>12</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>Description of article number one</description>
+      </Properties>
+      <Objects/>
+      <Collections>
+        <CustomerOrder>
+          <oid>11</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <CustomerOrder>
+      <dboid>13</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-07-12</date>
+      </Properties>
+      <Objects/>
+      <Collections>
+        <Article>
+          <oid>14</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>14</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>Description of article number one</description>
+      </Properties>
+      <Objects/>
+      <Collections>
+        <CustomerOrder>
+          <oid>13</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <CustomerOrder>
+      <dboid>15</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-07-12</date>
+      </Properties>
+      <Objects/>
+      <Collections>
+        <Article>
+          <oid>16</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>16</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>Description of article number one</description>
+      </Properties>
+      <Objects/>
+      <Collections>
+        <CustomerOrder>
+          <oid>15</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <CustomerOrder>
+      <dboid>17</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-07-12</date>
+      </Properties>
+      <Objects/>
+      <Collections>
+        <Article>
+          <oid>18</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>18</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>Description of article number one</description>
+      </Properties>
+      <Objects/>
+      <Collections>
+        <CustomerOrder>
+          <oid>17</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <CustomerOrder>
+      <dboid>19</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-07-12</date>
+      </Properties>
+      <Objects/>
+      <Collections>
+        <Article>
+          <oid>20</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>20</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>Description of article number one</description>
+      </Properties>
+      <Objects/>
+      <Collections>
+        <CustomerOrder>
+          <oid>19</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <CustomerOrder>
+      <dboid>21</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-07-12</date>
+      </Properties>
+      <Objects/>
+      <Collections>
+        <Article>
+          <oid>22</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>22</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>Description of article number one</description>
+      </Properties>
+      <Objects/>
+      <Collections>
+        <CustomerOrder>
+          <oid>21</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <CustomerOrder>
+      <dboid>23</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-07-12</date>
+      </Properties>
+      <Objects/>
+      <Collections>
+        <Article>
+          <oid>24</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>24</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>Description of article number one</description>
+      </Properties>
+      <Objects/>
+      <Collections>
+        <CustomerOrder>
+          <oid>23</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <CustomerOrder>
+      <dboid>25</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-07-12</date>
+      </Properties>
+      <Objects/>
+      <Collections>
+        <Article>
+          <oid>26</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>26</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>Description of article number one</description>
+      </Properties>
+      <Objects/>
+      <Collections>
+        <CustomerOrder>
+          <oid>25</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <CustomerOrder>
+      <dboid>27</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-07-12</date>
+      </Properties>
+      <Objects/>
+      <Collections>
+        <Article>
+          <oid>28</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>28</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>Description of article number one</description>
+      </Properties>
+      <Objects/>
+      <Collections>
+        <CustomerOrder>
+          <oid>27</oid>
+        </CustomerOrder>
       </Collections>
     </Article>
   </Database>

@@ -232,6 +232,15 @@ Object* Collection::parent() const
 }
 
 /*!
+Returns the Oid of the object the collection is in.
+The function is provided for convenience. Mostly useful in the database backends.
+*/
+OidType Collection::parentOid() const
+{
+	return m_parent;
+}
+
+/*!
 Returns a pointer to a RelatedCollection which contains the information for the current collection.
 */
 RelatedCollection* Collection::collectionInfo() const

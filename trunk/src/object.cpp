@@ -553,7 +553,7 @@ int Object::numCollections() const
 Collection* Object::collection( const QString& name ) const
 {
 	QString relation = ClassInfo::relationName( name, classInfo()->name() );
-	//kdDebug() << k_funcinfo << ": name = " << name << ", classInfo()->name = " << classInfo()->name() << ", relation = " << relation << endl;
+	kdDebug() << k_funcinfo << ": name = " << name << ", classInfo()->name = " << classInfo()->name() << ", relation = " << relation << endl;
 	return Manager::self()->collection( this, relation );
 }
 

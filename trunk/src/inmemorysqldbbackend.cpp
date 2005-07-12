@@ -98,11 +98,9 @@ void InMemorySqlDbBackend::saveObject( ObjectRef<Object> object )
 
 	PropertyIterator pIt( object->propertiesBegin() );
 	PropertyIterator pEnd( object->propertiesEnd() );
-	// Load all properties
 	for ( ; pIt != pEnd; ++pIt )
 		buffer->setValue( (*pIt).name(), (*pIt).value() );
 
-	// Load all object relations
 	RelatedObjectsConstIterator oIt( object->classInfo()->objectsBegin() );
 	RelatedObjectsConstIterator oEnd( object->classInfo()->objectsEnd() );
 	for ( ; oIt != oEnd; ++oIt ) {

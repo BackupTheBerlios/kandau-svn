@@ -74,6 +74,7 @@ public:
 
 	Object* object( OidType oid );
 	Object* parent() const;
+	OidType parentOid() const;
 
 	bool simpleAdd( const OidType& oid );
 	void simpleRemove( const OidType& oid );

@@ -59,11 +59,41 @@ void SqlBackendTest::commit()
 	c->setCountry( "Country" );
 	order->setCustomer( c );
 
-	Manager::self()->commit();
+	CHECK( Manager::self()->commit(), true );
+
+	a1->setDescription( "MODIFIED description of article number one" );
+	CHECK( Manager::self()->commit(), true );
+
+	ObjectRef<Customer> c2 = Customer::create();
+	c2->setCode( "0002" );
+	c2->setCustomerName( "Customer Two" );
+	c2->setAddress( "Street" );
+	c2->setCity( "City" );
+	c2->setZipCode( "Zip Code" );
+	c2->setCountry( "Country" );
+	order->setCustomer( c2 );
+	CHECK( Manager::self()->commit(), true );
+
+	order->articles()->add( a2 );
+	CHECK( Manager::self()->commit(), true );
+
+	order->articles()->remove( a1 );
+	CHECK( Manager::self()->commit(), true );
+
+	order->articles()->add( a1 );
+	CHECK( Manager::self()->rollback(), true );
+
+	order->setCustomer( c );
+	CHECK( Manager::self()->commit(), true );
 }
 
 void SqlBackendTest::rollback()
 {
+}
+
+void SqlBackendTest::modify()
+{
+	
 }
 
 void SqlBackendTest::allTests()
@@ -106,6 +136,7 @@ void SqlBackendTest::allTests()
 
 	commit();
 	rollback();
+	modify();
 
 	delete m_manager;
 }
