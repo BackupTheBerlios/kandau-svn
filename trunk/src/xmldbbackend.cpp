@@ -29,30 +29,13 @@
 XmlDbBackend::XmlDbBackend( const QString& fileName )
 {
 	m_currentOid = 1;
-
 	m_fileName = fileName;
-	//m_document = new QDomDocument( "Database" );
-/*
-	QFile file( m_fileName );
-	if ( file.open( IO_ReadOnly ) && m_document->setContent( &file ) ) {
-		kdDebug() << "File opened correctly" << endl;
-		file.close();
-		return;
-	} else {
-		kdDebug() << "File not found" << endl;
-		file.close();
-		QDomElement root = doc->createElement( "Database" );
-		m_document->appendChild( root );
-	}
-*/
 }
 
 XmlDbBackend::~XmlDbBackend()
 {
-	//delete m_document;
 }
 
-/* Called at the Manager constructor */
 void XmlDbBackend::setup()
 {
 	QFile file( m_fileName );
@@ -80,7 +63,6 @@ void XmlDbBackend::setup()
 		}
 		n = n.nextSibling();
 	}
-
 	m_currentOid = maxOid + 1;	// m_currentOid = max oid found
 }
 
@@ -203,7 +185,6 @@ void XmlDbBackend::objectToElement( Object* object, QDomDocument *doc, QDomEleme
 		}
 	}
 
-
 	CollectionIterator cIt( object->collectionsBegin() );
 	CollectionIterator cEnd( object->collectionsEnd() );
 	kdDebug() << "Iterating collections (" << object->numCollections() << ")" << endl;
@@ -222,37 +203,13 @@ void XmlDbBackend::objectToElement( Object* object, QDomDocument *doc, QDomEleme
 	}
 }
 
-
-/* Object management related functions */
 bool XmlDbBackend::load( const OidType& /*oid*/, Object* /*object*/ )
 {
-	//assert( false );
 	kdDebug() << "Entering XmlDbBackend::load(): This should never happen!" << endl;
 	return true;
 }
 
-bool XmlDbBackend::save( Object* /*object*/ )
-{
-	return true;
-}
-
-bool XmlDbBackend::remove( Object* /*object*/ )
-{
-	return true;
-}
-
-/* Collection management related functions */
 bool XmlDbBackend::load( Collection* /*collection*/ )
-{
-	return true;
-}
-
-bool XmlDbBackend::add( Collection* /*collection*/, Object* /*object*/ )
-{
-	return true;
-}
-
-bool XmlDbBackend::remove( Collection* /*collection*/, const OidType& /*object*/ )
 {
 	return true;
 }
@@ -262,37 +219,16 @@ bool XmlDbBackend::createSchema()
 	return true;
 }
 
-/*! Decides whether the object changed in the database since last load */
 bool XmlDbBackend::hasChanged( Object* /*object*/ )
 {
 	return false;
 }
 
-/*!
-This function must provide a new unique Oid. Used for newly created
-objects.
-*/
 OidType XmlDbBackend::newOid()
 {
 	return m_currentOid++;
 }
 
-
-void XmlDbBackend::setRelation( const OidType& /*oid*/, const QString& /*relation*/, const OidType& /*oidRelated*/, const OidType& /*oldOid*/ )
-{
-}
-
-/*!
-Starts a transaction
-*/
-bool XmlDbBackend::start()
-{
-	return true;
-}
-
-/*!
-Commits the current transaction
-*/
 bool XmlDbBackend::commit()
 {
 	QDomDocument doc( "Database" );
@@ -302,13 +238,9 @@ bool XmlDbBackend::commit()
 	ManagerObjectIterator it( Manager::self()->begin() );
 	ManagerObjectIterator end( Manager::self()->end() );
 	kdDebug() << "Starting manager loop(" << Manager::self()->count() << " objects)" << endl;
-	for ( ; it != end; ++it ) {
-		//root.appendChild( objectToElement( *it, &doc, &root ) );
+	for ( ; it != end; ++it )
 		objectToElement( *it, &doc, &root );
-		//kdDebug() << "XmlDbBackend::objectToElement() ==> count = " << QString::number( root.childNodes().count() ) << endl;
 
-	}
-	//doc.appendChild( root );
 	QFile file( m_fileName );
 	if ( ! file.open( IO_WriteOnly ) ) {
 		kdDebug() << "Error opening file for writing." << endl;
@@ -321,12 +253,7 @@ bool XmlDbBackend::commit()
 	return true;
 }
 
-/*!
-Aborts the current transaction
-*/
-bool XmlDbBackend::rollback()
+void XmlDbBackend::afterRollback()
 {
 	setup();
-	return true;
 }
-

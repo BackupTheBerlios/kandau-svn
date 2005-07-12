@@ -34,53 +34,31 @@ public:
 	XmlDbBackend( const QString& fileName );
 	virtual ~XmlDbBackend();
 
-	/* Called at the Manager constructor */
-	virtual void setup();
-	virtual void shutdown();
+	void setup();
+	void shutdown();
 
+	bool load( const OidType& oid, Object *object );
+	
+	bool load( Collection *collection );
+	bool remove( Collection* collection, const OidType& oid );
+
+	bool createSchema();
+
+	bool hasChanged( Object * object );
+
+	OidType newOid();
+
+	bool commit();
+
+	void reset() {};
+
+	void afterRollback();
+	void beforeRemove( Object* /*object*/ ) {};
+
+protected:
 	OidType elementToObject( const QDomElement& e );
 	void objectToElement( Object* object, QDomDocument *doc, QDomElement *parent );
 
-	/* Object management related functions */
-	virtual bool load( const OidType& oid, Object *object );
-	virtual bool save( Object *object );
-	virtual bool remove( Object *object );
-
-	/* Collection management related functions */
-	virtual bool load( Collection *collection );
-	virtual bool add( Collection* collection, Object* object );
-	virtual bool remove( Collection* collection, const OidType& oid );
-
-	/* Database Schema related functions */
-	virtual bool createSchema();
-
-	void setRelation( const OidType& oid, const QString& relation, const OidType& oidRelated, const OidType& oldOid );
-
-	/*! Decides whether the object changed in the database since last load */
-	virtual bool hasChanged( Object * object );
-
-	/*!
-	This function must provide a new unique Oid. Used for newly created
-	objects.
-	*/
-	virtual OidType newOid();
-
-	/*!
-	Starts a transaction
-	 */
-	bool start();
-
-	/*!
-	Commits the current transaction
-	 */
-	bool commit();
-
-	/*!
-	Aborts the current transaction
-	 */
-	bool rollback();
-
-	void reset() {};
 private:
 	QString m_fileName;
 	OidType m_currentOid;

@@ -33,45 +33,17 @@ public:
 
 	void setup();
 	void shutdown();
-
-	/* Object management related functions */
 	bool load( const OidType& oid, Object *object );
-	bool save( Object *object );
-	bool remove( Object *object );
-
-
-	/* Collection management related functions */
 	bool load( Collection *collection );
-	bool add( Collection* collection, Object* object );
-	bool remove( Collection* collection, const OidType& oid );
-
-	/* Database schema related functions */
 	bool createSchema();
-
-	void setRelation( const OidType& oid, const QString& relation, const OidType& oidRelated, const OidType& oldOid );
-
-	/* Decides whether the object changed in the database since last load */
 	bool hasChanged( Object * object );
-
-	/*!
-	Starts a transaction
-	 */
-	bool start();
-
-	/*!
-	Commits the current transaction
-	 */
 	bool commit();
-
-	/*!
-	Aborts the current transaction
-	 */
-	bool rollback();
-
-
 	OidType newOid();
-
 	void reset();
+
+	/* Callbacks */
+	void beforeRemove( Object* /*object*/ ) {};
+	void afterRollback() {};
 private:
 	OidType m_lastOid;
 };

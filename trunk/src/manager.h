@@ -59,7 +59,6 @@ public:
 	bool contains( OidType oid );
 	Object* object( OidType oid );
 
-	bool save( Object* object );
 	/*!
 	Returns a pointer to the requested object.
 	@param oid The oid of the object
@@ -67,27 +66,16 @@ public:
 	*/
 	Object* load( OidType oid, CreateObjectFunction f );
 
-
 	/* Functions related to collection management */
-//	bool add( Collection* collection, Object* object );
-//	bool remove( Collection* collection, const OidType& oid );
 	bool load( Collection* collection );
 
 	ManagerObjectIterator begin();
 	ManagerObjectIterator end();
 
 	/* Relation management functions */
-/*
-	void setRelation( const Object* object, const QString& relation, const Object* objRelated, bool recursive = true );
-	void setRelation( const Object* object, const QString& relation, const OidType& objRelated, bool recursive = true );
-	void addRelation( const Object *object, const QString& relation, const Object* objRelated, bool recursive );
-	void removeRelation( const Object* object, const QString& relation, const Object* objRelated, bool recursive );
-*/
-
 	void setRelation( const OidType& oid, ClassInfo* classInfo, const QString& relation, const OidType& oidRelated, bool recursive = true );
 	void addRelation( const OidType& oid, RelatedCollection* collection, const OidType& oidRelated, bool recursive = true );
 	void removeRelation( const OidType& oid, RelatedCollection* collection, const OidType& oidRelated, bool recursive = true );
-
 
 
 	OidType relation( const OidType& oid, const QString& relation );
@@ -95,13 +83,6 @@ public:
 
 	Collection* collection( const Object* object, const QString& relation );
 	Collection* collection( const OidType& oid, RelatedCollection* collection );
-
-	/* Transaction management functions */
-
-	/*!
-	Starts a transaction
-	*/
-//	bool start();
 
 	/*!
 	Commits the current transaction

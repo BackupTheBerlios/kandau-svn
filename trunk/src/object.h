@@ -244,7 +244,6 @@ public:
 	bool isModified() const;
 	void setModified( bool value );
 
-	bool save();
 	/*
 	This function, though necessary, introduces some problems to the
 	design that need to be resolved. What happens when an object is
@@ -273,7 +272,7 @@ public:
 	This would surely add more flexibility to the programer/designer, though it
 	could be left to a later development cycle.
 	*/
-	bool remove();
+//	bool remove();
 
 	/*
 	Functions for managing the properties
@@ -335,7 +334,7 @@ protected:
 	bool m_modified;
 
 private:
-	bool m_saved, m_removed, m_loaded;
+	bool m_removed, m_loaded;
 	OidType m_oid;
 	SeqType m_seq;
 	// Used as a cache. It is calculated the first time the classInfo() (non-const) function is called and used from there on

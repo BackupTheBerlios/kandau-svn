@@ -91,7 +91,7 @@ void SqlBackendTest::commit()
 
 	CHECK( Manager::self()->commit(), true );
 
-	c2->remove();
+	Manager::self()->remove( c2 );
 	CHECK( Manager::self()->commit(), true );
 }
 

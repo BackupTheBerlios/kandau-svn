@@ -147,28 +147,8 @@ bool InMemorySqlDbBackend::load( const OidType& /*oid*/, Object* /*object*/ )
 	return true;
 }
 
-bool InMemorySqlDbBackend::save( Object* /*object*/ )
-{
-	return true;
-}
-
-bool InMemorySqlDbBackend::remove( Object* /*object*/ )
-{
-	return true;
-}
-
 /* Collection management related functions */
 bool InMemorySqlDbBackend::load( Collection* /*collection*/ )
-{
-	return true;
-}
-
-bool InMemorySqlDbBackend::add( Collection* /*collection*/, Object* /*object*/ )
-{
-	return true;
-}
-
-bool InMemorySqlDbBackend::remove( Collection* /*collection*/, const OidType& /*object*/ )
 {
 	return true;
 }
@@ -279,8 +259,6 @@ bool InMemorySqlDbBackend::createSchema()
 		kdDebug() << exec << endl;
 		m_db->exec( exec );
 	}
-
-	start();
 	return true;
 }
 
@@ -299,18 +277,6 @@ OidType InMemorySqlDbBackend::newOid()
 	return m_currentOid++;
 }
 
-
-void InMemorySqlDbBackend::setRelation( const OidType& /*oid*/, const QString& /*relation*/, const OidType& /*oidRelated*/, const OidType& /*oldOid*/ )
-{
-}
-
-/*!
-Starts a transaction
-*/
-bool InMemorySqlDbBackend::start()
-{
-	return true;
-}
 
 /*!
 Commits the current transaction
@@ -378,9 +344,8 @@ QString InMemorySqlDbBackend::sqlType( QVariant::Type type )
 /*!
 Aborts the current transaction
 */
-bool InMemorySqlDbBackend::rollback()
+void InMemorySqlDbBackend::afterRollback()
 {
 	setup();
-	return true;
 }
 

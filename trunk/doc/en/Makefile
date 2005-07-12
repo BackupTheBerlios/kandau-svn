@@ -409,7 +409,7 @@ uninstall-am: uninstall-info-am
 .NOEXPORT:
 
 #>+ 2
-KDE_DIST=index.docbook index.cache.bz2 
+KDE_DIST=index.docbook 
 
 #>+ 24
 index.cache.bz2: $(srcdir)/index.docbook $(KDE_XSL_STYLESHEET) index.docbook 

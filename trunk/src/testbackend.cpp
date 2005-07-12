@@ -35,7 +35,6 @@ TestBackend::~TestBackend()
 
 void TestBackend::setup()
 {
-	//Manager::self()->setMaxObjects( Manager::Unlimited );
 }
 
 void TestBackend::shutdown()
@@ -47,28 +46,7 @@ bool TestBackend::load( const OidType& /*oid*/, Object* /*object*/ )
 	return true;
 }
 
-bool TestBackend::save( Object* object )
-{
-	kdDebug() << "object (" << oidToString( object->oid() ) << ") saved" << endl;
-	return true;
-}
-
-bool TestBackend::remove( Object* /*object*/ )
-{
-	return true;
-}
-
 bool TestBackend::load( Collection* /*collection*/ )
-{
-	return true;
-}
-
-bool TestBackend::add( Collection* /*collection*/, Object* /*object*/ )
-{
-	return true;
-}
-
-bool TestBackend::remove( Collection* /*collection*/, const OidType& /*oid*/ )
 {
 	return true;
 }
@@ -89,30 +67,7 @@ OidType TestBackend::newOid()
 	return ++m_lastOid;
 }
 
-void TestBackend::setRelation( const OidType& /*oid*/, const QString& /*relation*/, const OidType& /*oidRelated*/, const OidType& /*oldOid*/ )
-{
-}
-
-/*!
-Starts a transaction
-*/
-bool TestBackend::start()
-{
-	return true;
-}
-
-/*!
-Commits the current transaction
-*/
 bool TestBackend::commit()
-{
-	return true;
-}
-
-/*!
-Aborts the current transaction
-*/
-bool TestBackend::rollback()
 {
 	return true;
 }

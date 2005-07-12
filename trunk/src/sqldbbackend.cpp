@@ -50,13 +50,10 @@ QSqlDatabase* SqlDbBackend::database( )
 
 void SqlDbBackend::setup()
 {
-	start();
 }
 
 void SqlDbBackend::shutdown()
 {
-	assert( m_db );
-//	m_db->exec( "ROLLBACK;" );
 }
 
 bool SqlDbBackend::load( const OidType& oid, Object *object )
@@ -384,49 +381,6 @@ QString SqlDbBackend::idFieldName( RelatedCollection *collection ) const
 		return collection->childrenClassInfo()->name();
 }
 
-bool SqlDbBackend::add( Collection *collection, Object *object )
-{
-	assert( collection);
-	assert( object );
-	if ( object->oid() == 0 )
-		ERROR( "Oid = 0" );
-	if ( collection->contains( object->oid() ) )
-		ERROR( "Oid alread exists in collection" );
-	if ( collection->collectionInfo()->childrenClassInfo()->name() != object->className() )
-		ERROR( "The object's class and the collection's object class don't match" );
-
-	// TODO: Traspassar a ObjectManagerIface
-	/*
-	if ( ! collection->loaded() ) {
-		if ( ! load( collection ) ) {
-			kdDebug() << "Error loading collection" << endl;
-		}
-	}
-	*/
-
-	QSqlCursor cursor( collection->collectionInfo()->name() );
-
-	QSqlRecord *record;
-	if ( collection->collectionInfo()->isNToOne() ) {
-		cursor.select( idFieldName( collection->collectionInfo() ) + " = " + oidToString( object->oid() ) );
-		cursor.next();
-		record = cursor.primeUpdate();
-		record->setValue( filterFieldName( collection->collectionInfo() ), filterValue( collection ) );
-		record->setValue( "dbseq", newSeq() );
-		if ( cursor.update() <= 0 )
-			return false;
-	} else {
-		cursor.select();
-		record = cursor.primeInsert();
-		record->setValue( filterFieldName( collection->collectionInfo() ), filterValue( collection ) );
-		record->setValue( idFieldName( collection->collectionInfo() ), object->oid() );
-		record->setValue( "dbseq", newSeq() );
-		if ( cursor.insert() <= 0 )
-			return false;
-	}
-	return true;
-}
-
 bool SqlDbBackend::remove( Collection *collection, const OidType& oid )
 {
 	assert( collection );
@@ -565,8 +519,6 @@ bool SqlDbBackend::createSchema()
 		kdDebug() << exec << endl;
 		m_db->exec( exec );
 	}
-
-	start();
 	return true;
 }
 
@@ -606,35 +558,15 @@ QString SqlDbBackend::sqlType( QVariant::Type type )
 	}
 }
 
-SqlDbBackend* SqlDbBackend::SqlBackend( )
-{
-	return this;
-}
-
 bool SqlDbBackend::hasChanged( Object * object )
 {
 	QSqlSelectCursor cursor( "SELECT dbseq FROM " + object->classInfo()->name() + " WHERE to_number( dboid, '9999999999G0') = " + oidToString( object->oid() ) );
 
-	// Is it been deleted?
+	// Has it been deleted?
 	if ( ! cursor.next() )
 		return false;
 
 	return variantToSeq( cursor.value( 0 ) ) != object->seq();
-}
-
-void SqlDbBackend::setRelation( const OidType& /*oid*/, const QString& /*relation*/, const OidType& /*oidRelated*/, const OidType& /*oldOid*/ )
-{
-
-}
-
-/*!
-Starts a transaction
-*/
-bool SqlDbBackend::start()
-{
-	//m_db->exec( "BEGIN;" );
-	//m_db->exec( "SET CONSTRAINTS DEFERRED;" );
-	return true;
 }
 
 /*!
@@ -657,6 +589,7 @@ bool SqlDbBackend::commit()
 		}
 	}
 
+/*
 	QMap<OidType, QMap<QString, QPair<OidType, bool> > > &relations = Manager::self()->relations();
 	QMapIterator<OidType, QMap<QString, QPair<OidType, bool> > > mit( relations.begin() );
 	QMapIterator<OidType, QMap<QString, QPair<OidType, bool> > > mend( relations.end() );
@@ -669,10 +602,21 @@ bool SqlDbBackend::commit()
 			}
 		}
 	}
+*/
+
+	QValueVector< QPair<QString, OidType> >::const_iterator rit( m_removedObjects.begin() );
+	QValueVector< QPair<QString, OidType> >::const_iterator rend( m_removedObjects.end() );
+	for ( ; rit != rend; ++rit ) {
+		m_db->exec( "DELETE FROM " + (*rit).first + " WHERE dboid=" + oidToString( (*rit).second ) );
+	}
 
 	commitCollections();
-
-	return m_db->commit();
+	if ( m_db->commit() ) {
+		m_removedObjects.clear();
+		return true;
+	} else {
+		return false;
+	}
 }
 
 void SqlDbBackend::commitCollections()
@@ -694,11 +638,12 @@ void SqlDbBackend::commitCollections()
 	}
 }
 
-
-/*!
-Aborts the current transaction
-*/
-bool SqlDbBackend::rollback()
+void SqlDbBackend::afterRollback()
 {
-	return true;
+	m_removedObjects.clear();
+}
+
+void SqlDbBackend::beforeRemove( Object* object )
+{
+	m_removedObjects.append( QPair<QString,OidType> (object->classInfo()->name(), object->oid()) );
 }

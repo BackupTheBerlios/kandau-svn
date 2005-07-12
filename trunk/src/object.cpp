@@ -340,8 +340,7 @@ Object::Object()
 {
 	m_oid = 0;
 	m_modified = false;
-	m_saved = false;
-	m_removed = false;
+	//m_removed = false;
 	m_loaded = false;
 	m_classInfo = 0;
 }
@@ -431,20 +430,13 @@ void Object::setModified( bool value )
 	m_modified = value;
 }
 
-bool Object::save()
-{
-	if ( Manager::self()->save( this ) ) {
-		m_modified = false;
-		return true;
-	}
-	return false;
-}
-
+/*
 bool Object::remove()
 {
 	m_removed = true;
 	return Manager::self()->remove( this );
 }
+*/
 
 /*
 Functions for managing the properties

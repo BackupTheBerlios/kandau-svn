@@ -33,7 +33,6 @@ Manager* Manager::m_self = 0;
 
 Manager::Manager( DbBackendIface *backend )
 {
-	//m_dbBackend = new TestBackend();
 	assert( backend );
 	assert( m_self == 0 );
 	m_dbBackend = backend;
@@ -97,7 +96,10 @@ bool Manager::add( Object* object )
 bool Manager::remove( Object* object )
 {
 	assert( object );
+	m_dbBackend->beforeRemove( object );
 	m_objects.remove( object->oid() );
+	delete object;
+	object = 0;
 	return true;
 }
 
@@ -111,34 +113,10 @@ Object* Manager::object( OidType oid )
 	return m_objects[oid];
 }
 
-/*
-	Functions related to collection management
-*/
-
-//bool Manager::add( Collection* collection, Object* object )
-//{
-//	return m_dbBackend->add( collection, object );
-//}
-
-//bool Manager::remove( Collection* collection, const OidType& oid )
-//{
-//	return m_dbBackend->remove( collection, oid );
-//}
-
 bool Manager::load( Collection* collection )
 {
 	return m_dbBackend->load( collection );
 }
-
-/*
-Transaction management functions
-*/
-/*
-bool Manager::start()
-{
-	return m_dbBackend->start();
-}
-*/
 
 bool Manager::commit()
 {
@@ -188,7 +166,6 @@ bool Manager::commit()
 
 bool Manager::rollback()
 {
-	m_dbBackend->rollback();
 	// Delete all modified objects
 	QMapIterator<OidType, Object*> oit( m_objects.begin() );
 	QMapIterator<OidType, Object*> oend( m_objects.end() );
@@ -232,6 +209,10 @@ bool Manager::rollback()
 		if ( (*cit).count() == 0 )
 			olist.append( cit.key() );
 	}
+
+	// Backend callback
+	m_dbBackend->afterRollback();
+
 	return true;
 }
 
@@ -263,11 +244,6 @@ bool Manager::rollback()
 	  m_objects.remove( *lit );
 }
 */
-
-bool Manager::save( Object* object )
-{
-	return m_dbBackend->save( object );
-}
 
 Object* Manager::load( OidType oid, CreateObjectFunction f )
 {

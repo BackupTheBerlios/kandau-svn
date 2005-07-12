@@ -657,9 +657,9 @@ configure:10162: checking whether stripping libraries is possible
 configure:10167: result: yes
 configure:10292: checking for shl_load
 configure:10349: gcc -o conftest -ansi -W -Wall -Wchar-subscripts -Wshadow -Wpointer-arith -Wmissing-prototypes -Wwrite-strings -D_XOPEN_SOURCE=500 -D_BSD_SOURCE -g3 -fno-inline   -Wformat-security -Wmissing-format-attribute -DDEBUG  conftest.c  >&5
-/tmp/ccSE9K07.o(.text+0x16): In function `main':
+/tmp/ccEj9zVB.o(.text+0x16): In function `main':
 /home/albert/kandau/conftest.c:66: undefined reference to `shl_load'
-/tmp/ccSE9K07.o(.data+0x0):/home/albert/kandau/conftest.c:65: undefined reference to `shl_load'
+/tmp/ccEj9zVB.o(.data+0x0):/home/albert/kandau/conftest.c:65: undefined reference to `shl_load'
 collect2: ld returned 1 exit status
 configure:10355: $? = 1
 configure: failed program was:
@@ -782,9 +782,9 @@ configure: failed program was:
 configure:10445: result: no
 configure:10450: checking for dlopen
 configure:10507: gcc -o conftest -ansi -W -Wall -Wchar-subscripts -Wshadow -Wpointer-arith -Wmissing-prototypes -Wwrite-strings -D_XOPEN_SOURCE=500 -D_BSD_SOURCE -g3 -fno-inline   -Wformat-security -Wmissing-format-attribute -DDEBUG  conftest.c  >&5
-/tmp/ccsxPpZx.o(.text+0x16): In function `main':
+/tmp/ccURPLOY.o(.text+0x16): In function `main':
 /home/albert/kandau/conftest.c:66: undefined reference to `dlopen'
-/tmp/ccsxPpZx.o(.data+0x0):/home/albert/kandau/conftest.c:65: undefined reference to `dlopen'
+/tmp/ccURPLOY.o(.data+0x0):/home/albert/kandau/conftest.c:65: undefined reference to `dlopen'
 collect2: ld returned 1 exit status
 configure:10513: $? = 1
 configure: failed program was:
@@ -1776,9 +1776,9 @@ configure:26279: checking for crt_externs.h
 configure:26286: result: no
 configure:26299: checking for _NSGetEnviron
 configure:26356: gcc -o conftest -ansi -W -Wall -Wchar-subscripts -Wshadow -Wpointer-arith -Wmissing-prototypes -Wwrite-strings -D_XOPEN_SOURCE=500 -D_BSD_SOURCE -g3 -fno-inline   -Wformat-security -Wmissing-format-attribute -DDEBUG  conftest.c  >&5
-/tmp/ccYctnDt.o(.text+0x16): In function `main':
+/tmp/ccsVAKu9.o(.text+0x16): In function `main':
 /home/albert/kandau/conftest.c:79: undefined reference to `_NSGetEnviron'
-/tmp/ccYctnDt.o(.data+0x0):/home/albert/kandau/conftest.c:78: undefined reference to `_NSGetEnviron'
+/tmp/ccsVAKu9.o(.data+0x0):/home/albert/kandau/conftest.c:78: undefined reference to `_NSGetEnviron'
 collect2: ld returned 1 exit status
 configure:26362: $? = 1
 configure: failed program was:

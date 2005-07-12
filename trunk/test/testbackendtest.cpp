@@ -321,8 +321,8 @@ void TestBackendTest::references()
 	CHECK( o2->order(), (CustomerOrder*)0 );
 	CHECK( o1->order(), (CustomerOrder*)0 );
 
-	o1->remove();
-	o2->remove();
+	Manager::self()->remove( o1 );
+	Manager::self()->remove( o2 );
 	CHECK( Manager::self()->count(), 0 );
 }
 
