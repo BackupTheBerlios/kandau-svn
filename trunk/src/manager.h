@@ -140,11 +140,18 @@ protected:
 		Unmodified,
 	};
 	/*!
-	This function is called inside ensureUnderMaxObjects, whenever an object is decided that is no longer necessary in memory. Then, all references the object has and which have not been modified are freed.
+	This function is called inside ensureUnderMaxObjects, whenever an object is decided that is no longer necessary in memory. Then, all references the object has and which have not been modified are freed. It is also used by rollback.
 	@param oid the iterator of the object which references are to be freed
 	@param filter the filter to apply and thus the references that will be removed
 	*/
 	void removeObjectReferences( QMapIterator<OidType, QMap<QString, QPair<OidType, bool> > > oid, Filter filter );
+
+	/*!
+	This function is called inside ensureUnderMaxObjects, whenever an object is decided that is no longer necessary in memory. Then, all references the object has and which have not been modified are freed. It is also used by rollback.
+	@param oid the iterator of the object which references are to be freed
+	@param filter the filter to apply and thus the references that will be removed
+	*/
+	void removeCollectionReferences( QMapIterator<OidType, QMap<QString, Collection*> > oid, Filter filter );
 
 	/*!
 	This function acts as the previous function but also removes the oid from the map if it is empty when the appropiate references are removed

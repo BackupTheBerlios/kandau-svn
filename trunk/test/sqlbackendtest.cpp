@@ -85,6 +85,14 @@ void SqlBackendTest::commit()
 
 	order->setCustomer( c );
 	CHECK( Manager::self()->commit(), true );
+
+	order->setCustomer( c2 );
+	CHECK( Manager::self()->rollback(), true );
+
+	CHECK( Manager::self()->commit(), true );
+
+	c2->remove();
+	CHECK( Manager::self()->commit(), true );
 }
 
 void SqlBackendTest::rollback()

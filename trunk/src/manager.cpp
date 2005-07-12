@@ -211,7 +211,7 @@ bool Manager::rollback()
 	for ( ; rit != rend; ++rit ) {
 		removeObjectReferences( rit, Modified );
 		if ( (*rit).count() == 0 )
-		  olist.append( rit.key() );
+			olist.append( rit.key() );
 	}
 	lit = olist.begin();
 	lend = olist.end();
@@ -222,6 +222,15 @@ bool Manager::rollback()
 			m_objects.remove( *lit );
 		}
 		m_relations.remove( *lit );
+	}
+	olist.clear();
+	
+	QMapIterator<OidType, QMap<QString, Collection*> > cit( m_collections.begin() );
+	QMapIterator<OidType, QMap<QString, Collection*> > cend( m_collections.end() );
+	for ( ; cit != cend; ++cit ) {
+		removeCollectionReferences( cit, Modified );
+		if ( (*cit).count() == 0 )
+			olist.append( cit.key() );
 	}
 	return true;
 }
@@ -254,10 +263,6 @@ bool Manager::rollback()
 	  m_objects.remove( *lit );
 }
 */
-
-
-
-
 
 bool Manager::save( Object* object )
 {
@@ -341,28 +346,40 @@ void Manager::removeObjectReferences( QMapIterator<OidType, QMap<QString, QPair<
 	QMapIterator<QString,QPair<OidType,bool> > it( (*oid).begin() );
 	QMapIterator<QString,QPair<OidType,bool> > end( (*oid).end() );
 	QValueList<QString> list;
-	for ( ; it != end; ++it ) {
+	for ( ; it != end; ++it )
 		if ( (*it).second == boolFilter )
 			list.append( it.key() );
-			//list.append( (*it).first );
-	}
 	QValueListIterator<QString> vIt( list.begin() );
 	QValueListIterator<QString> vEnd( list.end() );
-	for ( ; vIt != vEnd; ++vIt ) {
+	for ( ; vIt != vEnd; ++vIt )
 		(*oid).remove( *vIt );
-		//m_relations[oid].remove( *vIt );
-	}
 }
 
 
 void Manager::removeObjectReferences( const OidType& oid, Filter filter )
 {
-  QMapIterator<OidType, QMap<QString, QPair<OidType, bool> > > it = m_relations.find( oid );
-  if ( it == m_relations.end() )
-		return;
+	QMapIterator<OidType, QMap<QString, QPair<OidType, bool> > > it = m_relations.find( oid );
+	if ( it == m_relations.end() )
+			return;
 	removeObjectReferences( it, filter );
 	if ( (*it).count() == 0 )
 		m_relations.remove( oid );
+}
+
+void Manager::removeCollectionReferences( QMapIterator<OidType, QMap<QString, Collection*> > oid, Filter filter )
+{
+  	bool boolFilter = filter == Modified ? true : false;
+
+	QMapIterator<QString, Collection*> it( (*oid).begin() );
+	QMapIterator<QString, Collection*> end( (*oid).end() );
+	QValueList<QString> list;
+	for ( ; it != end; ++it )
+		if ( (*it)->modified() == boolFilter )
+			list.append( it.key() );
+	QValueListIterator<QString> vIt( list.begin() );
+	QValueListIterator<QString> vEnd( list.end() );
+	for ( ; vIt != vEnd; ++vIt )
+		(*oid).remove( *vIt );
 }
 
 ManagerObjectIterator Manager::begin()
