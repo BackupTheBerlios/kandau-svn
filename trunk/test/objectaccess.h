@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2004 by Albert Cervera Areny                            *
- *   albertca.com                                                   *
+ *   albertca@hotpop.com                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -27,9 +27,6 @@
 
 #include "dcopiface.h"
 
-
-//class KApplication;
-
 /**
 @author Albert Cervera Areny
 */
@@ -39,8 +36,9 @@ Q_OBJECT
 
 public:
 	ObjectAccess( KApplication *app );
-	
+
 	QStringList classes() const;
+	QStringList properties( const QString& className ) const;
 	QStringList relatedObjects( const QString& className ) const;
 	QStringList relatedCollections( const QString& className ) const;
 	QString create( const QString& className ) const;
@@ -48,10 +46,16 @@ public:
 	bool commit();
 	bool rollback();
 	void reset();
-	//QVariant property( const QString& className, const QString& oid, const QString& property );
+
 	QString property( const QString& className, const QString& oid, const QString& property );
-	//void setProperty( const QString& className, const QString& oid, const QString& property, const QVariant& value );
 	void setProperty( const QString& className, const QString& oid, const QString& property, const QString& value );
+
+	QString object( const QString& className, const QString& oid, const QString& object );
+	void setObject( const QString& className, const QString& oid, const QString& object, const QString& value );
+
+	QStringList collection( const QString& className, const QString& oid, const QString& collection );
+	void add( const QString& className, const QString& oid, const QString& collection, const QString& value );
+	void remove( const QString& className, const QString& oid, const QString& collection, const QString& value );
 };
-  
+
 #endif

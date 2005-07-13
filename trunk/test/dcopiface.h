@@ -28,6 +28,7 @@
 K_DCOP
 k_dcop:
 	virtual QStringList classes() const = 0;
+	virtual QStringList properties( const QString& className ) const = 0;
 	virtual QStringList relatedObjects( const QString& className ) const = 0;
 	virtual QStringList relatedCollections( const QString& className ) const = 0;
 	virtual QString create( const QString& className ) const = 0;
@@ -36,8 +37,14 @@ k_dcop:
 	virtual bool rollback() = 0;
 	virtual void reset() = 0;
 
-	//virtual QVariant property( const QString& className, const QString& oid, const QString& property ) = 0;
 	virtual QString property( const QString& className, const QString& oid, const QString& property ) = 0;
-	//virtual void setProperty( const QString& className, const QString& oid, const QString& property, const QVariant& value ) = 0;
 	virtual void setProperty( const QString& className, const QString& oid, const QString& property, const QString& value ) = 0;
+	
+	virtual QString object( const QString& className, const QString& oid, const QString& object ) = 0;
+	virtual void setObject( const QString& className, const QString& oid, const QString& object, const QString& value ) = 0;
+
+	virtual QStringList collection( const QString& className, const QString& oid, const QString& collection ) = 0;
+	virtual void add( const QString& className, const QString& oid, const QString& collection, const QString& value ) = 0;
+	virtual void remove( const QString& className, const QString& oid, const QString& collection, const QString& value ) = 0;
+
 };

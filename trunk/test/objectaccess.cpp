@@ -46,6 +46,24 @@ QStringList ObjectAccess::classes() const
 	return r;
 }
 
+QStringList ObjectAccess::properties( const QString& className ) const
+{
+	if ( ! Classes::contains( className ) )
+		return QString::null;
+	
+	Object *obj = Classes::classInfo( className )->createInstance();
+	assert( obj );
+
+	PropertyIterator it( obj->propertiesBegin() );
+	PropertyIterator end( obj->propertiesEnd() );
+	QStringList list;
+	for ( ; it != end; ++it ) {
+		list << it.data().name();
+	}
+	delete obj;
+	return list;
+}
+
 QStringList ObjectAccess::relatedObjects( const QString& className ) const
 {
 	QStringList r;
@@ -116,28 +134,6 @@ void ObjectAccess::reset()
 	Manager::self()->reset();
 }
 
-/*
-QVariant ObjectAccess::property( const QString& className, const QString& oid, const QString& property )
-{
-	if ( ! Classes::contains( className ) )
-		return QVariant();
-	Object *obj = Manager::self()->load( stringToOid( oid ), Classes::classInfo( className )->createObjectFunction() );
-	if ( obj == 0 || ! obj->containsProperty( property ) )
-		return QVariant();
-	return obj->property( property ).value();
-}
-
-void ObjectAccess::setProperty( const QString& className, const QString& oid, const QString& property, const QVariant& value )
-{
-	if ( ! Classes::contains( className ) )
-		return;
-	Object *obj = Manager::self()->load( stringToOid( oid ), Classes::classInfo( className )->createObjectFunction() );
-	if ( obj == 0 || ! obj->containsProperty( property ) )
-		return;
-	obj->property( property ).setValue( value );
-}
-*/
-
 QString ObjectAccess::property( const QString& className, const QString& oid, const QString& property )
 {
 	if ( ! Classes::contains( className ) )
@@ -158,3 +154,68 @@ void ObjectAccess::setProperty( const QString& className, const QString& oid, co
 	obj->property( property ).setValue( value );
 }
 
+QString ObjectAccess::object( const QString& className, const QString& oid, const QString& object )
+{
+	if ( ! Classes::contains( className ) )
+		return QString::null;
+	Object *obj = Manager::self()->load( stringToOid( oid ), Classes::classInfo( className )->createObjectFunction() );
+	if ( obj == 0 || ! obj->containsObject( object ) )
+		return QString::null;
+	if ( obj->object( object ) == 0 )
+		return QString::null;
+	return oidToString( obj->object( object )->oid() );
+}
+
+void ObjectAccess::setObject( const QString& className, const QString& oid, const QString& object, const QString& value )
+{
+	if ( ! Classes::contains( className ) )
+		return;
+	Object *obj = Manager::self()->load( stringToOid( oid ), Classes::classInfo( className )->createObjectFunction() );
+	if ( obj == 0 || ! obj->containsObject( object ) )
+		return;
+	return obj->setObject( object, stringToOid( value ) );
+}
+
+QStringList ObjectAccess::collection( const QString& className, const QString& oid, const QString& collection )
+{
+	if ( ! Classes::contains( className ) )
+		return QString::null;
+	Object *obj = Manager::self()->load( stringToOid( oid ), Classes::classInfo( className )->createObjectFunction() );
+	if ( obj == 0 || ! obj->containsCollection( collection ) )
+		return QString::null;
+	Collection *col = obj->collection( collection );
+	ObjectIterator it( col->begin() );
+	ObjectIterator end( col->end() );
+	QStringList list;
+	for ( ; it != end; ++it )
+		list << oidToString( (*it)->oid() );
+	return list;
+}
+
+void ObjectAccess::add( const QString& className, const QString& oid, const QString& collection, const QString& value )
+{
+	if ( ! Classes::contains( className ) )
+		return;
+	Object *obj = Manager::self()->load( stringToOid( oid ), Classes::classInfo( className )->createObjectFunction() );
+	if ( obj == 0 || ! obj->containsCollection( collection ) )
+		return;
+
+	Collection *col = obj->collection( collection );
+	Object *ad = Manager::self()->load( stringToOid( value ), col->collectionInfo()->childrenClassInfo()->createObjectFunction() );
+	if ( ad == 0 )
+		return;
+
+	col->add( ad );
+}
+
+void ObjectAccess::remove( const QString& className, const QString& oid, const QString& collection, const QString& value )
+{
+	if ( ! Classes::contains( className ) )
+		return;
+	Object *obj = Manager::self()->load( stringToOid( oid ), Classes::classInfo( className )->createObjectFunction() );
+	if ( obj == 0 || ! obj->containsCollection( collection ) )
+		return;
+	
+	Collection *col = obj->collection( collection );
+	col->remove( stringToOid( value ) );
+}
