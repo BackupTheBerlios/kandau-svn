@@ -3,8 +3,15 @@ There are lots of things to think about. Here are some of them:
 
 	(PART) -> partially implemented
 	(WORK) -> work in progress
+	(DONE) -> mmm.. pretty obvious
 
+	- Load collections of objects
 
+	- Save relations correctly in the SqlDbBackend::commit()
+
+	- Create GOOD test cases for the different backends.
+
+	- Improve DCOP interface
 
 (PART)	- Add the possibility to attach i18n() information to properties and
 	relations 1-1 and 1-n and n-n. This shouldn't be too complex (with a
@@ -13,7 +20,7 @@ There are lots of things to think about. Here are some of them:
 	- Add cardinality to the collection (minimum and maximum of elements)
 	but needs collaboration from the manager.
 
-(WORK)	- Think about transactions, undo and redo and how they could be held.
+(DONE)	- Think about transactions, undo and redo and how they could be held.
 	Leave it to the underlying system? how? Different kind of
 	locking/transaction handling could be implemented. A nice one would
 	be Optimistic Offline Lock. See Patterns Of Enterprise Application
