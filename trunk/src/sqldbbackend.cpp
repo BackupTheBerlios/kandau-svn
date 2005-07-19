@@ -295,40 +295,33 @@ SeqType SqlDbBackend::newSeq()
 	return variantToOid( query.value( 0 ) );
 }
 
-//bool SqlDbBackend::load( Collection *collection, QString criteria  )
 bool SqlDbBackend::load( Collection *collection )
 {
 	assert( collection );
-	QString criteria;
 
 	collection->clear();
 
-	QSqlCursor *cursor;
+	QSqlCursor cursor( collection->collectionInfo()->name() );
+	cursor.select( filterFieldName( collection->collectionInfo() ) + " = " + QString::number( filterValue( collection ) ) );
 
-	cursor = new QSqlCursor( collection->collectionInfo()->name() );
-	cursor->select( filterFieldName( collection->collectionInfo() ) + " = " + QString::number( filterValue( collection ) ) );
-
-	int i = 0;
 	OidType val;
-	while ( cursor->next() ) {
-		i++;
+	while ( cursor.next() ) {
 		if ( collection->collectionInfo()->isNToOne() ) {
-			// Optimització: en cas de tractar-se de una relació N - 1 com que la taula
+			// Optimització: en cas de tractar-se d'una relació N - 1 com que la taula
 			// que tenim oberta és la dels objectes a carregar podem utilitzar el mateix
 			// cursor i passar-lo com a paràmetre
 			//load( *cursor, obj );
-			val = variantToOid( cursor->value( idFieldName( collection->collectionInfo() ) ) );
+			val = variantToOid( cursor.value( idFieldName( collection->collectionInfo() ) ) );
 			//load( val, obj );
 			collection->simpleAdd( val );
 		} else {
-			val = variantToOid( cursor->value( idFieldName( collection->collectionInfo() ) ) );
+			val = variantToOid( cursor.value( idFieldName( collection->collectionInfo() ) ) );
 			//load( val, obj );
 			collection->simpleAdd( val );
 		}
 	}
 	// TODO: Look if it is necessary a function like this:
 	//collection->setLoaded( true );
-	delete cursor;
 	return true;
 }
 
@@ -633,6 +626,7 @@ void SqlDbBackend::commitCollections()
 			c = *it;
 			if ( c->modified() ) {
 				save( c );
+				c->setModified( false );
 			}
 		}
 	}
@@ -646,4 +640,70 @@ void SqlDbBackend::afterRollback()
 void SqlDbBackend::beforeRemove( Object* object )
 {
 	m_removedObjects.append( QPair<QString,OidType> (object->classInfo()->name(), object->oid()) );
+}
+/*
+QString SqlDbBackend::pickToken( const QString& msg, int i )
+{
+	return msg.section( QRegExp( "\\s+|<|>|=|!" ), i, i, QString::SectionSkipEmpty );
+}
+
+QString SqlDbBackend::pickElement( const QString& msg, int i )
+{
+	return msg.section( QRegExp( "\\." ), i, i );
+}
+
+QString SqlDbBackend::expandDots( const QString& msg )
+{
+	element = pickElement( token, 0 );
+	if ( ! Classes::contains( element ) )
+		return QString::null;
+		
+	QString curClass;
+	
+	curClass = element;
+	element = pickElement( token, 1 );
+
+	if ( Classes::classInfo( curClass )->containsObject( element ) ) {
+		relatedClassName = Classes::classInfo( curClass )->object( element )->childrenClassInfo()->name();
+
+		curClass + "." + element + " = " + relatedClassName + ".dboid AND " + relatedClassName;
+	} else if ( Classes::classInfo( curClass )->containsCollection( element ) ) {
+		
+	}
+}
+*/
+bool SqlDbBackend::load( Collection* collection, const QString& query )
+{
+	assert( collection );
+
+	collection->clear();
+/*
+	QString newQuery;
+	QString token, element;
+	QString curClass;
+	for ( int i = 0; ( token = pickToken( query, i ) ) != QString::null; ++i ) {
+		if ( i == 0 ) {
+			newQuery = "SELECT " + token + ".* ";
+		} else {
+			{}
+				
+			} else {
+				newQuery.append( token + " " );
+			}
+		}
+	}
+	QString newQuery;
+	QString item = query.section( ' ', 0, 0, QString::SectionSkipEmpty );
+	item.append( ".*" );
+
+	newQuery.append( "SELECT " + item + " " );
+
+	query.section( ' ', 1, -1, QString::SectionIncludeLeadingSep | QString::SectionIncludeTralingSep );
+*/
+	QSqlCursor cursor( query );
+	cursor.select();
+	while ( cursor.next() ) {
+		collection->simpleAdd( variantToOid( cursor.value( "dboid" ) ) );
+	}
+	return true;
 }

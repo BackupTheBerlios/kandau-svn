@@ -40,6 +40,7 @@ public:
 	bool load( const OidType& oid, Object *object );
 	
 	bool load( Collection *collection );
+	bool load( Collection *collection, const QString& query );
 	bool remove( Collection* collection, const OidType& oid );
 
 	bool createSchema();

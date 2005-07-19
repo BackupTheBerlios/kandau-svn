@@ -37,6 +37,11 @@ class ClassInfo;
 
 typedef QMap<OidType, Object*> ManagerObjectMap;
 typedef QMapIterator<OidType, Object*> ManagerObjectIterator;
+typedef QMap<OidType, QMap<QString, QPair<OidType, bool> > > ManagerRelatedObjectMap;
+typedef QMapIterator<OidType, QMap<QString, QPair<OidType, bool> > > ManagerRelatedObjectIterator;
+typedef QMap<OidType, QMap<QString, Collection*> > ManagerRelatedCollectionMap;
+typedef QMapIterator<OidType, QMap<QString, Collection*> > ManagerRelatedCollectionIterator;
+
 
 #define MaxObjects 100
 
@@ -68,6 +73,10 @@ public:
 
 	/* Functions related to collection management */
 	bool load( Collection* collection );
+
+	// This function has to disappear some day. When Collection becomes an appropiate
+	// class hierarchy
+	bool load( Collection* collection, const QString& query );
 
 	ManagerObjectIterator begin();
 	ManagerObjectIterator end();
@@ -103,7 +112,6 @@ public:
 	*/
 	void reset();
 
-	//const Q_ULLONG Unlimited = 9223372036854775807;
 	static const Q_ULLONG Unlimited = ULONG_MAX;
 protected:
 	/*!
@@ -125,15 +133,16 @@ protected:
 	@param oid the iterator of the object which references are to be freed
 	@param filter the filter to apply and thus the references that will be removed
 	*/
-	void removeObjectReferences( QMapIterator<OidType, QMap<QString, QPair<OidType, bool> > > oid, Filter filter );
+	//void removeObjectReferences( QMapIterator<OidType, QMap<QString, QPair<OidType, bool> > > oid, Filter filter );
+	void Manager::removeObjectReferences( QMap<QString, QPair<OidType, bool> > map, Filter filter );
 
 	/*!
 	This function is called inside ensureUnderMaxObjects, whenever an object is decided that is no longer necessary in memory. Then, all references the object has and which have not been modified are freed. It is also used by rollback.
 	@param oid the iterator of the object which references are to be freed
 	@param filter the filter to apply and thus the references that will be removed
 	*/
-	void removeCollectionReferences( QMapIterator<OidType, QMap<QString, Collection*> > oid, Filter filter );
-
+	//void removeCollectionReferences( QMapIterator<OidType, QMap<QString, Collection*> > oid, Filter filter );
+	void Manager::removeCollectionReferences( QMap<QString, Collection*> map, Filter filter );
 	/*!
 	This function acts as the previous function but also removes the oid from the map if it is empty when the appropiate references are removed
 	@param oid the oid of the object which references are to be freed

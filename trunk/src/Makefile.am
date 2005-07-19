@@ -23,7 +23,7 @@ libkandau_la_SOURCES = collection.cpp dbbackendiface.cpp manager.cpp \
 		object.cpp oidtype.cpp testbackend.cpp labels.cpp sqldbbackend.cpp seqtype.cpp \
 		xmldbbackend.cpp classes.cpp inmemorysqldbbackend.cpp
 include_HEADERS = collection.h dbbackendiface.h defs.h manager.h \
-		object.h	oidtype.h testbackend.h xmldbbackend.h classes.h labels.h seqtype.h \
-	sqldbbackend.h
+			object.h	oidtype.h testbackend.h xmldbbackend.h classes.h labels.h seqtype.h \
+		sqldbbackend.h inmemorysqldbbackend.h
 
-noinst_HEADERS = inmemorysqldbbackend.h
+

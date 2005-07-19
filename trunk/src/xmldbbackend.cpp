@@ -38,6 +38,9 @@ XmlDbBackend::~XmlDbBackend()
 
 void XmlDbBackend::setup()
 {
+	Manager::self()->setMaxObjects( Manager::Unlimited );
+	Manager::self()->reset();
+
 	QFile file( m_fileName );
 	QDomDocument doc;
 	if ( file.open( IO_ReadOnly ) && doc.setContent( &file ) ) {
@@ -189,11 +192,13 @@ void XmlDbBackend::objectToElement( Object* object, QDomDocument *doc, QDomEleme
 	CollectionIterator cEnd( object->collectionsEnd() );
 	kdDebug() << "Iterating collections (" << object->numCollections() << ")" << endl;
 	for ( ; cIt != cEnd; ++cIt ) {
-		QDomElement collection = doc->createElement( (*cIt)->collectionInfo()->childrenClassInfo()->name() );
+		Collection * tmp = (*cIt);
+		assert( tmp );
+		QDomElement collection = doc->createElement( tmp->collectionInfo()->childrenClassInfo()->name() );
 		collections.appendChild( collection );
 
-		oIt = (*cIt)->begin();
-		oEnd = (*cIt)->end();
+		oIt = tmp->begin();
+		oEnd = tmp->end();
 		for ( ; oIt != oEnd; ++oIt ) {
 			e = doc->createElement( "oid" );
 			t = doc->createTextNode( oidToString( (*oIt)->oid() ) );
@@ -256,4 +261,9 @@ bool XmlDbBackend::commit()
 void XmlDbBackend::afterRollback()
 {
 	setup();
+}
+
+bool XmlDbBackend::load( Collection */*collection*/, const QString& /*query*/ )
+{
+	return true;
 }

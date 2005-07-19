@@ -31,9 +31,8 @@ class Manager;
 class SqlBackendTest : public Tester
 {
 public:
-	void commit();
-	void rollback();
-	void modify();
+	void transactions();
+	void collections();
 
 	void allTests();
 private:

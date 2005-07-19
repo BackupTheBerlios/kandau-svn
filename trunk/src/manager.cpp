@@ -37,8 +37,8 @@ Manager::Manager( DbBackendIface *backend )
 	assert( m_self == 0 );
 	m_dbBackend = backend;
 	m_self = this;
-//	m_maxObjects = MaxObjects;
-	m_maxObjects = Unlimited;
+	m_maxObjects = MaxObjects;
+//	m_maxObjects = Unlimited;
 
 	// Initialize the backend (maybe it needs to initialize some
 	// values of the manager such as maxObjects or fill the map of objects in a
@@ -88,7 +88,6 @@ bool Manager::add( Object* object )
 	kdDebug() << k_funcinfo << ": Oid=" << object->oid() << endl;
 	// Call before m_objects.insert as it might free the just added object.
 	ensureUnderMaxObjects();
-	kdDebug() << k_funcinfo << ": Oid=" << object->oid() << endl;
 	m_objects.insert( object->oid(), object );
 	return true;
 }
@@ -116,6 +115,19 @@ Object* Manager::object( OidType oid )
 bool Manager::load( Collection* collection )
 {
 	return m_dbBackend->load( collection );
+}
+
+bool Manager::load( Collection* collection, const QString& query )
+{
+	QMapIterator<OidType, Object*> it( m_objects.begin() );
+	QMapIterator<OidType, Object*> end( m_objects.end() );
+	QString className = query.lower();
+	for ( ; it != end; ++it ) {
+		if ( it.data()->classInfo()->name().lower() == className ) {
+			collection->simpleAdd( it.data()->oid() );
+		}
+	}
+	return m_dbBackend->load( collection, query );
 }
 
 bool Manager::commit()
@@ -167,8 +179,8 @@ bool Manager::commit()
 bool Manager::rollback()
 {
 	// Delete all modified objects
-	QMapIterator<OidType, Object*> oit( m_objects.begin() );
-	QMapIterator<OidType, Object*> oend( m_objects.end() );
+	ManagerObjectIterator oit( m_objects.begin() );
+	ManagerObjectIterator oend( m_objects.end() );
 	QValueList<OidType> olist;
 	for ( ; oit != oend; ++oit ) {
 		if ( (*oit)->isModified() )
@@ -183,10 +195,10 @@ bool Manager::rollback()
 	olist.clear();
 
 	// Delete all modified relations
-	QMapIterator<OidType, QMap<QString, QPair<OidType, bool> > > rit ( m_relations.begin() );
-	QMapIterator<OidType, QMap<QString, QPair<OidType, bool> > > rend ( m_relations.end() );
+	ManagerRelatedObjectIterator rit ( m_relations.begin() );
+	ManagerRelatedObjectIterator rend ( m_relations.end() );
 	for ( ; rit != rend; ++rit ) {
-		removeObjectReferences( rit, Modified );
+		removeObjectReferences( *rit, Modified );
 		if ( (*rit).count() == 0 )
 			olist.append( rit.key() );
 	}
@@ -194,21 +206,33 @@ bool Manager::rollback()
 	lend = olist.end();
 	for ( ; lit != lend; ++lit ) {
 		if ( m_objects.contains( *lit ) ) {
-		  kdDebug() << "deleting object due to its modified relations" << endl;
+			kdDebug() << "deleting object due to its modified relations" << endl;
 			delete m_objects[ *lit ];
 			m_objects.remove( *lit );
 		}
 		m_relations.remove( *lit );
 	}
 	olist.clear();
-	
-	QMapIterator<OidType, QMap<QString, Collection*> > cit( m_collections.begin() );
-	QMapIterator<OidType, QMap<QString, Collection*> > cend( m_collections.end() );
+
+	// Delete all modified collections
+	ManagerRelatedCollectionIterator cit( m_collections.end() );
+	ManagerRelatedCollectionIterator cend( m_collections.end() );
 	for ( ; cit != cend; ++cit ) {
-		removeCollectionReferences( cit, Modified );
+		removeCollectionReferences( *cit, Modified );
 		if ( (*cit).count() == 0 )
 			olist.append( cit.key() );
 	}
+	lit = olist.begin();
+	lend = olist.end();
+	for ( ; lit != lend; ++lit ) {
+		if ( m_collections.contains( *lit ) ) {
+			kdDebug() << "deleting object due to its modified relations" << endl;
+			delete m_objects[ *lit ];
+			m_objects.remove( *lit );
+		}
+		m_collections.remove( *lit );
+	}
+	olist.clear();
 
 	// Backend callback
 	m_dbBackend->afterRollback();
@@ -315,12 +339,12 @@ void Manager::ensureUnderMaxObjects( Object *object )
 	}
 }
 
-void Manager::removeObjectReferences( QMapIterator<OidType, QMap<QString, QPair<OidType, bool> > > oid, Filter filter )
+void Manager::removeObjectReferences( QMap<QString, QPair<OidType, bool> > map, Filter filter )
 {
   	bool boolFilter = filter == Modified ? true : false;
 
-	QMapIterator<QString,QPair<OidType,bool> > it( (*oid).begin() );
-	QMapIterator<QString,QPair<OidType,bool> > end( (*oid).end() );
+	QMapIterator<QString,QPair<OidType,bool> > it( map.begin() );
+	QMapIterator<QString,QPair<OidType,bool> > end( map.end() );
 	QValueList<QString> list;
 	for ( ; it != end; ++it )
 		if ( (*it).second == boolFilter )
@@ -328,34 +352,35 @@ void Manager::removeObjectReferences( QMapIterator<OidType, QMap<QString, QPair<
 	QValueListIterator<QString> vIt( list.begin() );
 	QValueListIterator<QString> vEnd( list.end() );
 	for ( ; vIt != vEnd; ++vIt )
-		(*oid).remove( *vIt );
+		map.remove( *vIt );
 }
-
 
 void Manager::removeObjectReferences( const OidType& oid, Filter filter )
 {
-	QMapIterator<OidType, QMap<QString, QPair<OidType, bool> > > it = m_relations.find( oid );
-	if ( it == m_relations.end() )
-			return;
-	removeObjectReferences( it, filter );
-	if ( (*it).count() == 0 )
-		m_relations.remove( oid );
+        QMapIterator<OidType, QMap<QString, QPair<OidType, bool> > > it = m_relations.find( oid );
+        if ( it == m_relations.end() )
+                        return;
+        removeObjectReferences( *it, filter );
+        if ( (*it).count() == 0 )
+                m_relations.remove( oid );
 }
 
-void Manager::removeCollectionReferences( QMapIterator<OidType, QMap<QString, Collection*> > oid, Filter filter )
+void Manager::removeCollectionReferences( QMap<QString, Collection*> map, Filter filter )
 {
   	bool boolFilter = filter == Modified ? true : false;
 
-	QMapIterator<QString, Collection*> it( (*oid).begin() );
-	QMapIterator<QString, Collection*> end( (*oid).end() );
+	QMapIterator<QString, Collection*> it( map.begin() );
+	QMapIterator<QString, Collection*> end( map.end() );
 	QValueList<QString> list;
 	for ( ; it != end; ++it )
 		if ( (*it)->modified() == boolFilter )
 			list.append( it.key() );
 	QValueListIterator<QString> vIt( list.begin() );
 	QValueListIterator<QString> vEnd( list.end() );
-	for ( ; vIt != vEnd; ++vIt )
-		(*oid).remove( *vIt );
+	for ( ; vIt != vEnd; ++vIt ) {
+		delete map[ *vIt ];
+		map.remove( *vIt );
+	}
 }
 
 ManagerObjectIterator Manager::begin()
@@ -670,8 +695,25 @@ Collection* Manager::collection( const OidType& oid, RelatedCollection* collecti
 
 void Manager::reset()
 {
-	m_relations.clear();
+	ManagerObjectIterator it( m_objects.begin() );
+	ManagerObjectIterator end( m_objects.end() );
+	for ( ; it != end; ++it )
+		delete it.data();
 	m_objects.clear();
+
+	ManagerRelatedCollectionIterator cit( m_collections.begin() );
+	ManagerRelatedCollectionIterator cend( m_collections.end() );
+	for ( ; cit != cend; ++cit ) {
+		QMapIterator <QString, Collection*> sit( (*cit).begin() );
+		QMapIterator <QString, Collection*> send( (*cit).end() );
+		for ( ; sit != send; ++sit ) {
+			delete (*sit);
+		}
+	}
+	m_collections.clear();
+
+	m_relations.clear();
+
 	m_dbBackend->reset();
 }
 
@@ -684,3 +726,4 @@ QMap<OidType, QMap<QString, Collection*> >& Manager::collections()
 {
 	return m_collections;
 }
+

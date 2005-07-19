@@ -35,6 +35,7 @@ public:
 	void shutdown();
 	bool load( const OidType& oid, Object *object );
 	bool load( Collection *collection );
+	bool load( Collection *collection, const QString& query );
 	bool createSchema();
 	bool hasChanged( Object * object );
 	bool commit();

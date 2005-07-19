@@ -46,6 +46,7 @@ class ObjectIterator;
 class Collection
 {
 public:
+	Collection( const QString& query );
 	Collection( RelatedCollection *rel, const OidType& parent );
 	virtual ~Collection();
 
@@ -57,8 +58,6 @@ public:
 	bool remove( const OidType& oid );
 
 	bool contains( const OidType& oid );
-
-	bool load();
 
 	bool modified() const;
 	void setModified( bool m );
@@ -78,6 +77,8 @@ public:
 
 	bool simpleAdd( const OidType& oid );
 	void simpleRemove( const OidType& oid );
+protected:
+	CreateObjectFunction createObjectFunction();
 
 private:
 	// This variable contains the name of the class of the objects the collection
@@ -99,6 +100,8 @@ private:
 
 	// Whether the collection has been modified or not
 	bool m_modified;
+
+	CreateObjectFunction m_createObjectFunction;
 };
 
 #endif

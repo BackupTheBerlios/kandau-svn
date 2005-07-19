@@ -340,19 +340,12 @@ Object::Object()
 {
 	m_oid = 0;
 	m_modified = false;
-	//m_removed = false;
 	m_loaded = false;
 	m_classInfo = 0;
 }
 
 Object::~Object()
 {
-/*
-  	QMapIterator<QString,Collection*> it( m_collections.begin() );
-	QMapIterator<QString,Collection*> end( m_collections.end() );
-	for ( ; it != end; ++it )
-		delete (*it);
-*/
 }
 
 Object* Object::create()
@@ -429,14 +422,6 @@ void Object::setModified( bool value )
 {
 	m_modified = value;
 }
-
-/*
-bool Object::remove()
-{
-	m_removed = true;
-	return Manager::self()->remove( this );
-}
-*/
 
 /*
 Functions for managing the properties
@@ -548,26 +533,5 @@ Collection* Object::collection( const QString& name ) const
 	kdDebug() << k_funcinfo << ": name = " << name << ", classInfo()->name = " << classInfo()->name() << ", relation = " << relation << endl;
 	return Manager::self()->collection( this, relation );
 }
-
-
-/*
-Routines to ease the creation of relations between objects
-*/
-/*
-void Object::createSubobject( const QString& className, CreateObjectFunction function )
-{
-	assert( ! m_objects.contains( className ) );
-	assert( function );
-	//m_objects.insert( className, QPair<OidType,CreateObjectFunction>(0, function) );
-	Classes::currentClass()->addSubobject( className, function );
-}
-
-void Object::createSubcollection( const QString& className, CreateObjectFunction function, bool nToOne )
-{
-	assert( function );
-	//m_collections.insert( className, new Collection( function, this, nToOne ) );
-	Classes::currentClass()->addSubcollection( className, function, nToOne );
-}
-*/
 
 #include "object.moc"

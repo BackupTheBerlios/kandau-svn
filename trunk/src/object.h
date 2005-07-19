@@ -212,11 +212,94 @@ private:
 };
 
 
-/*!
+/*
 	We should provide an easy way to check if any class that inherits Object,
 	has the MODIFIED macro to all set operations and doesn't have it on GET
 	operations. Maybe an optional compilation flag could add a function, or
 	simply a test case should be provided.
+*/
+
+/*!
+Any object that is to be persistent must inherit from this class, declare de class with DCLASS in the header and implement it with ICLASS (see example below)
+
+Data which has to be saved needs to be a Qt property (see http://doc.trolltech.com/3.3/properties.html) and relations of objects
+
+Related objects (that is 1-1 relations), have to be declared with the OBJECT() macro in the void OurNewPersistentClass::createRelations() function.
+
+Related collections (that is N-N or N-1 relations) have to be declared COLLECTION() macro in the createRelations() function, as well.
+
+Example:
+<code>
+// Header: example.h
+
+class Example : public Object
+{
+	Q_OBJECT
+	Q_PROPERTY( QString exampleProperty READ exampleProperty WRITE setExampleProperty )
+
+public:
+	DCLASS( Example );
+
+	const QString& exampleProperty() const;
+	void setExampleProperty( const QString& prop );
+
+	AnotherExample* anotherExample();
+	void setAnotherExample( AnotherExample* otherExample );
+
+	Collection* moreExamples();
+
+private:
+	QString m_exampleProperty;
+};
+
+// Source: example.cpp
+#include <klocale.h>
+#include <labels.h>
+
+#include "example.h"
+#include "anotherexample.h"
+
+ICLASS( Example );
+
+void Example::createRelations()
+{
+	OBJECT( AnotherExample );
+	COLLECTION( AnotherExample);
+}
+
+void Example::createLabels()
+{
+	LABEL( "exampleProperty", i18n( "Property of the example" ) );
+}
+
+const QString& Example::exampleProperty() const
+{
+	return m_exampleProperty;
+}
+
+void Example::setExampleProperty( const QString& prop )
+{
+	MODIFIED;
+	m_exampleProperty = prop;
+}
+
+AnotherExample* Example::anotherExample()
+{
+	return GETOBJECT( AnotherExample );
+}
+
+void Example::setAnotherExample( AnotherExample* otherExample )
+{
+	SETOBJECT( AnotherExample, otherExample );
+}
+
+Collection* Example::moreExamples()
+{
+	return GETCOLLECTION( AnotherExample );
+}
+
+#include "example.moc"
+</code>
 */
 
 class Object : public QObject
@@ -243,36 +326,6 @@ public:
 
 	bool isModified() const;
 	void setModified( bool value );
-
-	/*
-	This function, though necessary, introduces some problems to the
-	design that need to be resolved. What happens when an object is
-	deleted and other objects are refering it?
-	Maybe it is needed an SQL like solution. The idea is that we
-	are able to configure the Manager to one of the following behaviours:
-	- NoAction -> Does not allow the removal of the object and thus remove()
-	returns	a false.
-	- Cascade -> Delete any objects refering this object.
-	- SetNull -> Set to null the references of the refering objects.
-	- Ignore -> This one introduces inconsistency but might be desired for
-	performance reasons. Indeed, it could enable for example progressive
-	nullification of the references. For example, object One is removed and
-	object Two which referes to One is instanciated, and then from Two we want
-	to browse to One, of course this one doesn't exist it is not loaded and
-	set to null at that moment. However, this solution doesn't look good as one
-	should test if an object is null and then load it. But maybe it could be
-	an option. Just writing my thoughts.
-	- Delay -> Another option, maybe not very nice could be to delay the
-	nullification or the cascade options until commit() but it would bring
-	inconsistencies in memory before the commit so most probably not a good
-	idea.
-
-	Another possibility to the whole deletion problem could be specify the
-	behaviour in each reference something like OBJECT( ReferedObject, CASCADE )
-	This would surely add more flexibility to the programer/designer, though it
-	could be left to a later development cycle.
-	*/
-//	bool remove();
 
 	/*
 	Functions for managing the properties
@@ -302,13 +355,6 @@ public:
 	void setObject( const QString& name, Object* object );
 	void setObject( const QString& name, const OidType& oid );
 
-
-	// If it is possible, we should try to avoid the need for this function
-	// as objects are stored in a QMap() it would be very inefficent to allow
-	// acces by an index. We have an iterator anyway and if access to an specific
-	// Object is needed we have the QString as the key.
-	//Object* object( int pos );
-
 	/*
 	Functions for managing the collections of objects related
 	*/
@@ -318,17 +364,7 @@ public:
 	int numCollections() const;
 	Collection* collection( const QString& name ) const;
 
-	// Does it make any sense to make a setCollection function? I don't
-	// see the point right now so...
-
 protected:
-	/*
-	Routines to ease the creation of relations between objects, better if they
-	are used through the OBJECT() and COLLECTION(), macros.
-	*/
-	//void createSubobject( const QString& className, CreateObjectFunction function );
-	//void createSubcollection( const QString& className, CreateObjectFunction function, bool nToOne = true );
-
 	// m_modified is protected because the MODIFIED macro needs it,
 	// is it a good solution?
 	bool m_modified;

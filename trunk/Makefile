@@ -655,7 +655,7 @@ dist-hook:
 .NOEXPORT:
 
 #>+ 2
-KDE_DIST=stamp-h.in kandau.tag kandau.kdevelop.pcs subdirs kandau.kdevses configure.files Makefile.cvs Doxyfile kandau.kdevelop 
+KDE_DIST=stamp-h.in kandau.tag kandau.kdevelop.pcs subdirs kandau.kdevses configure.files Makefile.cvs svn-commit.tmp Doxyfile kandau.kdevelop 
 
 #>+ 2
 docs-am:

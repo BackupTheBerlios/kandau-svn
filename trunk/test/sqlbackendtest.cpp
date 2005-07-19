@@ -31,7 +31,7 @@
 #include "article.h"
 #include "customer.h"
 
-void SqlBackendTest::commit()
+void SqlBackendTest::transactions()
 {
 	ObjectRef<CustomerOrder> order = CustomerOrder::create();
 	order->setNumber( 50000 );
@@ -95,13 +95,26 @@ void SqlBackendTest::commit()
 	CHECK( Manager::self()->commit(), true );
 }
 
-void SqlBackendTest::rollback()
+void SqlBackendTest::collections()
 {
-}
-
-void SqlBackendTest::modify()
-{
-	
+	/*
+	Collection col( "SELECT * FROM Article" );
+	Collection col( "SELECT article WHERE nom like '%A%'" );
+	Collection col( "customerorder.article_customerorder.* WHERE customerorder.customer_customerorder.city='Barcelona' AND customerorder.article_customerorder.description LIKE '%pepet%'" );
+	*/
+	Collection col( "Article" );
+	Article *article;
+	ObjectIterator it( col.begin() );
+	ObjectIterator end( col.end() );
+	for ( ; it != end; ++it ) {
+		article = static_cast<Article*>( *it );
+		kdDebug() << "Object: " << article->oid() << ": " << article->label() << endl;
+		// As long as we don't have a way to sort collections, we won't be
+		// able to make this test nicer
+		if ( article->label() != "Article One"  && article->label() != "Article Two" ) {
+			CHECK( true, false );
+		}
+	}
 }
 
 void SqlBackendTest::allTests()
@@ -142,9 +155,8 @@ void SqlBackendTest::allTests()
 	m_manager = new Manager( backend );
 	m_manager->createSchema();
 
-	commit();
-	rollback();
-	modify();
+	transactions();
+	collections();
 
 	delete m_manager;
 }

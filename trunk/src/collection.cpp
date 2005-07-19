@@ -26,21 +26,12 @@
 #include "object.h"
 #include "manager.h"
 
-/*
-Collection::Collection( CreateObjectFunction function, Object *parent, bool nToOne )
+Collection::Collection( const QString& query )
 {
-	assert( function );
-	m_createObjectFunction = function;
-	m_parent = parent;
-
-	m_nToOne = nToOne;
-	m_nToOneSet = ! nToOne;
-	m_loaded = false;
-
-	if ( ! parent )
-		load();
+	assert( Classes::contains( query ) );
+	Manager::self()->load( this, query );
+	m_createObjectFunction = Classes::classInfo( query )->createObjectFunction();
 }
-*/
 
 Collection::Collection( RelatedCollection *rel, const OidType& parent )
 {
@@ -48,22 +39,16 @@ Collection::Collection( RelatedCollection *rel, const OidType& parent )
 	m_collectionInfo = rel;
 	m_parent = parent;
 	m_modified = false;
+	m_createObjectFunction = m_collectionInfo->childrenClassInfo()->createObjectFunction();
+	assert( m_collectionInfo );
 }
 
 Collection::~Collection()
 {
 }
 
-/*
-CreateObjectFunction Collection::createObjectFunction()
-{
-	return m_createObjectFunction;
-}
-*/
-
 Object* Collection::addNew()
 {
-//	Object *obj = m_createObjectFunction();
 	Object *obj = m_collectionInfo->childrenClassInfo()->create();
 	assert( obj );
 	Manager::self()->add( obj );
@@ -79,13 +64,6 @@ bool Collection::add( Object *object )
 		m_collection.insert( object->oid(), 0 );
 		m_modified = true;
 		return true;
-		/*if ( Manager::self()->add( this, object ) ) {
-			m_collection.insert( object->oid(), 0 );
-			return true;
-		} else {
-			kdDebug() << "Error adding an object to a collection" << endl;
-			return false;
-		}*/
 	}
 	return false;
 }
@@ -120,7 +98,6 @@ Removes the object with oid oid from the collection.
 */
 bool Collection::remove( const OidType& oid )
 {
-	load();
 	Manager::self()->removeRelation( m_parent, m_collectionInfo, oid, true );
 	return true;
 }
@@ -130,22 +107,7 @@ Returns whether the collection contains an object with oid oid.
 */
 bool Collection::contains( const OidType& oid )
 {
-	load();
 	return m_collection.contains( oid );
-}
-
-/*!
-Loads the collection.
-*/
-bool Collection::load()
-{
-/*
-	if ( m_loaded )
-		return true;
-	m_loaded = Manager::self()->load( this );
-	return m_loaded;
-*/
-	return true;
 }
 
 /*!
@@ -180,9 +142,7 @@ Returns an iterator pointing the first object of the collection
 */
 ObjectIterator Collection::begin()
 {
-	load();
-	//return ObjectIterator( m_collection.begin(), m_createObjectFunction );
-	return ObjectIterator( m_collection.begin(), m_collectionInfo->childrenClassInfo()->createObjectFunction() );
+	return ObjectIterator( m_collection.begin(), m_createObjectFunction );
 }
 
 /*!
@@ -190,10 +150,7 @@ Returns an iterator pointing past the last object of the collection.
 */
 ObjectIterator Collection::end()
 {
-	//assert( m_createObjectFunction );
-	load();
-	//return ObjectIterator( m_collection.end(), m_createObjectFunction );
-	return ObjectIterator( m_collection.end(), m_collectionInfo->childrenClassInfo()->createObjectFunction() );
+	return ObjectIterator( m_collection.end(), m_createObjectFunction );
 }
 
 /*!
@@ -209,7 +166,6 @@ Returns the number of objects in the collection (same as count())
 */
 int Collection::numObjects()
 {
-	load();
 	return m_collection.count();
 }
 
@@ -228,7 +184,7 @@ Returns a pointer to the object the collection is in.
 */
 Object* Collection::parent() const
 {
-	return Manager::self()->load( m_parent, m_collectionInfo->parentClassInfo()->createObjectFunction() );
+	return Manager::self()->load( m_parent, m_createObjectFunction );
 }
 
 /*!
@@ -245,5 +201,6 @@ Returns a pointer to a RelatedCollection which contains the information for the 
 */
 RelatedCollection* Collection::collectionInfo() const
 {
+	assert( m_collectionInfo );
 	return m_collectionInfo;
 }

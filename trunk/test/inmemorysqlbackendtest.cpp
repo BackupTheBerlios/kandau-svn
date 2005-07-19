@@ -31,12 +31,11 @@
 #include "article.h"
 #include "customer.h"
 
-void InMemorySqlBackendTest::commit()
+void InMemorySqlBackendTest::transactions()
 {
 	ObjectRef<CustomerOrder> order = CustomerOrder::create();
 	order->setNumber( 50000 );
 	order->setDate( QDate::currentDate() );
-
 	order->setOrder( order );
 
 	ObjectRef<Article> a1 = Article::create();
@@ -59,7 +58,41 @@ void InMemorySqlBackendTest::commit()
 	c->setZipCode( "Zip Code" );
 	c->setCountry( "Country" );
 	order->setCustomer( c );
-	Manager::self()->commit();
+
+	CHECK( Manager::self()->commit(), true );
+
+	a1->setDescription( "MODIFIED description of article number one" );
+	CHECK( Manager::self()->commit(), true );
+
+	ObjectRef<Customer> c2 = Customer::create();
+	c2->setCode( "0002" );
+	c2->setCustomerName( "Customer Two" );
+	c2->setAddress( "Street" );
+	c2->setCity( "City" );
+	c2->setZipCode( "Zip Code" );
+	c2->setCountry( "Country" );
+	order->setCustomer( c2 );
+	CHECK( Manager::self()->commit(), true );
+
+	order->articles()->add( a2 );
+	CHECK( Manager::self()->commit(), true );
+
+	order->articles()->remove( a1 );
+	CHECK( Manager::self()->commit(), true );
+
+	order->articles()->add( a1 );
+	CHECK( Manager::self()->rollback(), true );
+
+	order->setCustomer( c );
+	CHECK( Manager::self()->commit(), true );
+
+	order->setCustomer( c2 );
+	CHECK( Manager::self()->rollback(), true );
+
+	CHECK( Manager::self()->commit(), true );
+
+	Manager::self()->remove( c2 );
+	CHECK( Manager::self()->commit(), true );
 }
 
 void InMemorySqlBackendTest::rollback()
@@ -140,7 +173,7 @@ void InMemorySqlBackendTest::allTests()
 	m_manager = new Manager( backend );
 	m_manager->createSchema();
 
-	commit();
+	transactions();
 	rollback();
 
 	delete m_manager;

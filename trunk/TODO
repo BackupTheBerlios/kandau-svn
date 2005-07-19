@@ -26,7 +26,7 @@ There are lots of things to think about. Here are some of them:
 	be Optimistic Offline Lock. See Patterns Of Enterprise Application
 	Architecture, Martin Fowler (2003). Addison-Wesley.
 
-(WORK)	- It'd be nice if two (or more) different relations could be created between
+(DONE)	- It'd be nice if two (or more) different relations could be created between
 	two classes. A way of dealing with that has to be thought while keeping
 	everything as fast as possible.
 

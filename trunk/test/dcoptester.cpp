@@ -50,7 +50,7 @@ int main( int argc, char** argv )
 	
 	KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
 	Q_UNUSED( args );
-	
+
 	Classes::setup();
 	DbBackendIface *backend = new TestBackend();
 	Manager* manager = new Manager( backend );

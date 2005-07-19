@@ -30,7 +30,7 @@ class Manager;
 class XmlBackendTest : public Tester
 {
 public:
-	void commit();
+	void transactions();
 	void rollback();
 	void setup();
 	void shutdown();

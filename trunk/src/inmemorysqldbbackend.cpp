@@ -37,6 +37,9 @@ InMemorySqlDbBackend::~InMemorySqlDbBackend()
 /* Called at the Manager constructor */
 void InMemorySqlDbBackend::setup()
 {
+	Manager::self()->setMaxObjects( Manager::Unlimited );
+	Manager::self()->reset();
+
 	OidType maxOid, oid;
 	ClassInfoIterator m_it( Classes::begin() );
 	ClassInfoIterator m_end( Classes::end() );
@@ -349,3 +352,7 @@ void InMemorySqlDbBackend::afterRollback()
 	setup();
 }
 
+bool InMemorySqlDbBackend::load( Collection */*collection*/, const QString& /*query*/ )
+{
+	return true;
+}

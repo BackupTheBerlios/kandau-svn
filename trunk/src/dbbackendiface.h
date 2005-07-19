@@ -61,6 +61,13 @@ public:
 	virtual bool load( Collection *collection ) = 0;
 
 	/*!
+	Loads a collection from the database
+	@param collection Pointer to the collection where the data has to be loaded to
+	@param query Name of the class type of the objects you want to load
+	*/
+	virtual bool load( Collection *collection, const QString& query ) = 0;
+
+	/*!
 	Creates the database schema, such as creating tables and sequences in a SQL backend or a DTD in a XML backend.
 	@return false if the schema could not be created, true otherwise.
 	*/
