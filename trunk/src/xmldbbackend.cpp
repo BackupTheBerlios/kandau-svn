@@ -43,9 +43,7 @@ void XmlDbBackend::setup()
 
 	QFile file( m_fileName );
 	QDomDocument doc;
-	if ( file.open( IO_ReadOnly ) && doc.setContent( &file ) ) {
-		kdDebug() << "File opened correctly" << endl;
-	} else {
+	if ( ! file.open( IO_ReadOnly ) || ! doc.setContent( &file ) ) {
 		kdDebug() << "File not found" << endl;
 		doc.appendChild( doc.createElement( "Database" ) );
 	}
@@ -151,7 +149,6 @@ OidType XmlDbBackend::elementToObject( const QDomElement& e )
 void XmlDbBackend::objectToElement( Object* object, QDomDocument *doc, QDomElement *parent )
 {
 	assert( object );
-	//kdDebug() << "XmlDbBackend::objectToElement()" << endl;
 	QDomElement root = doc->createElement( object->className() );
 	parent->appendChild( root );
 
@@ -190,7 +187,6 @@ void XmlDbBackend::objectToElement( Object* object, QDomDocument *doc, QDomEleme
 
 	CollectionIterator cIt( object->collectionsBegin() );
 	CollectionIterator cEnd( object->collectionsEnd() );
-	//kdDebug() << "Iterating collections (" << object->numCollections() << ")" << endl;
 	for ( ; cIt != cEnd; ++cIt ) {
 		Collection * tmp = (*cIt);
 		assert( tmp );
@@ -242,7 +238,6 @@ bool XmlDbBackend::commit()
 
 	ManagerObjectIterator it( Manager::self()->begin() );
 	ManagerObjectIterator end( Manager::self()->end() );
-	kdDebug() << "Starting manager loop(" << Manager::self()->count() << " objects)" << endl;
 	for ( ; it != end; ++it )
 		objectToElement( *it, &doc, &root );
 

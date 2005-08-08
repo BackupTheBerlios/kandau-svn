@@ -48,16 +48,12 @@ void InMemorySqlDbBackend::setup()
 		ClassInfo* info = (*m_it);
 		QSqlCursor cursor( info->name() );
 		cursor.select();
-		kdDebug() << k_funcinfo << " loading class: " << info->name() << endl;
-		kdDebug() << k_funcinfo << " LastQuery: " << cursor.lastQuery() << endl;
-		kdDebug() << k_funcinfo << " LastError: " << cursor.lastError().text() << endl;
 		while ( cursor.next() ) {
 			oid = variantToOid( cursor.value( "oid" ) );
 			
 			Object* object = Classes::classInfo( info->name() )->create( oid );
 			assert( object );
 			loadObject( cursor, object );
-			kdDebug() << k_funcinfo << " object loaded: " << oidToString( object->oid() ) << endl;
 			if ( oid > maxOid )
 				maxOid = oid;
 		}
@@ -96,7 +92,6 @@ void InMemorySqlDbBackend::saveObject( Object* object )
 {
 	assert( object );
 	assert( object->classInfo() );
-	kdDebug() << object->classInfo()->name() << endl;
 	QSqlCursor cursor( object->classInfo()->name() );
 	cursor.select();
 	QSqlRecord *buffer = cursor.primeInsert();
@@ -139,7 +134,6 @@ void InMemorySqlDbBackend::saveObject( Object* object )
 			buffer->setValue( (*coIt)->classInfo()->name(), (*coIt)->oid() );
 			cCursor.insert();
 		}
-
 		(*cIt)->setModified( false );
 	}
 }
@@ -152,7 +146,6 @@ void InMemorySqlDbBackend::shutdown()
 /* Object management related functions */
 bool InMemorySqlDbBackend::load( const OidType& /*oid*/, Object* /*object*/ )
 {
-	//assert( false );
 	kdDebug() << "Entering InMemorySqlDbBackend::load(): This should never happen!" << endl;
 	return true;
 }
@@ -196,7 +189,6 @@ bool InMemorySqlDbBackend::createSchema()
 		PropertyIterator pEnd( object->propertiesEnd() );
 		for ( ; pIt != pEnd; ++pIt ) {
 			prop = *pIt;
-			kdDebug() << "property: " << prop.name() << endl;
 			exec += prop.name() + " " + sqlType( prop.type() ) + ", ";
 		}
 		delete object;
@@ -258,7 +250,6 @@ bool InMemorySqlDbBackend::createSchema()
 		kdDebug() << "Creant taula... " << list[0] << endl;
    		exec = "CREATE TABLE " + list[ 0 ] + " ( " + list[ 1 ] + " BIGINT NOT NULL REFERENCES " + list[ 1 ] + " DEFERRABLE INITIALLY DEFERRED, "+ list[ 2 ] + " BIGINT NOT NULL REFERENCES " + list[2] +" DEFERRABLE INITIALLY DEFERRED, PRIMARY KEY( "+ list[1] +" , " + list[2] + " ) );";
 
-		kdDebug() << exec << endl;
 		m_db->exec( exec );
 		kdDebug() << m_db->lastError().text() << endl;
 	}
@@ -266,7 +257,6 @@ bool InMemorySqlDbBackend::createSchema()
 	for ( i = 0; i < constraints.count(); ++i ) {
 		list = QStringList::split( QString( "-" ), constraints[ i ] );
 		exec = "ALTER TABLE " + list[ 0 ] + " ADD FOREIGN KEY (" + list[ 1 ] + ") REFERENCES " + list[ 2 ] + "( dboid ) DEFERRABLE INITIALLY DEFERRED";
-		kdDebug() << exec << endl;
 		m_db->exec( exec );
 	}
 	return true;
@@ -346,7 +336,7 @@ QString InMemorySqlDbBackend::sqlType( QVariant::Type type )
 		case QVariant::ByteArray:
 			return "BYTEA";
 		default:
-			kdDebug() << "Tipus sense classificar: " << QVariant::typeToName( type ) << endl;
+			kdDebug() << "Unclassified Type: " << QVariant::typeToName( type ) << endl;
 			assert( false );
 			return "INTEGER";
 	}

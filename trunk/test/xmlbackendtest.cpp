@@ -103,7 +103,6 @@ void XmlBackendTest::collections()
 	ObjectIterator end( col.end() );
 	for ( ; it != end; ++it ) {
 		article = static_cast<Article*>( *it );
-		kdDebug() << "Object: " << article->oid() << ": " << article->label() << endl;
 		// As long as we don't have a way to sort collections, we won't be
 		// able to make this test nicer
 		if ( article->label() != "Article One"  && article->label() != "Article Two" ) {

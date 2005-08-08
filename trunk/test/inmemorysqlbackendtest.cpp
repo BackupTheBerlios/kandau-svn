@@ -108,7 +108,6 @@ void InMemorySqlBackendTest::collections()
 	ObjectIterator end( col.end() );
 	for ( ; it != end; ++it ) {
 		article = static_cast<Article*>( *it );
-		kdDebug() << "Object: " << article->oid() << ": " << article->label() << endl;
 		// As long as we don't have a way to sort collections, we won't be
 		// able to make this test nicer
 		if ( article->label() != "Article One"  && article->label() != "Article Two" ) {
@@ -120,8 +119,6 @@ void InMemorySqlBackendTest::collections()
 
 void InMemorySqlBackendTest::printClasses()
 {
-	kdDebug() << k_funcinfo << endl;
-
 	ClassInfoIterator cit( Classes::begin() );
 	ClassInfoIterator cend( Classes::end() );
 	ClassInfo *current;
@@ -164,7 +161,7 @@ void InMemorySqlBackendTest::allTests()
 	KProcess *proc = new KProcess;
 	*proc << "dropdb";
 	*proc << dbname;
-	CHECK( proc->start(), true );
+	proc->start();
 	proc->wait();
 	delete proc;
 
@@ -174,8 +171,11 @@ void InMemorySqlBackendTest::allTests()
 	*proc << dbname;
 	CHECK( proc->start(), true );
 	proc->wait();
-	CHECK( proc->normalExit(), true );
-	CHECK( proc->exitStatus(), 0 );
+	if ( ! proc->normalExit() || proc->exitStatus() != 0 ) {
+		CHECK( true, false );
+		delete proc;
+		return;
+	}
 	delete proc;
 
 	QSqlDatabase *db = QSqlDatabase::addDatabase( "QPSQL7" );

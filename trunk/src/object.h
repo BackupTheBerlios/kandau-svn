@@ -77,7 +77,6 @@ class Object;
 		assert( object );\
 		object->m_modified = true;\
 		Manager::self()->add( object );\
-		kdDebug() << k_funcinfo << object->oid() << endl;\
 		return object;\
 	}\
 	class* class::create( OidType oid )\

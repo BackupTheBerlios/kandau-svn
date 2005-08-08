@@ -146,8 +146,6 @@ bool SqlDbBackend::save( Object *object )
 	QSqlRecord *record;
 	QSqlCursor cursor( object->classInfo()->name() );
 
-	//kdDebug() << k_funcinfo << endl;
-
 	if ( object->oid() == 0 ) {
 		// Crea un oid únic
 		object->setOid( newOid() );
@@ -293,26 +291,17 @@ Generates a new Oid from the database sequence
 */
 OidType SqlDbBackend::newOid()
 {
-	//QSqlSelectCursor cursor( "SELECT nextval('seq_dboid') AS Oid" );
-	//m_db->exec( "ROLLBACK;" );
 	QSqlQuery query = m_db->exec( "SELECT nextval('seq_dboid');" );
-//	kdDebug() << k_funcinfo << m_db->lastError().text()  << endl;
-//	if ( ! query.isValid() )
-//		kdDebug() << k_funcinfo << "Query not valid" << endl;
 	if ( ! query.next() )
 		ERROR( "Could not read next value from the sequence" );
-//	kdDebug() << k_funcinfo << "OID: " << query.value( 0 ) << endl;
 	return variantToOid( query.value( 0 ) );
 }
 
 SeqType SqlDbBackend::newSeq()
 {
-	//kdDebug() << k_funcinfo << m_db->lastError().text()  << endl;
 	QSqlQuery query = m_db->exec( "SELECT nextval('seq_dbseq')" );
-	//kdDebug() << k_funcinfo << m_db->lastError().text()  << endl;
 	if ( ! query.next() )
 		ERROR( "Could not read next value from the sequence" );
-
 	return variantToOid( query.value( 0 ) );
 }
 
@@ -375,14 +364,10 @@ OidType SqlDbBackend::filterValue( Collection *collection ) const
 		kdDebug() << "The collection doesn't have a parent" << endl;
 		return 0;
 	}
-	// TODO: Veure com podem cridar ERROR sense haver de treure el const
-	// ERROR( "The collection doesn't have a parent" );
-
 	if ( ! collection->parent()->inherits( "Object" ) ) {
 		kdDebug() << "The parent doesn't inherit from Object" << endl;
 		return 0;
 	}
-
 	return static_cast<Object*>(collection->parent())->oid();
 }
 
@@ -403,16 +388,6 @@ bool SqlDbBackend::remove( Collection *collection, const OidType& oid )
 	if ( ! collection->contains( oid ) )
 		ERROR( "Oid doesn't exist in collection" );
 
-	// TODO: Traspassar a ObjectManagerIface
-	/*
-	if ( ! collection->loaded() ) {
-		if ( ! load( collection ) ) {
-			kdDebug() << "Error loading collection" << endl;
-		}
-	}
-	*/
-
-	// TODO: Comprovar si no és preferible fer-ho mitjançant Cursors
 	QSqlQuery query;
 	if ( ! collection->collectionInfo()->isNToOne() ) {
 		query.prepare( "DELETE FROM " + collection->collectionInfo()->name().lower() + " WHERE to_number( " + filterFieldName( collection->collectionInfo() ) + ",'9999999999G0') = " + QString::number( filterValue( collection ) ) + " AND to_number(" + idFieldName( collection->collectionInfo() ) + ",'9999999999G0') = " + oidToString( oid ) );
@@ -460,7 +435,6 @@ bool SqlDbBackend::createSchema()
 		PropertyIterator pEnd( object->propertiesEnd() );
 		for ( ; pIt != pEnd; ++pIt ) {
 			prop = *pIt;
-			kdDebug() << "property: " << prop.name() << endl;
 			exec += prop.name() + " " + sqlType( prop.type() ) + ", ";
 		}
 		delete object;
@@ -566,7 +540,7 @@ QString SqlDbBackend::sqlType( QVariant::Type type )
 		case QVariant::ByteArray:
 			return "BYTEA";
 		default:
-			kdDebug() << "Tipus sense classificar: " << QVariant::typeToName( type ) << endl;
+			kdDebug() << "Unclassified Type: " << QVariant::typeToName( type ) << endl;
 			assert( false );
 			return "INTEGER";
 	}
@@ -588,8 +562,6 @@ Commits the current transaction
 */
 bool SqlDbBackend::commit()
 {
-	kdDebug() << k_funcinfo << endl;
-
 	m_db->transaction();
 	m_db->exec( "SET CONSTRAINTS ALL DEFERRED" );
 

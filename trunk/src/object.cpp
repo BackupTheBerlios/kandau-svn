@@ -155,7 +155,6 @@ const Object* ObjectIterator::data() const
 		assert( m_createObjectFunction );
 		return Manager::self()->load( m_colit.key(), m_createObjectFunction );
 	} else {
-	//	return Manager::self()->load( m_it.data().first, m_it.data().second );
 		return Manager::self()->load( Manager::self()->relation( m_oid, (*m_it)->name() ), (*m_it)->createObjectFunction() );
 
 	}
@@ -240,7 +239,6 @@ Object* ObjectIterator::operator*()
 	} else {
 		return Manager::self()->load( Manager::self()->relation( m_oid, (*m_it)->name() ), (*m_it)->createObjectFunction() );
 	}
-	//	return Manager::self()->load( m_it.data().first, m_it.data().second );
 }
 
 const Object* ObjectIterator::operator*() const
@@ -275,8 +273,6 @@ CollectionIterator::CollectionIterator( const OidType& oid, RelatedCollectionsIt
 
 Collection* CollectionIterator::data()
 {
-//	return Manager::self()->collection( m_oid, (*m_it).name() );
-	//(*m_it).
 	return Manager::self()->collection( m_oid, (*m_it) );
 }
 
@@ -535,7 +531,6 @@ int Object::numCollections() const
 Collection* Object::collection( const QString& name ) const
 {
 	QString relation = ClassInfo::relationName( name, classInfo()->name() );
-	kdDebug() << k_funcinfo << ": name = " << name << ", classInfo()->name = " << classInfo()->name() << ", relation = " << relation << endl;
 	return Manager::self()->collection( this, relation );
 }
 

@@ -135,7 +135,6 @@ bool Manager::add( Object* object )
 
 	if ( object->isNull() )
 		object->setOid( m_dbBackend->newOid() );
-	//kdDebug() << k_funcinfo << ": Oid=" << object->oid() << endl;
 	// Call before m_objects.insert as it might free the just added object.
 	ensureUnderMaxObjects();
 	m_objects.insert( object->oid(), object );
@@ -148,24 +147,9 @@ bool Manager::remove( Object* object )
 	assert( m_objects.count() > 0 );
 	uint num = m_objects.count() - 1;
 	m_dbBackend->beforeRemove( object );
-	kdDebug() << k_funcinfo << ": We're going to remove object: " << oidToString( object->oid() ) << "(" << object->classInfo()->name() << ")" << endl;
-	kdDebug() << k_funcinfo << ": Before: " << m_objects.count() << endl;
-	ManagerObjectIterator it( m_objects.begin() );
-	ManagerObjectIterator end( m_objects.end() );
-	for ( ; it != end; ++it ) {
-		kdDebug() << k_funcinfo << " Object: " << oidToString( it.key() ) << endl;
-	}
-	
 	m_objects.remove( object->oid() );
 	delete object;
 	object = 0;
-	kdDebug() << k_funcinfo << ": After: " << m_objects.count() << endl;
-	ManagerObjectIterator it2( m_objects.begin() );
-	ManagerObjectIterator end2( m_objects.end() );
-	for ( ; it2 != end2; ++it2 ) {
-		kdDebug() << k_funcinfo << " Object: " << oidToString( it2.key() ) << endl;
-	}
-
 	assert( m_objects.count() == num );
 	return true;
 }
@@ -500,14 +484,11 @@ ManagerObjectIterator Manager::end()
 void Manager::setRelation( const OidType& oid, ClassInfo* classInfo, const QString& relationName, const OidType& oidRelated, bool recursive )
 {
 	assert( classInfo );
-	kdDebug() << "Hello from setRelation" << endl;
 	QString relation = ClassInfo::relationName( relationName, classInfo->name() );
-	kdDebug() << "SETRELATION: " << relation << endl;
 
 	bool isCollection = false;
 	QString relatedClassName;
 
-	kdDebug() << "Searching relation: " << relation << endl;
 	if ( classInfo->containsCollection( relation ) ) {
 		isCollection = true;
 		RelatedCollection* col = classInfo->collection( relation );
@@ -554,7 +535,6 @@ void Manager::setRelation( const OidType& oid, ClassInfo* classInfo, const QStri
 			addRelation( oidRelated, classInfo->collection( relation ), oid, false );
 		}
 	}
-	kdDebug() << "Bye, bye from setRelation" << endl;
 }
 
 void Manager::addRelation( const OidType& oid, RelatedCollection* collection, const OidType& oidRelated, bool recursive )
@@ -686,10 +666,8 @@ OidType Manager::relation( const Object* object, const QString& relationName )
 {
 	assert( object );
 	OidType oid = object->oid();
-	kdDebug() << k_funcinfo << ": relationName = '" << relationName << "'" << endl;
 	if ( m_relations.contains( oid ) ) {
 		QString relation = ClassInfo::relationName( relationName, object->classInfo()->name() );
-		kdDebug() << k_funcinfo << ": relation = '" << relation << "'" << endl;
 		return m_relations[ oid ][ relation ].first;
 	} else {
 		return 0;
