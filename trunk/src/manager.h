@@ -37,13 +37,24 @@ class ClassInfo;
 
 typedef QMap<OidType, Object*> ManagerObjectMap;
 typedef QMapIterator<OidType, Object*> ManagerObjectIterator;
+typedef QMapConstIterator<OidType, Object*> ManagerObjectConstIterator;
+
 typedef QMap<OidType, QMap<QString, QPair<OidType, bool> > > ManagerRelatedObjectMap;
 typedef QMapIterator<OidType, QMap<QString, QPair<OidType, bool> > > ManagerRelatedObjectIterator;
+typedef QMapConstIterator<OidType, QMap<QString, QPair<OidType, bool> > > ManagerRelatedObjectConstIterator;
+
 typedef QMap<OidType, QMap<QString, Collection*> > ManagerRelatedCollectionMap;
 typedef QMapIterator<OidType, QMap<QString, Collection*> > ManagerRelatedCollectionIterator;
-
+typedef QMapConstIterator<OidType, QMap<QString, Collection*> > ManagerRelatedCollectionConstIterator;
 
 #define MaxObjects 100
+
+class DebugInfo 
+{
+	uint numObjects;
+	uint numRelatedObjects;
+	uint numRelatedCollections;
+};
 
 class Manager
 {
@@ -57,6 +68,17 @@ public:
 	void setMaxObjects( Q_ULLONG max );
 	Q_ULLONG maxObjects() const;
 	uint count() const;
+	uint countObjectRelations() const;
+	uint countCollectionRelations() const;
+
+	/*!
+	This function prints with kdDebug() some information about the current status of the Manager. It is used for debugging purposes.
+	Shown information includes:
+		* Number of objects kept in memory 
+		* Number of references to objects kept in memory
+		* Number of references to collections kept in memory
+	*/
+	void status() const;
 
 	/* Functions related to object management */
 	bool add( Object* object );
@@ -85,6 +107,9 @@ public:
 	void setRelation( const OidType& oid, ClassInfo* classInfo, const QString& relation, const OidType& oidRelated, bool recursive = true );
 	void addRelation( const OidType& oid, RelatedCollection* collection, const OidType& oidRelated, bool recursive = true );
 	void removeRelation( const OidType& oid, RelatedCollection* collection, const OidType& oidRelated, bool recursive = true );
+	
+	void setModifiedRelation( const OidType& oid, ClassInfo* classInfo, const QString& relationName, bool modified, bool recursive = true );
+	void setModifiedRelation( const OidType& oid, RelatedCollection* collection, const OidType& oidRelated, bool modified, bool recursive = true );
 
 
 	OidType relation( const OidType& oid, const QString& relation );
@@ -123,6 +148,9 @@ protected:
 	*/
 	void ensureUnderMaxObjects( Object *object = 0 );
 
+	void ensureUnderMaxRelations();
+	void ensureUnderMaxCollections();
+
 
 	enum Filter {
 		Modified,
@@ -151,15 +179,18 @@ protected:
 	void removeObjectReferences( const OidType& oid, Filter filter );
 
 public:
-	QMap<OidType, QMap<QString, QPair<OidType, bool> > >& relations();
-	QMap<OidType, QMap<QString, Collection*> >& collections();
+	ManagerRelatedObjectMap& relations();
+	ManagerRelatedCollectionMap& collections();
+	//QMap<OidType, QMap<QString, QPair<OidType, bool> > >& relations();
+	//QMap<OidType, QMap<QString, Collection*> >& collections();
 
 private:
 	/*
 	This QMap contains all existing objects and thus all have a valid Oid
 	assigned
 	*/
-	QMap<OidType, Object*> m_objects;
+	ManagerObjectMap m_objects;
+	//QMap<OidType, Object*> m_objects;
 
 	/*
 	This is the pointer to the appropiate backend that will do the real persistance
@@ -180,12 +211,13 @@ private:
 	/*
 	Mantains the relation between objects
 	*/
-	QMap<OidType, QMap<QString, QPair<OidType, bool> > > m_relations;
-
+	ManagerRelatedObjectMap m_relations;
+	//QMap<OidType, QMap<QString, QPair<OidType, bool> > > 
 	/*
 	Mantains the collections of objects
 	*/
-	QMap<OidType, QMap<QString, Collection*> > m_collections;
+	ManagerRelatedCollectionMap m_collections;
+	 //QMap<OidType, QMap<QString, Collection*> >
 };
 
 

@@ -90,20 +90,29 @@ void XmlBackendTest::transactions()
 	CHECK( Manager::self()->commit(), true );
 }
 
-void XmlBackendTest::rollback()
+void XmlBackendTest::collections()
 {
-
+	/*
+	Collection col( "SELECT * FROM Article" );
+	Collection col( "SELECT article WHERE nom like '%A%'" );
+	Collection col( "customerorder.article_customerorder.* WHERE customerorder.customer_customerorder.city='Barcelona' AND customerorder.article_customerorder.description LIKE '%pepet%'" );
+	*/
+	Collection col( "Article" );
+	Article *article;
+	ObjectIterator it( col.begin() );
+	ObjectIterator end( col.end() );
+	for ( ; it != end; ++it ) {
+		article = static_cast<Article*>( *it );
+		kdDebug() << "Object: " << article->oid() << ": " << article->label() << endl;
+		// As long as we don't have a way to sort collections, we won't be
+		// able to make this test nicer
+		if ( article->label() != "Article One"  && article->label() != "Article Two" ) {
+			CHECK( true, false );
+		}
+	}
 }
 
-void XmlBackendTest::setup()
-{
 
-}
-
-void XmlBackendTest::shutdown()
-{
-
-}
 
 void XmlBackendTest::allTests()
 {
@@ -114,6 +123,7 @@ void XmlBackendTest::allTests()
 	m_manager->createSchema();
 
 	transactions();
+	collections();
 
 	delete m_manager;
 }

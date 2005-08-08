@@ -133,6 +133,8 @@ bool SqlDbBackend::save( Collection *collection )
 		record->setValue( collection->collectionInfo()->childrenClassInfo()->name(), (*it)->oid() );
 		record->setValue( "dbseq", newSeq() );
 		cursor.insert();
+		
+		Manager::self()->setModifiedRelation( collection->parentOid(), collection->collectionInfo(), (*it)->oid(), false );
 	}
 	return true;
 }
@@ -144,7 +146,7 @@ bool SqlDbBackend::save( Object *object )
 	QSqlRecord *record;
 	QSqlCursor cursor( object->classInfo()->name() );
 
-	kdDebug() << k_funcinfo << endl;
+	//kdDebug() << k_funcinfo << endl;
 
 	if ( object->oid() == 0 ) {
 		// Crea un oid únic
@@ -194,6 +196,16 @@ bool SqlDbBackend::save( Object *object )
 	}
 
 	// Fill the fields for relations with other objects
+/*
+	bool analyzeRelations = true;
+	ManagerRelatedObjectMap &map = Manager::self()->relations();
+	if ( ! map.contains( object->oid() ) ) {
+		analyzeRelations = false;
+	}
+	QMap<QString, QPair<OidType, bool> > &omap = map[ object->oid() ];
+	if ( ! analyzeRelations  )
+		map.remove( object->oid() );
+*/
 	ObjectIterator oIt( object->objectsBegin() );
 	ObjectIterator oEnd( object->objectsEnd() );
 	Object *obj;
@@ -205,15 +217,25 @@ bool SqlDbBackend::save( Object *object )
 			record->setValue( oIt.key(), obj->oid() );
 		else
 			record->setNull( oIt.key() );
-
+		
+		Manager::self()->setModifiedRelation( object->oid(), object->classInfo(), oIt.key(), false );
 		/*
-		if ( ! obj->isNull() )
-			record->setValue( tableName( obj ), obj->oid() );
-		else
-			record->setNull( tableName( obj ) );
+		if ( analyzeRelations && omap.contains( oIt.key() ) ) {
+			omap[ oIt.key() ].second = false;
+		}
 		*/
+		//typedef QMap<OidType, QMap<QString, QPair<OidType, bool> > > ManagerRelatedObjectMap;
 	}
-
+/*
+	if ( analyzeRelations ) {
+		QMapIterator<QString, QPair<OidType, bool> > it( omap.begin() );
+		QMapIterator<QString, QPair<OidType, bool> > end( omap.end() );
+		for ( ; it != end; ++it ) {
+			assert( (*it).second == false );
+		}
+	}
+*/	
+	
 	for ( uint i = 0; i < record->count(); ++i ) {
 		if ( record->fieldName( i ).right( 1 ) == "_" && variantToOid( record->value( i ) ) == 0 ) {
 			record->setNull( i );
@@ -279,16 +301,15 @@ OidType SqlDbBackend::newOid()
 //		kdDebug() << k_funcinfo << "Query not valid" << endl;
 	if ( ! query.next() )
 		ERROR( "Could not read next value from the sequence" );
-	kdDebug() << k_funcinfo << "OID: " << query.value( 0 ) << endl;
+//	kdDebug() << k_funcinfo << "OID: " << query.value( 0 ) << endl;
 	return variantToOid( query.value( 0 ) );
 }
 
 SeqType SqlDbBackend::newSeq()
 {
-	//QSqlSelectCursor cursor( "SELECT nextval('seq_dbseq') AS Seq" );
-	kdDebug() << k_funcinfo << m_db->lastError().text()  << endl;
+	//kdDebug() << k_funcinfo << m_db->lastError().text()  << endl;
 	QSqlQuery query = m_db->exec( "SELECT nextval('seq_dbseq')" );
-	kdDebug() << k_funcinfo << m_db->lastError().text()  << endl;
+	//kdDebug() << k_funcinfo << m_db->lastError().text()  << endl;
 	if ( ! query.next() )
 		ERROR( "Could not read next value from the sequence" );
 
@@ -571,6 +592,15 @@ bool SqlDbBackend::commit()
 
 	m_db->transaction();
 	m_db->exec( "SET CONSTRAINTS ALL DEFERRED" );
+
+	QValueVector< QPair<QString, OidType> >::const_iterator rit( m_removedObjects.begin() );
+	QValueVector< QPair<QString, OidType> >::const_iterator rend( m_removedObjects.end() );
+	for ( ; rit != rend; ++rit ) {
+		m_db->exec( "DELETE FROM " + (*rit).first + " WHERE dboid=" + oidToString( (*rit).second ) );
+	}
+
+	commitCollections();
+	
 	QMapIterator<OidType, Object*> it( Manager::self()->begin() );
 	QMapIterator<OidType, Object*> end( Manager::self()->end() );
 	Object *obj;
@@ -597,13 +627,6 @@ bool SqlDbBackend::commit()
 	}
 */
 
-	QValueVector< QPair<QString, OidType> >::const_iterator rit( m_removedObjects.begin() );
-	QValueVector< QPair<QString, OidType> >::const_iterator rend( m_removedObjects.end() );
-	for ( ; rit != rend; ++rit ) {
-		m_db->exec( "DELETE FROM " + (*rit).first + " WHERE dboid=" + oidToString( (*rit).second ) );
-	}
-
-	commitCollections();
 	if ( m_db->commit() ) {
 		m_removedObjects.clear();
 		return true;
@@ -616,8 +639,8 @@ void SqlDbBackend::commitCollections()
 {
 	QMap<OidType, QMap<QString, Collection*> > m_collections;
 
-	QMapIterator<OidType, QMap<QString, Collection*> > cit( Manager::self()->collections().begin() ) ;
-	QMapIterator<OidType, QMap<QString, Collection*> > cend( Manager::self()->collections().end() );
+	ManagerRelatedCollectionIterator cit( Manager::self()->collections().begin() ) ;
+	ManagerRelatedCollectionIterator cend( Manager::self()->collections().end() );
 	Collection *c;
 	for ( ; cit != cend; ++cit ) {
 		QMapIterator<QString, Collection*> it( (*cit).begin() );

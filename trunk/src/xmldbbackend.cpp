@@ -151,7 +151,7 @@ OidType XmlDbBackend::elementToObject( const QDomElement& e )
 void XmlDbBackend::objectToElement( Object* object, QDomDocument *doc, QDomElement *parent )
 {
 	assert( object );
-	kdDebug() << "XmlDbBackend::objectToElement()" << endl;
+	//kdDebug() << "XmlDbBackend::objectToElement()" << endl;
 	QDomElement root = doc->createElement( object->className() );
 	parent->appendChild( root );
 
@@ -190,7 +190,7 @@ void XmlDbBackend::objectToElement( Object* object, QDomDocument *doc, QDomEleme
 
 	CollectionIterator cIt( object->collectionsBegin() );
 	CollectionIterator cEnd( object->collectionsEnd() );
-	kdDebug() << "Iterating collections (" << object->numCollections() << ")" << endl;
+	//kdDebug() << "Iterating collections (" << object->numCollections() << ")" << endl;
 	for ( ; cIt != cEnd; ++cIt ) {
 		Collection * tmp = (*cIt);
 		assert( tmp );

@@ -61,6 +61,8 @@ public:
 
 	bool modified() const;
 	void setModified( bool m );
+	bool modified( const OidType& oid ) const;
+	void setModified( const OidType& oid, bool m );
 
 	ObjectIterator begin();
 	ObjectIterator end();
@@ -85,8 +87,9 @@ private:
 	// contains. It is used like a cache, so it is filled the first time the objectsClassName()
 	// function is called.
 	QString m_objectsClassName;
-	//Object *m_parent;
-	QMap<OidType,int> m_collection;
+	
+	// Map containing all oids and a boolean that indicates whether the relation has been modified or not
+	QMap<OidType,bool> m_collection;
 	//CreateObjectFunction m_createObjectFunction;
 
 	RelatedCollection *m_collectionInfo;

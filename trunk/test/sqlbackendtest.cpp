@@ -117,6 +117,38 @@ void SqlBackendTest::collections()
 	}
 }
 
+void SqlBackendTest::cache()
+{
+	int maxObjects = 100;
+
+	Manager::self()->reset();
+	Manager::self()->setMaxObjects( maxObjects );
+	
+	// Check modified objects are not freed
+	ObjectRef<Article> a1 = Article::create();
+	a1->setCode( "Code1" );
+	for ( int i = 0; i < maxObjects * 2; ++i ) {
+		ObjectRef<CustomerOrder> o1 = CustomerOrder::create();
+		o1->setCustomer( Customer::create() );
+		o1->articles()->add( Article::create() );
+	}
+	CHECK( a1->code(), QString( "Code1" ) );
+	
+	// Check when commiting object cache is purged to maxObjects
+	CHECK( Manager::self()->commit(), true );
+	CHECK( Manager::self()->count(), maxObjects );
+	CHECK( Manager::self()->countObjectRelations(), maxObjects );
+	CHECK( Manager::self()->countCollectionRelations(), maxObjects );
+	
+	// Can we still reach article 1?
+	CHECK( a1->code(), QString( "Code1" ) );
+	
+	// Ensure we're still under maxObjects
+	CHECK( Manager::self()->count(), maxObjects );
+	CHECK( Manager::self()->countObjectRelations(), maxObjects );
+	CHECK( Manager::self()->countCollectionRelations(), maxObjects );
+}
+
 void SqlBackendTest::allTests()
 {
 	QString dbname = "test";
@@ -137,8 +169,11 @@ void SqlBackendTest::allTests()
 	*proc << dbname;
 	CHECK( proc->start(), true );
 	proc->wait();
-	CHECK( proc->normalExit(), true );
-	CHECK( proc->exitStatus(), 0 );
+	if ( ! proc->normalExit() || proc->exitStatus() != 0 ) {
+		CHECK( true, false );
+		delete proc;
+		return;
+	}
 	delete proc;
 
 	QSqlDatabase *db = QSqlDatabase::addDatabase( "QPSQL7" );
@@ -157,6 +192,7 @@ void SqlBackendTest::allTests()
 
 	transactions();
 	collections();
+	cache();
 
 	delete m_manager;
 }

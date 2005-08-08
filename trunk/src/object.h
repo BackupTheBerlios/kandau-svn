@@ -86,11 +86,15 @@ class Object;
 	}\
 	Object* class::createInstance()\
 	{\
-		return new class();\
+		Object* obj = new class();\
+		assert( obj );\
+		return obj;\
 	}\
 	class* class::createObjectInstance()\
 	{\
-		return new class();\
+		class* obj = new class();\
+		assert( obj );\
+		return obj;\
 	}\
 	DeclareClass declareClass##class( #class, &class::createInstance, &class::createLabels, &class::createRelations );
 
@@ -162,11 +166,12 @@ class ObjectIterator
 public:
 //	ObjectIterator( QMapIterator<QString,QPair<OidType,CreateObjectFunction> > it );
 	ObjectIterator( const OidType& oid, RelatedObjectsIterator it );
-	ObjectIterator( QMapIterator<OidType,int> it, CreateObjectFunction function );
+	ObjectIterator( QMapIterator<OidType,bool> it, CreateObjectFunction function );
 	Object* data();
 	const Object* data() const;
 	QString key();
 	const QString& key() const;
+	const RelatedObject* relatedObject() const;
 	ObjectIterator& operator++();
 	ObjectIterator& operator--();
 	ObjectIterator operator++(int);
@@ -180,7 +185,7 @@ public:
 private:
 	//QMapIterator<QString,QPair<OidType,CreateObjectFunction> > m_it;
 	RelatedObjectsIterator m_it;
-	QMapIterator<OidType,int> m_colit;
+	QMapIterator<OidType,bool> m_colit;
 	CreateObjectFunction m_createObjectFunction;
 	bool m_collection;
 	OidType m_oid;
@@ -206,7 +211,6 @@ public:
 	const Collection* operator*() const;
 	CollectionIterator& operator=(const CollectionIterator& it);
 private:
-	//QMapIterator<QString,Collection*> m_it;
 	RelatedCollectionsIterator m_it;
 	OidType m_oid;
 };

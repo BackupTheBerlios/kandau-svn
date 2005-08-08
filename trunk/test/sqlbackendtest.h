@@ -33,6 +33,7 @@ class SqlBackendTest : public Tester
 public:
 	void transactions();
 	void collections();
+	void cache();
 
 	void allTests();
 private:

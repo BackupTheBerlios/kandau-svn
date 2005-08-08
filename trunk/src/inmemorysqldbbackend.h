@@ -54,8 +54,8 @@ public:
 
 protected:
 	QString sqlType( QVariant::Type type );
-	void loadObject( const QSqlCursor& cursor, ObjectRef<Object> object );
-	void saveObject( ObjectRef<Object> object );
+	void loadObject( const QSqlCursor& cursor, Object* object );
+	void saveObject( Object* object );
 
 	QString idFieldName( RelatedCollection *collection ) const;
 

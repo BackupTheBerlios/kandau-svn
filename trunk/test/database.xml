@@ -58,4 +58,3131 @@
       <Objects/>
       <Collections/>
     </Customer>
+    <CustomerOrder>
+      <dboid>5</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-07-21</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>5</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>8</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>7</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>6</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>7</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>7</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>6</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>5</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>8</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>9</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-07-21</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>9</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>12</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>11</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>10</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>11</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>11</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>10</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>9</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>12</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>13</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-07-27</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>13</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>16</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>15</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>14</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>15</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>15</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>14</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>13</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>16</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>17</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-02</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>17</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>20</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>19</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>18</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>19</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>19</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>18</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>17</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>20</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>21</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-02</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>21</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>24</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>23</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>22</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>23</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>23</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>22</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>21</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>24</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>25</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-02</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>25</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>28</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>27</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>26</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>27</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>27</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>26</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>25</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>28</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>29</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-05</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>29</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>32</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>31</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>30</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>31</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>31</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>30</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>29</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>32</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>33</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-05</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>33</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>36</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>35</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>34</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>35</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>35</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>34</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>33</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>36</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>37</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-05</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>37</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>40</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>39</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>38</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>39</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>39</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>38</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>37</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>40</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>41</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-06</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>41</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>44</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>43</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>42</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>43</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>43</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>42</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>41</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>44</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>45</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-06</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>45</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>48</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>47</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>46</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>47</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>47</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>46</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>45</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>48</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>49</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-06</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>49</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>52</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>51</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>50</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>51</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>51</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>50</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>49</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>52</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>53</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-06</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>53</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>56</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>55</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>54</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>55</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>55</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>54</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>53</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>56</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>57</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-06</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>57</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>60</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>59</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>58</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>59</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>59</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>58</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>57</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>60</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>61</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-06</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>61</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>64</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>63</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>62</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>63</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>63</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>62</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>61</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>64</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>65</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-06</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>65</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>68</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>67</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>66</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>67</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>67</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>66</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>65</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>68</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>69</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-06</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>69</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>72</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>71</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>70</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>71</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>71</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>70</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>69</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>72</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>73</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-06</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>73</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>76</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>75</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>74</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>75</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>75</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>74</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>73</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>76</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>77</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-06</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>77</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>80</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>79</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>78</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>79</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>79</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>78</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>77</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>80</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>81</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-06</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>81</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>84</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>83</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>82</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>83</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>83</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>82</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>81</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>84</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>85</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-06</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>85</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>88</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>87</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>86</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>87</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>87</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>86</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>85</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>88</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>89</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-06</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>89</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>92</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>91</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>90</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>91</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>91</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>90</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>89</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>92</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>93</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-07</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>93</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>96</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>95</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>94</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>95</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>95</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>94</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>93</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>96</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>97</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-07</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>97</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>100</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>99</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>98</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>99</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>99</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>98</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>97</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>100</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>101</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-07</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>101</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>104</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>103</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>102</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>103</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>103</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>102</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>101</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>104</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>105</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-07</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>105</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>108</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>107</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>106</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>107</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>107</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>106</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>105</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>108</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>109</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-07</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>109</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>112</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>111</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>110</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>111</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>111</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>110</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>109</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>112</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>113</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-07</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>113</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>116</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>115</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>114</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>115</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>115</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>114</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>113</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>116</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>117</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-07</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>117</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>120</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>119</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>118</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>119</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>119</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>118</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>117</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>120</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>121</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-07</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>121</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>124</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>123</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>122</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>123</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>123</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>122</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>121</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>124</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>125</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-07</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>125</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>128</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>127</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>126</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>127</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>127</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>126</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>125</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>128</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>129</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-07</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>129</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>132</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>131</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>130</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>131</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>131</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>130</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>129</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>132</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>133</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-07</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>133</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>136</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>135</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>134</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>135</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>135</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>134</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>133</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>136</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>137</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-07</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>137</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>140</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>139</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>138</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>139</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>139</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>138</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>137</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>140</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>141</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-07</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>141</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>144</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>143</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>142</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>143</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>143</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>142</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>141</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>144</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>145</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-07</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>145</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>148</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>147</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>146</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>147</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>147</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>146</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>145</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>148</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>149</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-07</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>149</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>152</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>151</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>150</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>151</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>151</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>150</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>149</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>152</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>153</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-07</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>153</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>156</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>155</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>154</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>155</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>155</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>154</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>153</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>156</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>157</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-07</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>157</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>160</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>159</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>158</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>159</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>159</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>158</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>157</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>160</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>161</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-07</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>161</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>164</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>163</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>162</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>163</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>163</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>162</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>161</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>164</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>165</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-07</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>165</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>168</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>167</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>166</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>167</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>167</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>166</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>165</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>168</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>169</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-07</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>169</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>172</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>171</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>170</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>171</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>171</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>170</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>169</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>172</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>173</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-07</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>173</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>176</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>175</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>174</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>175</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>175</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>174</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>173</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>176</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>177</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-07</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>177</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>180</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>179</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>178</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>179</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>179</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>178</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>177</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>180</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>181</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-08</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>181</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>184</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>183</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>182</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>183</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>183</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>182</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>181</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>184</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>185</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-08</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>185</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>188</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>187</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>186</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>187</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>187</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>186</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>185</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>188</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>189</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-08</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>189</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>192</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>191</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>190</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>191</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>191</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>190</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>189</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>192</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>193</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-08</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>193</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>196</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>195</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>194</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>195</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>195</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>194</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>193</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>196</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>197</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-08</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>197</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>200</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>199</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>198</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>199</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>199</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>198</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>197</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>200</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>201</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-08</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>201</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>204</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>203</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>202</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>203</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>203</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>202</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>201</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>204</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>205</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-09</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>205</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>208</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>207</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>206</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>207</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>207</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>206</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>205</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>208</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>209</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-09</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>209</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>212</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>211</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>210</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>211</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>211</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>210</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>209</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>212</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
+    <CustomerOrder>
+      <dboid>213</dboid>
+      <Properties>
+        <number>50000</number>
+        <date>2005-08-09</date>
+      </Properties>
+      <Objects>
+        <CustomerOrder_CustomerOrder>213</CustomerOrder_CustomerOrder>
+        <Customer_CustomerOrder>216</Customer_CustomerOrder>
+      </Objects>
+      <Collections>
+        <Article>
+          <oid>215</oid>
+        </Article>
+      </Collections>
+    </CustomerOrder>
+    <Article>
+      <dboid>214</dboid>
+      <Properties>
+        <code>1</code>
+        <label>Article One</label>
+        <description>MODIFIED description of article number one</description>
+      </Properties>
+      <Objects>
+        <Article_Article>215</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder/>
+      </Collections>
+    </Article>
+    <Article>
+      <dboid>215</dboid>
+      <Properties>
+        <code>2</code>
+        <label>Article Two</label>
+        <description>Description of article number two</description>
+      </Properties>
+      <Objects>
+        <Article_Article>214</Article_Article>
+      </Objects>
+      <Collections>
+        <CustomerOrder>
+          <oid>213</oid>
+        </CustomerOrder>
+      </Collections>
+    </Article>
+    <Customer>
+      <dboid>216</dboid>
+      <Properties>
+        <code>0001</code>
+        <customerName>Customer One</customerName>
+        <address>Street</address>
+        <city>City</city>
+        <zipCode>Zip Code</zipCode>
+        <country>Country</country>
+      </Properties>
+      <Objects/>
+      <Collections/>
+    </Customer>
   </Database>

@@ -29,7 +29,7 @@ class InMemorySqlBackendTest : public Tester
 {
 public:
 	void transactions();
-	void rollback();
+	void collections();
 
 	void printClasses();
 

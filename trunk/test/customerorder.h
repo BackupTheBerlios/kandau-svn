@@ -39,6 +39,8 @@ class CustomerOrder : public Object
 public:
 	DCLASS( CustomerOrder );
 
+	CustomerOrder();
+
 	Q_ULLONG number() const;
 	void setNumber( Q_ULLONG num );
 

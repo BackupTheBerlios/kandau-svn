@@ -27,6 +27,11 @@
 
 ICLASS( CustomerOrder );
 
+CustomerOrder::CustomerOrder()
+{
+	m_number = 0;
+}
+
 void CustomerOrder::createRelations()
 {
 	OBJECT( Customer );

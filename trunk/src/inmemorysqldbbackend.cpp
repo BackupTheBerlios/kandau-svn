@@ -34,7 +34,6 @@ InMemorySqlDbBackend::~InMemorySqlDbBackend()
 {
 }
 
-/* Called at the Manager constructor */
 void InMemorySqlDbBackend::setup()
 {
 	Manager::self()->setMaxObjects( Manager::Unlimited );
@@ -55,7 +54,8 @@ void InMemorySqlDbBackend::setup()
 		while ( cursor.next() ) {
 			oid = variantToOid( cursor.value( "oid" ) );
 			
-			ObjectRef<Object> object = Classes::classInfo( info->name() )->create( oid );
+			Object* object = Classes::classInfo( info->name() )->create( oid );
+			assert( object );
 			loadObject( cursor, object );
 			kdDebug() << k_funcinfo << " object loaded: " << oidToString( object->oid() ) << endl;
 			if ( oid > maxOid )
@@ -65,8 +65,9 @@ void InMemorySqlDbBackend::setup()
 	m_currentOid = maxOid + 1;	// m_currentOid = max oid found + 1
 }
 
-void InMemorySqlDbBackend::loadObject( const QSqlCursor& cursor, ObjectRef<Object> object )
+void InMemorySqlDbBackend::loadObject( const QSqlCursor& cursor, Object* object )
 {
+	assert( object );
 	PropertyIterator pIt( object->propertiesBegin() );
 	PropertyIterator pEnd( object->propertiesEnd() );
 
@@ -91,8 +92,11 @@ void InMemorySqlDbBackend::loadObject( const QSqlCursor& cursor, ObjectRef<Objec
 	}
 }
 
-void InMemorySqlDbBackend::saveObject( ObjectRef<Object> object )
+void InMemorySqlDbBackend::saveObject( Object* object )
 {
+	assert( object );
+	assert( object->classInfo() );
+	kdDebug() << object->classInfo()->name() << endl;
 	QSqlCursor cursor( object->classInfo()->name() );
 	cursor.select();
 	QSqlRecord *buffer = cursor.primeInsert();
@@ -103,6 +107,7 @@ void InMemorySqlDbBackend::saveObject( ObjectRef<Object> object )
 	PropertyIterator pEnd( object->propertiesEnd() );
 	for ( ; pIt != pEnd; ++pIt )
 		buffer->setValue( (*pIt).name(), (*pIt).value() );
+	object->setModified( false );
 
 	RelatedObjectsConstIterator oIt( object->classInfo()->objectsBegin() );
 	RelatedObjectsConstIterator oEnd( object->classInfo()->objectsEnd() );
@@ -134,6 +139,8 @@ void InMemorySqlDbBackend::saveObject( ObjectRef<Object> object )
 			buffer->setValue( (*coIt)->classInfo()->name(), (*coIt)->oid() );
 			cCursor.insert();
 		}
+
+		(*cIt)->setModified( false );
 	}
 }
 
@@ -304,8 +311,9 @@ bool InMemorySqlDbBackend::commit()
 	m_savedCollections.clear();
 	ManagerObjectIterator it( Manager::self()->begin() );
 	ManagerObjectIterator end( Manager::self()->end() );
-	for ( ; it != end; ++it )
+	for ( ; it != end; ++it ) {
 		saveObject( *it );
+	}
 	return m_db->commit();
 }
 

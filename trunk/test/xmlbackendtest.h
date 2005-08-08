@@ -31,9 +31,7 @@ class XmlBackendTest : public Tester
 {
 public:
 	void transactions();
-	void rollback();
-	void setup();
-	void shutdown();
+	void collections();
 	void allTests();
 
 private:

@@ -70,6 +70,7 @@ void RelatedObject::cacheData()
 {
 	assert( m_function );
 	Object *obj = m_function();
+	assert( obj );
 	m_relatedClassInfo = obj->classInfo();
 	// TODO: We don't check if the type of the collection is of the same type of our class. Maybe this check could be added when compiled with the DEBUG flag.
 
@@ -353,7 +354,7 @@ CreateLabelsFunction TmpClass::createLabels() const
 
 void Classes::setup()
 {
-	// If m_tmpClasses is has not been initialized probably setup() has
+	// If m_tmpClasses has not been initialized probably setup() has
 	// already been called.
 	if ( m_tmpClasses == 0 )
 		return;

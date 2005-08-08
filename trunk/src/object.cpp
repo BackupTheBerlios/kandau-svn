@@ -131,7 +131,7 @@ ObjectIterator::ObjectIterator( const OidType& oid, RelatedObjectsIterator it )
 	m_collection = false;
 }
 
-ObjectIterator::ObjectIterator( QMapIterator<OidType,int> it, CreateObjectFunction function )
+ObjectIterator::ObjectIterator( QMapIterator<OidType,bool> it, CreateObjectFunction function )
 {
 	assert( function );
 	m_colit = it;
@@ -148,7 +148,6 @@ Object* ObjectIterator::data()
 		return Manager::self()->load( Manager::self()->relation( m_oid, (*m_it)->name() ), (*m_it)->createObjectFunction() );
 	}
 }
-
 
 const Object* ObjectIterator::data() const
 {
@@ -172,6 +171,11 @@ const QString& ObjectIterator::key() const
 {
 	assert( ! m_collection );
 	return m_it.key();
+}
+
+const RelatedObject* ObjectIterator::relatedObject() const
+{
+	return (*m_it);
 }
 
 ObjectIterator& ObjectIterator::operator++()
@@ -339,6 +343,7 @@ CollectionIterator& CollectionIterator::operator=(const CollectionIterator& it)
 Object::Object()
 {
 	m_oid = 0;
+	m_seq = 0;
 	m_modified = false;
 	m_loaded = false;
 	m_classInfo = 0;
@@ -374,17 +379,17 @@ Object* Object::createObjectInstance() const
 
 ClassInfo* Object::classInfo()
 {
-  if ( m_classInfo )
-    return m_classInfo;
-  m_classInfo = Classes::classInfo( className() );
-  return m_classInfo;
+	if ( m_classInfo )
+		return m_classInfo;
+	m_classInfo = Classes::classInfo( className() );
+	return m_classInfo;
 }
 
 ClassInfo* Object::classInfo() const
 {
-  if ( m_classInfo )
-    return m_classInfo;
-  return Classes::classInfo( className() );
+	if ( m_classInfo )
+		return m_classInfo;
+	return Classes::classInfo( className() );
 }
 
 

@@ -73,6 +73,7 @@ Adds the oid to the list. Plain. Called by Manager. If Manager called add() it w
 */
 bool Collection::simpleAdd( const OidType& oid )
 {
+	assert( oid != 0 );
 	m_collection.insert( oid, 0 );
 	m_modified = true;
 	return true;
@@ -124,6 +125,19 @@ Sets the modified flag of the object to m.
 void Collection::setModified( bool m )
 {
 	m_modified = m;
+}
+
+bool Collection::modified( const OidType& oid ) const
+{
+	return m_collection[ oid ];
+}
+
+void Collection::setModified( const OidType& oid, bool m )
+{
+	if ( m_collection.contains( oid ) ) {
+		m_collection[ oid ] = m;
+		m_modified &= m;
+	}
 }
 
 /*!
