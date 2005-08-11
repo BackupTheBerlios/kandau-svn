@@ -39,6 +39,7 @@ void InMemorySqlDbBackend::setup()
 	Manager::self()->setMaxObjects( Manager::Unlimited );
 	Manager::self()->reset();
 
+	QStringList tables = m_db->tables();
 	OidType maxOid, oid;
 	ClassInfoIterator m_it( Classes::begin() );
 	ClassInfoIterator m_end( Classes::end() );
@@ -46,11 +47,16 @@ void InMemorySqlDbBackend::setup()
 	maxOid = 0;
 	for ( ; m_it != m_end; ++m_it ) {
 		ClassInfo* info = (*m_it);
+		
+		// Don't try to read from recordset if table doesn't exist
+		if ( tables.grep( info->name(), false ).count() == 0 )
+			continue;
+
 		QSqlCursor cursor( info->name() );
 		cursor.select();
 		while ( cursor.next() ) {
 			oid = variantToOid( cursor.value( "oid" ) );
-			
+
 			Object* object = Classes::classInfo( info->name() )->create( oid );
 			assert( object );
 			loadObject( cursor, object );
