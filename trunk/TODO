@@ -34,3 +34,6 @@ There are lots of things to think about. Here are some of them:
 
 	- A way to create complex queries is needed. The easier approach might be to implement it for sql backend only and parse the SQL. It might be done for XPath queries in the XML implementation too.
 
+	- Implement Collection as a template so it is possible to retrieve objects without casting.
+	
+	- Add a Signaling mechanism to allow the application to listen for "every time one/multiple property of a specific class/object is modified" 
