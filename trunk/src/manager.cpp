@@ -39,7 +39,6 @@ Manager::Manager( DbBackendIface *backend )
 	m_dbBackend = backend;
 	m_self = this;
 	m_maxObjects = MaxObjects;
-//	m_maxObjects = Unlimited;
 
 	// Initialize the backend (maybe it needs to initialize some
 	// values of the manager such as maxObjects or fill the map of objects in a
@@ -49,7 +48,9 @@ Manager::Manager( DbBackendIface *backend )
 
 Manager::~Manager()
 {
+	// Backend hook
 	m_dbBackend->shutdown();
+	
 	QMapIterator<OidType,Object*> it( m_objects.begin() );
 	QMapIterator<OidType,Object*> end( m_objects.end() );
 	for ( ; it != end; ++it )
@@ -146,7 +147,10 @@ bool Manager::remove( Object* object )
 	assert( object );
 	assert( m_objects.count() > 0 );
 	uint num = m_objects.count() - 1;
+	
+	//Backend hook
 	m_dbBackend->beforeRemove( object );
+	
 	m_objects.remove( object->oid() );
 	delete object;
 	object = 0;
@@ -171,6 +175,8 @@ bool Manager::load( Collection* collection )
 
 bool Manager::load( Collection* collection, const QString& query )
 {
+	// Add all the objects already loaded of className query to
+	// the collection
 	QMapIterator<OidType, Object*> it( m_objects.begin() );
 	QMapIterator<OidType, Object*> end( m_objects.end() );
 	QString className = query.lower();
@@ -201,7 +207,7 @@ bool Manager::rollback()
 	QValueList<OidType> olist;
 	for ( ; oit != oend; ++oit ) {
 		if ( (*oit)->isModified() )
-		  olist.append( oit.key() );
+			olist.append( oit.key() );
 	}
 	QValueListIterator<OidType> lit( olist.begin() );
 	QValueListIterator<OidType> lend( olist.end() );

@@ -49,13 +49,6 @@ typedef QMapConstIterator<OidType, QMap<QString, Collection*> > ManagerRelatedCo
 
 #define MaxObjects 100
 
-class DebugInfo 
-{
-	uint numObjects;
-	uint numRelatedObjects;
-	uint numRelatedCollections;
-};
-
 class Manager
 {
 public:
