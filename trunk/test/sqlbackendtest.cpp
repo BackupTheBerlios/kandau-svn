@@ -21,6 +21,7 @@
 
 #include <kdebug.h>
 #include <kprocess.h>
+#include <qsqlcursor.h>
 
 #include <sqldbbackend.h>
 #include <manager.h>
@@ -60,9 +61,40 @@ void SqlBackendTest::transactions()
 	order->setCustomer( c );
 
 	CHECK( Manager::self()->commit(), true );
-
+	
+	// Check data has been saved correctly to the database
+	QSqlCursor cursor( "article" );
+	cursor.select( "code = '1'" );
+	CHECK( cursor.next(), true );
+	CHECK( cursor.value( "label" ).toString(), QString("Article One") );
+	CHECK( cursor.value( "description" ).toString(), QString("Description of article number one") );
+	CHECK( cursor.next(), false );
+	
+	cursor.select( "code = '2'" );
+	CHECK( cursor.next(), true );
+	CHECK( cursor.value( "label" ).toString(), QString("Article Two") );
+	CHECK( cursor.value( "description" ).toString(), QString("Description of article number two") );
+	CHECK( cursor.next(), false );
+	
+	cursor.setName( "customer" );
+	cursor.select( "code = '0001'" );
+	CHECK( cursor.next(), true );
+	CHECK( cursor.value( "customername" ).toString(), QString("Customer One") );
+	CHECK( cursor.value( "address" ).toString(), QString("Street") );
+	CHECK( cursor.value( "city" ).toString(), QString("City") );
+	CHECK( cursor.value( "zipcode" ).toString(), QString("Zip Code") );
+	CHECK( cursor.value( "country" ).toString(), QString("Country") );
+	CHECK( cursor.next(), false );
+	
+	
 	a1->setDescription( "MODIFIED description of article number one" );
+	// Check data has been saved correctly to the database
 	CHECK( Manager::self()->commit(), true );
+	cursor.setName( "article" );
+	cursor.select( "code = '1'" );
+	CHECK( cursor.next(), true );
+	CHECK( cursor.value( "description" ).toString(), QString("MODIFIED description of article number one") );
+
 
 	ObjectRef<Customer> c2 = Customer::create();
 	c2->setCode( "0002" );
@@ -73,7 +105,18 @@ void SqlBackendTest::transactions()
 	c2->setCountry( "Country" );
 	order->setCustomer( c2 );
 	CHECK( Manager::self()->commit(), true );
-
+	
+	// Check data has been saved correctly to the database
+	cursor.setName( "customer" );
+	cursor.select( "code = '0002'" );
+	CHECK( cursor.next(), true );
+	CHECK( cursor.value( "customername" ).toString(), QString("Customer Two") );
+	CHECK( cursor.value( "address" ).toString(), QString("Street") );
+	CHECK( cursor.value( "city" ).toString(), QString("City") );
+	CHECK( cursor.value( "zipcode" ).toString(), QString("Zip Code") );
+	CHECK( cursor.value( "country" ).toString(), QString("Country") );
+	CHECK( cursor.next(), false );
+	
 	order->articles()->add( a2 );
 	CHECK( Manager::self()->commit(), true );
 
@@ -97,11 +140,6 @@ void SqlBackendTest::transactions()
 
 void SqlBackendTest::collections()
 {
-	/*
-	Collection col( "SELECT * FROM Article" );
-	Collection col( "SELECT article WHERE nom like '%A%'" );
-	Collection col( "customerorder.article_customerorder.* WHERE customerorder.customer_customerorder.city='Barcelona' AND customerorder.article_customerorder.description LIKE '%pepet%'" );
-	*/
 	Collection col( "Article" );
 	Article *article;
 	ObjectIterator it( col.begin() );
