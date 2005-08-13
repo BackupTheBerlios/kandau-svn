@@ -5,11 +5,11 @@ There are lots of things to think about. Here are some of them:
 	(WORK) -> work in progress
 	(DONE) -> mmm.. pretty obvious
 
-	- Load collections of objects
+(DONE)	- Load collections of objects. See below for extended/querying system.
 
-	- Save relations correctly in the SqlDbBackend::commit()
+(DONE)	- Save relations correctly in the SqlDbBackend::commit()
 
-	- Create GOOD test cases for the different backends.
+(PART)	- Create GOOD test cases for the different backends.
 
 	- Improve DCOP interface
 
@@ -18,7 +18,7 @@ There are lots of things to think about. Here are some of them:
 	simple approach, of course) but it is not a priority ATM.
 
 	- Add cardinality to the collection (minimum and maximum of elements)
-	but needs collaboration from the manager.
+	but needs collaboration from the manager. Maybe it has something to do with how other metadata can be added to a class definition. See, below.
 
 (DONE)	- Think about transactions, undo and redo and how they could be held.
 	Leave it to the underlying system? how? Different kind of
@@ -30,10 +30,20 @@ There are lots of things to think about. Here are some of them:
 	two classes. A way of dealing with that has to be thought while keeping
 	everything as fast as possible.
 
-	- Avoid the need to specify the class in some cases would be nice. For example, when asking for to load an object. This is more interesting in dcop scripting. The dcop server asks for the class of the object when asking for a property. Needs: Oid, Class & Property. One solution to the problem (xess' idea!) would be to make Oid a String and store with it the classname and thus could be used by the SQL (or whatever) backend.
+	- Avoid the need to specify the class in some cases would be nice. For example, when asking to load an object. This is more interesting in dcop scripting. The dcop server asks for the class of the object when asking for a property. Needs: Oid, Class & Property. One solution to the problem (xess' idea!) would be to make Oid a String and store with it the classname and thus could be used by the SQL (or whatever) backend.
 
 	- A way to create complex queries is needed. The easier approach might be to implement it for sql backend only and parse the SQL. It might be done for XPath queries in the XML implementation too.
+
+	- Implement a SortedCollection
+
+	- Separate CollectionObjectIterator and ObjectObjectIterator, while inheriting from ObjectIterator.
 
 	- Implement Collection as a template so it is possible to retrieve objects without casting.
 	
 	- Add a Signaling mechanism to allow the application to listen for "every time one/multiple property of a specific class/object is modified" 
+
+	- Solve problem when commit fails in the Database, and we've already set all objects and references to unmodified!
+	
+	- Find a smart way to add class metainformation such as Labels, information about relations, SQL like checks for values, etc.
+	
+	- Create widgets to access Object classes and relations.
