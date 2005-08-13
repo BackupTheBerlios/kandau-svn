@@ -63,13 +63,27 @@ void SqlBackendTest::transactions()
 	CHECK( Manager::self()->commit(), true );
 	
 	// Check data has been saved correctly to the database
-	QSqlCursor cursor( "article" );
+	QSqlCursor cursor( "customerorder" );
+	cursor.select( "number = 50000" );
+	CHECK( cursor.next(), true );
+	CHECK( cursor.value( "date" ).toDate().toString() , QDate::currentDate().toString() );
+	CHECK( variantToOid( cursor.value( "customerorder_customerorder" ) ), variantToOid( cursor.value( "dboid" ) ) );
+	CHECK( variantToOid( cursor.value( "customer_customerorder" ) ), c->oid() );
+	CHECK( cursor.next(), false ); 
+
+	cursor.setName( "article" );
 	cursor.select( "code = '1'" );
 	CHECK( cursor.next(), true );
 	CHECK( cursor.value( "label" ).toString(), QString("Article One") );
 	CHECK( cursor.value( "description" ).toString(), QString("Description of article number one") );
 	CHECK( cursor.next(), false );
 	
+	cursor.setName( "article_customerorder" );
+	cursor.select( "article = " + oidToString( a1->oid() ) + " AND customerorder = " + oidToString( order->oid() ) );
+	CHECK( cursor.next(), true );
+	CHECK( cursor.next(), false );
+	
+	cursor.setName( "article" );
 	cursor.select( "code = '2'" );
 	CHECK( cursor.next(), true );
 	CHECK( cursor.value( "label" ).toString(), QString("Article Two") );
@@ -94,7 +108,7 @@ void SqlBackendTest::transactions()
 	cursor.select( "code = '1'" );
 	CHECK( cursor.next(), true );
 	CHECK( cursor.value( "description" ).toString(), QString("MODIFIED description of article number one") );
-
+	CHECK( cursor.next(), false );
 
 	ObjectRef<Customer> c2 = Customer::create();
 	c2->setCode( "0002" );
@@ -117,25 +131,78 @@ void SqlBackendTest::transactions()
 	CHECK( cursor.value( "country" ).toString(), QString("Country") );
 	CHECK( cursor.next(), false );
 	
+	cursor.setName( "customerorder" );
+	cursor.select( "number = 50000" );
+	CHECK( cursor.next(), true );
+	CHECK( variantToOid( cursor.value( "customer_customerorder" ) ), variantToOid( c2->oid() ) );
+	CHECK( cursor.next(), false );
+
+
 	order->articles()->add( a2 );
 	CHECK( Manager::self()->commit(), true );
+	
+	// Check still both articles are in the database
+	cursor.setName( "article_customerorder" );
+	cursor.select( "article = " + oidToString( a1->oid() ) + " AND customerorder = " + oidToString( order->oid() ) );
+	CHECK( cursor.next(), true );
+	CHECK( cursor.next(), false );
+	cursor.select( "article = " + oidToString( a2->oid() ) + " AND customerorder = " + oidToString( order->oid() ) );
+	CHECK( cursor.next(), true );
+	CHECK( cursor.next(), false );
+	
 
 	order->articles()->remove( a1 );
 	CHECK( Manager::self()->commit(), true );
+	
+	// Check a1 has been removed from the list
+	cursor.setName( "article_customerorder" );
+	cursor.select( "article = " + oidToString( a1->oid() ) + " AND customerorder = " + oidToString( order->oid() ) );
+	CHECK( cursor.next(), false );
 
 	order->articles()->add( a1 );
 	CHECK( Manager::self()->rollback(), true );
 
+	// Check a1 hasn't appeared again
+	cursor.setName( "article_customerorder" );
+	cursor.select( "article = " + oidToString( a1->oid() ) + " AND customerorder = " + oidToString( order->oid() ) );
+	CHECK( cursor.next(), false );
+
 	order->setCustomer( c );
 	CHECK( Manager::self()->commit(), true );
+	
+	cursor.setName( "customerorder" );
+	cursor.select( "number = 50000" );
+	CHECK( cursor.next(), true );
+	CHECK( variantToOid( cursor.value( "customer_customerorder" ) ), c->oid() );
+	CHECK( cursor.next(), false );
+	
 
 	order->setCustomer( c2 );
 	CHECK( Manager::self()->rollback(), true );
 
+	// Check customer hasn't changed
+	cursor.setName( "customerorder" );
+	cursor.select( "number = 50000" );
+	CHECK( cursor.next(), true );
+	CHECK( variantToOid( cursor.value( "customer_customerorder" ) ), c->oid() );
+	CHECK( cursor.next(), false );
+
 	CHECK( Manager::self()->commit(), true );
+
+	// Check customer hasn't changed
+	cursor.setName( "customerorder" );
+	cursor.select( "number = 50000" );
+	CHECK( cursor.next(), true );
+	CHECK( variantToOid( cursor.value( "customer_customerorder" ) ), c->oid() );
+	CHECK( cursor.next(), false );
 
 	Manager::self()->remove( c2 );
 	CHECK( Manager::self()->commit(), true );
+	
+		// Check customer hasn't changed
+	cursor.setName( "customer" );
+	cursor.select( "code = '0002'" );
+	CHECK( cursor.next(), false );
 }
 
 void SqlBackendTest::collections()
@@ -156,29 +223,59 @@ void SqlBackendTest::collections()
 
 void SqlBackendTest::cache()
 {
+	QMap<int,OidType> list;
 	int maxObjects = 100;
 
 	Manager::self()->reset();
 	Manager::self()->setMaxObjects( maxObjects );
-	
+
 	// Check modified objects are not freed
-	ObjectRef<Article> a1 = Article::create();
-	a1->setCode( "Code1" );
+	ObjectRef<Article> a = Article::create();
+	a->setCode( "Code1" );
 	for ( int i = 0; i < maxObjects * 2; ++i ) {
 		ObjectRef<CustomerOrder> o1 = CustomerOrder::create();
-		o1->setCustomer( Customer::create() );
-		o1->articles()->add( Article::create() );
+		list[i*3] = o1->oid();
+		ObjectRef<Customer> c1 = Customer::create();
+		list[i*3+1] = c1->oid();
+		o1->setCustomer( c1 );
+		ObjectRef<Article> a1 = Article::create();
+		list[i*3+2] = a1->oid();
+		o1->articles()->add( a1 );
 	}
-	CHECK( a1->code(), QString( "Code1" ) );
-	
+	CHECK( a->code(), QString( "Code1" ) );
+
 	// Check when commiting object cache is purged to maxObjects
 	CHECK( Manager::self()->commit(), true );
 	CHECK( Manager::self()->count(), maxObjects );
 	CHECK( Manager::self()->countObjectRelations(), maxObjects );
 	CHECK( Manager::self()->countCollectionRelations(), maxObjects );
+
+	// Check data has been saved correctly to DB
+	for ( int i = 0; i < maxObjects * 2; ++i ) {
+		QSqlCursor cursor( "customerorder" );
+		cursor.select( "dboid = " + oidToString( list[i*3] ) );
+		CHECK( cursor.next(), true );
+		CHECK( variantToOid( cursor.value( "customer_customerorder" ) ), list[i*3 + 1] );
+		CHECK( cursor.next(), false );
+
+		cursor.setName( "article" );
+		cursor.select( "dboid = " + oidToString( list[i*3+2] ) );
+		CHECK( cursor.next(), true );
+		CHECK( cursor.next(), false );
+
+		cursor.setName( "customer" );
+		cursor.select( "dboid = " + oidToString( list[i*3+1] ) );
+		CHECK( cursor.next(), true );
+		CHECK( cursor.next(), false );
+
+		cursor.setName( "article_customerorder" );
+		cursor.select( "article = " + oidToString( list[i*3+2] ) + " AND customerorder = " + oidToString( list[i*3] ) );
+		CHECK( cursor.next(), true );
+		CHECK( cursor.next(), false );
+	}
 	
 	// Can we still reach article 1?
-	CHECK( a1->code(), QString( "Code1" ) );
+	CHECK( a->code(), QString( "Code1" ) );
 	
 	// Ensure we're still under maxObjects
 	CHECK( Manager::self()->count(), maxObjects );
