@@ -73,6 +73,21 @@ protected:
         ++m_tests;
     }
 
+    void check( const char *file, int line, const char *str,
+                const QByteArray& result, const QByteArray& expectedResult )
+    {
+        if ( result != expectedResult ) {
+            QString error;
+            QTextStream ts( &error, IO_WriteOnly );
+            ts << file << "["<< line <<"]:"
+               <<" failed on \""<<  str <<"\""
+               << "\ntests:\t\t result = '"
+               << "QByteArray(" << QString::number( result.size() ) << ")', expected = 'QByteArray(" << QString::number( expectedResult.size() ) << ")'";
+            m_errorList.append( error );
+        }
+        ++m_tests;
+    }
+
     template<typename T>
     void check( const char *file, int line, const char *str,
                 const T  &result, const T &expectedResult )

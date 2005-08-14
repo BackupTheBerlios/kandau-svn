@@ -34,8 +34,9 @@ public:
 	XmlDbBackend( const QString& fileName );
 	virtual ~XmlDbBackend();
 
-	void setup();
+	void setup( Manager* manager );
 	void shutdown();
+	void init();
 
 	bool load( const OidType& oid, Object *object );
 	
@@ -63,6 +64,7 @@ protected:
 private:
 	QString m_fileName;
 	OidType m_currentOid;
+	Manager *m_manager;
 };
 
 #endif

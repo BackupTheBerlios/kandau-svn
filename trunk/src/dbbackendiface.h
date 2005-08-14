@@ -25,6 +25,7 @@
 class QString;
 class Object;
 class Collection;
+class Manager;
 
 /**
 @author Albert Cervera Areny
@@ -40,7 +41,7 @@ public:
 	/*!
 	Called at the Manager constructor
 	*/
-	virtual void setup() = 0;
+	virtual void setup( Manager* manager ) = 0;
 
 	/*!
 	Called at the Manager destructor

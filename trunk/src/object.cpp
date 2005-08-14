@@ -23,15 +23,30 @@
 
 #include "object.h"
 
-/*
-#ifdef DEBUG
-const QString& classTypeTestFunction( const QString& o, Object* tmp )
+
+// ConstProperty
+
+ConstProperty::ConstProperty( const Object *obj, const QString& name )
 {
-	delete tmp;
-	return o;
+	m_object = obj;
+	m_name = name;
 }
-#endif
-*/
+
+QVariant::Type ConstProperty::type() const
+{
+	return m_object->propertyValue( m_name.ascii() ).type();
+}
+
+QVariant ConstProperty::value() const
+{
+	return m_object->propertyValue( m_name.ascii() );
+}
+
+const QString& ConstProperty::name() const
+{
+	return m_name;
+}
+
 
 // Property
 
@@ -41,12 +56,12 @@ Property::Property( Object *obj, const QString& name )
 	m_name = name;
 }
 
-QVariant::Type Property::type()
+QVariant::Type Property::type() const
 {
 	return m_object->propertyValue( m_name.ascii() ).type();
 }
 
-QVariant Property::value()
+QVariant Property::value() const
 {
 	return m_object->propertyValue( m_name.ascii() );
 }
@@ -56,65 +71,65 @@ void Property::setValue( const QVariant& value )
 	m_object->setProperty( m_name, value );
 }
 
-QString Property::name()
+const QString& Property::name() const
 {
 	return m_name;
 }
 
 
-// PropertyIterator
+// PropertiesIterator
 
-PropertyIterator::PropertyIterator( Object *object, int pos ) : m_object( object ), m_pos( pos )
+PropertiesIterator::PropertiesIterator( Object *object, int pos ) : m_object( object ), m_pos( pos )
 {
 }
-Property PropertyIterator::data()
-{
-	return m_object->property( m_pos );
-}
-const Property PropertyIterator::data() const
+Property PropertiesIterator::data()
 {
 	return m_object->property( m_pos );
 }
-PropertyIterator& PropertyIterator::operator++()
+const Property PropertiesIterator::data() const
+{
+	return m_object->property( m_pos );
+}
+PropertiesIterator& PropertiesIterator::operator++()
 {
 	m_pos++;
 	return *this;
 }
-PropertyIterator& PropertyIterator::operator--()
+PropertiesIterator& PropertiesIterator::operator--()
 {
 	m_pos--;
 	return *this;
 }
-PropertyIterator PropertyIterator::operator++(int)
+PropertiesIterator PropertiesIterator::operator++(int)
 {
-	PropertyIterator tmp = *this;
+	PropertiesIterator tmp = *this;
 	m_pos++;
 	return tmp;
 }
-PropertyIterator PropertyIterator::operator--(int)
+PropertiesIterator PropertiesIterator::operator--(int)
 {
-	PropertyIterator tmp = *this;
+	PropertiesIterator tmp = *this;
 	m_pos--;
 	return tmp;
 }
-bool PropertyIterator::operator==( const PropertyIterator& it ) const
+bool PropertiesIterator::operator==( const PropertiesIterator& it ) const
 {
 	return m_pos == it.m_pos && m_object == it.m_object;
 }
-bool PropertyIterator::operator!=( const PropertyIterator& it ) const
+bool PropertiesIterator::operator!=( const PropertiesIterator& it ) const
 {
 	return m_pos != it.m_pos || m_object != it.m_object;
 }
-Property PropertyIterator::operator*()
+Property PropertiesIterator::operator*()
 {
 	return m_object->property( m_pos );
 }
-const Property PropertyIterator::operator*() const
+const Property PropertiesIterator::operator*() const
 {
 	return m_object->property( m_pos );
 }
 
-PropertyIterator& PropertyIterator::operator=(const PropertyIterator& it)
+PropertiesIterator& PropertiesIterator::operator=(const PropertiesIterator& it)
 {
 	m_object = it.m_object;
 	m_pos = it.m_pos;
@@ -122,212 +137,218 @@ PropertyIterator& PropertyIterator::operator=(const PropertyIterator& it)
 }
 
 
-// ObjectIterator
+// ConstPropertiesIterator
 
-ObjectIterator::ObjectIterator( const OidType& oid, RelatedObjectsIterator it )
+ConstPropertiesIterator::ConstPropertiesIterator( const Object *object, int pos ) : m_object( object ), m_pos( pos )
+{
+}
+ConstProperty ConstPropertiesIterator::data()
+{
+	return m_object->property( m_pos );
+}
+const ConstProperty ConstPropertiesIterator::data() const
+{
+	return m_object->property( m_pos );
+}
+ConstPropertiesIterator& ConstPropertiesIterator::operator++()
+{
+	m_pos++;
+	return *this;
+}
+ConstPropertiesIterator& ConstPropertiesIterator::operator--()
+{
+	m_pos--;
+	return *this;
+}
+ConstPropertiesIterator ConstPropertiesIterator::operator++(int)
+{
+	ConstPropertiesIterator tmp = *this;
+	m_pos++;
+	return tmp;
+}
+ConstPropertiesIterator ConstPropertiesIterator::operator--(int)
+{
+	ConstPropertiesIterator tmp = *this;
+	m_pos--;
+	return tmp;
+}
+bool ConstPropertiesIterator::operator==( const ConstPropertiesIterator& it ) const
+{
+	return m_pos == it.m_pos && m_object == it.m_object;
+}
+bool ConstPropertiesIterator::operator!=( const ConstPropertiesIterator& it ) const
+{
+	return m_pos != it.m_pos || m_object != it.m_object;
+}
+ConstProperty ConstPropertiesIterator::operator*()
+{
+	return m_object->property( m_pos );
+}
+const ConstProperty ConstPropertiesIterator::operator*() const
+{
+	return m_object->property( m_pos );
+}
+
+ConstPropertiesIterator& ConstPropertiesIterator::operator=(const ConstPropertiesIterator& it)
+{
+	m_object = it.m_object;
+	m_pos = it.m_pos;
+	return *this;
+}
+
+// ObjectsIterator
+
+ObjectsIterator::ObjectsIterator( const OidType& oid, RelatedObjectsIterator it, Manager* manager )
 {
 	m_oid = oid;
 	m_it = it;
-	m_collection = false;
+	m_manager = manager;
 }
 
-ObjectIterator::ObjectIterator( QMapIterator<OidType,bool> it, CreateObjectFunction function )
+Object* ObjectsIterator::data()
 {
-	assert( function );
-	m_colit = it;
-	m_createObjectFunction = function;
-	m_collection = true;
+	return m_manager->load( m_manager->relation( m_oid, (*m_it)->name() ), (*m_it)->createObjectFunction() );
 }
 
-Object* ObjectIterator::data()
+const Object* ObjectsIterator::data() const
 {
-	if ( m_collection ) {
-		assert( m_createObjectFunction );
-		return Manager::self()->load( m_colit.key(), m_createObjectFunction );
-	} else {
-		return Manager::self()->load( Manager::self()->relation( m_oid, (*m_it)->name() ), (*m_it)->createObjectFunction() );
-	}
+	return m_manager->load( m_manager->relation( m_oid, (*m_it)->name() ), (*m_it)->createObjectFunction() );
 }
 
-const Object* ObjectIterator::data() const
+QString ObjectsIterator::key()
 {
-	if ( m_collection ) {
-		assert( m_createObjectFunction );
-		return Manager::self()->load( m_colit.key(), m_createObjectFunction );
-	} else {
-		return Manager::self()->load( Manager::self()->relation( m_oid, (*m_it)->name() ), (*m_it)->createObjectFunction() );
-
-	}
-}
-
-QString ObjectIterator::key()
-{
-	assert( ! m_collection );
 	return m_it.key();
 }
 
-const QString& ObjectIterator::key() const
+const QString& ObjectsIterator::key() const
 {
-	assert( ! m_collection );
 	return m_it.key();
 }
 
-const RelatedObject* ObjectIterator::relatedObject() const
+const RelatedObject* ObjectsIterator::relatedObject() const
 {
 	return (*m_it);
 }
 
-ObjectIterator& ObjectIterator::operator++()
-{
-	if ( m_collection )
-		m_colit++;
-	else
-		m_it++;
-	return *this;
-}
-
-ObjectIterator& ObjectIterator::operator--()
-{
-	if ( m_collection )
-		m_colit--;
-	else
-		m_it--;
-	return *this;
-}
-
-ObjectIterator ObjectIterator::operator++(int)
-{
-	ObjectIterator tmp = *this;
-	if ( m_collection )
-		m_colit++;
-	else
-		m_it++;
-	return tmp;
-}
-
-ObjectIterator ObjectIterator::operator--(int)
-{
-	ObjectIterator tmp = *this;
-	if ( m_collection )
-		m_colit--;
-	else
-		m_it--;
-	return tmp;
-}
-
-bool ObjectIterator::operator==( const ObjectIterator& it ) const
-{
-	if ( m_collection )
-		return m_colit == it.m_colit;
-	else
-		return m_it == it.m_it;
-}
-
-bool ObjectIterator::operator!=( const ObjectIterator& it ) const
-{
-	if ( m_collection )
-		return m_colit != it.m_colit;
-	else
-		return m_it != it.m_it;
-}
-
-Object* ObjectIterator::operator*()
-{
-	if ( m_collection ) {
-		assert( m_createObjectFunction );
-		return Manager::self()->load( m_colit.key(), m_createObjectFunction );
-	} else {
-		return Manager::self()->load( Manager::self()->relation( m_oid, (*m_it)->name() ), (*m_it)->createObjectFunction() );
-	}
-}
-
-const Object* ObjectIterator::operator*() const
-{
-	if ( m_collection ) {
-		assert( m_createObjectFunction );
-		return Manager::self()->load( m_colit.key(), m_createObjectFunction );
-	} else {
-		return Manager::self()->load( Manager::self()->relation( m_oid, (*m_it)->name() ), (*m_it)->createObjectFunction() );
-	}
-		//	return Manager::self()->load( m_it.data().first, m_it.data().second );
-}
-
-ObjectIterator& ObjectIterator::operator=(const ObjectIterator& it)
-{
-	m_collection = it.m_collection;
-	if ( m_collection ) {
-		m_colit = it.m_colit;
-		m_createObjectFunction = it.m_createObjectFunction;
-	} else
-		m_it = it.m_it;
-	return *this;
-}
-
-// CollectionIterator
-
-CollectionIterator::CollectionIterator( const OidType& oid, RelatedCollectionsIterator it )
-{
-	m_oid = oid;
-	m_it = it;
-}
-
-Collection* CollectionIterator::data()
-{
-	return Manager::self()->collection( m_oid, (*m_it) );
-}
-
-const Collection* CollectionIterator::data() const
-{
-	return Manager::self()->collection( m_oid, (*m_it) );
-}
-
-CollectionIterator& CollectionIterator::operator++()
+ObjectsIterator& ObjectsIterator::operator++()
 {
 	m_it++;
 	return *this;
 }
 
-CollectionIterator& CollectionIterator::operator--()
+ObjectsIterator& ObjectsIterator::operator--()
 {
 	m_it--;
 	return *this;
 }
 
-CollectionIterator CollectionIterator::operator++(int)
+ObjectsIterator ObjectsIterator::operator++(int)
 {
-	CollectionIterator tmp = *this;
+	ObjectsIterator tmp = *this;
 	m_it++;
 	return tmp;
 }
 
-CollectionIterator CollectionIterator::operator--(int)
+ObjectsIterator ObjectsIterator::operator--(int)
 {
-	CollectionIterator tmp = *this;
+	ObjectsIterator tmp = *this;
 	m_it--;
 	return tmp;
 }
 
-bool CollectionIterator::operator==( const CollectionIterator& it ) const
+bool ObjectsIterator::operator==( const ObjectsIterator& it ) const
 {
 	return m_it == it.m_it;
 }
 
-bool CollectionIterator::operator!=( const CollectionIterator& it ) const
+bool ObjectsIterator::operator!=( const ObjectsIterator& it ) const
 {
 	return m_it != it.m_it;
 }
 
-Collection* CollectionIterator::operator*()
+Object* ObjectsIterator::operator*()
 {
-	return Manager::self()->collection( m_oid, (*m_it) );
+	return m_manager->load( m_manager->relation( m_oid, (*m_it)->name() ), (*m_it)->createObjectFunction() );
 }
 
-const Collection* CollectionIterator::operator*() const
+const Object* ObjectsIterator::operator*() const
 {
-	return Manager::self()->collection( m_oid, (*m_it) );
+	return m_manager->load( m_manager->relation( m_oid, (*m_it)->name() ), (*m_it)->createObjectFunction() );
 }
 
-CollectionIterator& CollectionIterator::operator=(const CollectionIterator& it)
+ObjectsIterator& ObjectsIterator::operator=(const ObjectsIterator& it)
+{
+	m_it = it.m_it;
+	m_oid = it.m_oid;
+	return *this;
+}
+
+// CollectionsIterator
+
+CollectionsIterator::CollectionsIterator( const OidType& oid, RelatedCollectionsIterator it, Manager* manager )
+{
+	m_oid = oid;
+	m_it = it;
+	m_manager = manager;
+}
+
+Collection* CollectionsIterator::data()
+{
+	return m_manager->collection( m_oid, (*m_it) );
+}
+
+const Collection* CollectionsIterator::data() const
+{
+	return m_manager->collection( m_oid, (*m_it) );
+}
+
+CollectionsIterator& CollectionsIterator::operator++()
+{
+	m_it++;
+	return *this;
+}
+
+CollectionsIterator& CollectionsIterator::operator--()
+{
+	m_it--;
+	return *this;
+}
+
+CollectionsIterator CollectionsIterator::operator++(int)
+{
+	CollectionsIterator tmp = *this;
+	m_it++;
+	return tmp;
+}
+
+CollectionsIterator CollectionsIterator::operator--(int)
+{
+	CollectionsIterator tmp = *this;
+	m_it--;
+	return tmp;
+}
+
+bool CollectionsIterator::operator==( const CollectionsIterator& it ) const
+{
+	return m_it == it.m_it;
+}
+
+bool CollectionsIterator::operator!=( const CollectionsIterator& it ) const
+{
+	return m_it != it.m_it;
+}
+
+Collection* CollectionsIterator::operator*()
+{
+	return m_manager->collection( m_oid, (*m_it) );
+}
+
+const Collection* CollectionsIterator::operator*() const
+{
+	return m_manager->collection( m_oid, (*m_it) );
+}
+
+CollectionsIterator& CollectionsIterator::operator=(const CollectionsIterator& it)
 {
 	m_it = it.m_it;
 	return *this;
@@ -338,10 +359,10 @@ CollectionIterator& CollectionIterator::operator=(const CollectionIterator& it)
 
 Object::Object()
 {
+	m_manager = 0;
 	m_oid = 0;
 	m_seq = 0;
 	m_modified = false;
-	m_loaded = false;
 	m_classInfo = 0;
 }
 
@@ -349,18 +370,33 @@ Object::~Object()
 {
 }
 
-Object* Object::create()
+Object& Object::operator=(const Object& obj)
+{
+	m_classInfo = obj.m_classInfo;
+	m_oid = obj.m_oid;
+	m_seq = obj.m_seq;
+	m_modified = obj.m_modified;
+	for ( int i = 0; i < numProperties(); ++i )
+		property(i).setValue( obj.property(i).value() );
+	return *this;
+}
+
+Object* Object::create( Manager* manager )
 {
 	Object *o = new Object();
-	o->m_modified = true;
 	assert( o );
-	Manager::self()->add( o );
+	o->m_modified = true;
+	o->setManager( manager );
+	o->m_manager->add( o );
 	return o;
 }
 
-Object* Object::create( OidType oid )
+Object* Object::create( OidType oid, Manager* manager )
 {
-	return Manager::self()->load( oid, &createInstance );
+	if ( manager )
+		return manager->load( oid, &createInstance );
+	else
+		return Manager::self()->load( oid, &createInstance );
 }
 
 Object* Object::createInstance()
@@ -388,6 +424,18 @@ ClassInfo* Object::classInfo() const
 	return Classes::classInfo( className() );
 }
 
+Manager* Object::manager() const
+{
+	return m_manager;
+}
+
+void Object::setManager( Manager* m )
+{
+	if ( m )
+		m_manager = m;
+	else
+		m_manager = Manager::self();
+}
 
 OidType Object::oid() const
 {
@@ -427,14 +475,24 @@ void Object::setModified( bool value )
 /*
 Functions for managing the properties
 */
-PropertyIterator Object::propertiesBegin()
+PropertiesIterator Object::propertiesBegin()
 {
-	return PropertyIterator( this, 0 );
+	return PropertiesIterator( this, 0 );
 }
 
-PropertyIterator Object::propertiesEnd()
+ConstPropertiesIterator Object::constPropertiesBegin() const
 {
-	return PropertyIterator( this, numProperties() );
+	return ConstPropertiesIterator( this, 0 );
+}
+
+PropertiesIterator Object::propertiesEnd()
+{
+	return PropertiesIterator( this, numProperties() );
+}
+
+ConstPropertiesIterator Object::constPropertiesEnd() const
+{
+	return ConstPropertiesIterator( this, numProperties() );
 }
 
 int Object::numProperties() const
@@ -447,12 +505,22 @@ Property Object::property( int pos )
 	return Property( this, metaObject()->propertyNames().at( pos ) );
 }
 
+ConstProperty Object::property( int pos ) const
+{
+	return ConstProperty( this, metaObject()->propertyNames().at( pos ) );
+}
+
 Property Object::property( const QString& name )
 {
 	return Property( this, name );
 }
 
-bool Object::containsProperty( const QString& name )
+ConstProperty Object::property( const QString& name ) const
+{
+	return ConstProperty( this, name );
+}
+
+bool Object::containsProperty( const QString& name ) const
 {
 	return metaObject()->findProperty( name.ascii() ) == -1 ? false: true;
 }
@@ -466,25 +534,25 @@ QVariant Object::propertyValue( const char* name ) const
 Functions for managing the other objects related
 */
 
-ObjectIterator Object::objectsBegin()
+ObjectsIterator Object::objectsBegin()
 {
-	return ObjectIterator( m_oid, classInfo()->objectsBegin() );
+	return ObjectsIterator( m_oid, classInfo()->objectsBegin(), m_manager );
 }
 
-ObjectIterator Object::objectsEnd()
+ObjectsIterator Object::objectsEnd()
 {
-  return ObjectIterator( m_oid, classInfo()->objectsEnd() );
+	return ObjectsIterator( m_oid, classInfo()->objectsEnd(), m_manager );
 }
 
 int Object::numObjects() const
 {
-  return classInfo()->numObjects();
+	return classInfo()->numObjects();
 }
 
 Object* Object::object( const QString& name ) const
 {
 	assert( containsObject( name ) );
-	return Manager::self()->load( Manager::self()->relation( m_oid, name ), classInfo()->object( name )->createObjectFunction() );
+	return m_manager->load( m_manager->relation( m_oid, name ), classInfo()->object( name )->createObjectFunction() );
 }
 
 bool Object::containsObject( const QString& name ) const
@@ -501,37 +569,37 @@ void Object::setObject( const QString& name, Object* object )
 void Object::setObject( const QString& name, const OidType& oid )
 {
 	MODIFIED;
-	Manager::self()->setRelation( m_oid, classInfo(), name, oid );
+	m_manager->setRelation( m_oid, classInfo(), name, oid );
 }
 
 /*
 Functions for managing the collections of objects related
 */
 
-CollectionIterator Object::collectionsBegin()
+CollectionsIterator Object::collectionsBegin()
 {
-  return CollectionIterator( m_oid, classInfo()->collectionsBegin() );
+	return CollectionsIterator( m_oid, classInfo()->collectionsBegin(), m_manager );
 }
 
-CollectionIterator Object::collectionsEnd()
+CollectionsIterator Object::collectionsEnd()
 {
-  return CollectionIterator( m_oid, classInfo()->collectionsEnd() );
+	return CollectionsIterator( m_oid, classInfo()->collectionsEnd(), m_manager );
 }
 
 bool Object::containsCollection( const QString& name ) const
 {
-  return classInfo()->containsCollection( name );
+	return classInfo()->containsCollection( name );
 }
 
 int Object::numCollections() const
 {
-  return classInfo()->numCollections();
+	return classInfo()->numCollections();
 }
 
 Collection* Object::collection( const QString& name ) const
 {
 	QString relation = ClassInfo::relationName( name, classInfo()->name() );
-	return Manager::self()->collection( this, relation );
+	return m_manager->collection( this, relation );
 }
 
 #include "object.moc"

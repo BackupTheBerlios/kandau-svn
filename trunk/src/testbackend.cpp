@@ -33,9 +33,10 @@ TestBackend::~TestBackend()
 {
 }
 
-void TestBackend::setup()
+void TestBackend::setup( Manager *manager )
 {
-	Manager::self()->setMaxObjects( Manager::Unlimited );
+	m_manager = manager;
+	m_manager->setMaxObjects( Manager::Unlimited );
 }
 
 void TestBackend::shutdown()
@@ -70,8 +71,8 @@ OidType TestBackend::newOid()
 
 bool TestBackend::commit()
 {
-	QMapIterator<OidType, Object*> it( Manager::self()->begin() );
-	QMapIterator<OidType, Object*> end( Manager::self()->end() );
+	QMapIterator<OidType, Object*> it( m_manager->begin() );
+	QMapIterator<OidType, Object*> end( m_manager->end() );
 	for ( ; it != end; ++it )
 		(*it)->setModified( false );
 	return true;

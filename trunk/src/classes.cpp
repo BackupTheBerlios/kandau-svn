@@ -80,15 +80,6 @@ void RelatedObject::cacheData()
 		m_oneToOne = false;
 	}
 
-	/*
-	// Only if we haven't been explicitly told that it is N-to-N we will
-	// search in the related class
-	if ( m_relatedClassInfo->containsCollection( m_name ) ) {
-		m_oneToOne = false;
-	} else {
-		m_oneToOne = true;
-	}
-	*/
 	m_cached = true;
 	delete obj;
 }
@@ -116,12 +107,7 @@ const QString& RelatedCollection::name() const
 {
 	return m_name;
 }
-/*
-CreateObjectFunction RelatedCollection::createObjectFunction() const
-{
-	return m_function;
-}
-*/
+
 bool RelatedCollection::isNToOne()
 {
 	if ( ! m_cached )
@@ -172,13 +158,14 @@ ClassInfo::ClassInfo( const QString& name, CreateObjectFunction function )
 	m_function = function;
 }
 
-Object* ClassInfo::create( const OidType& oid ) const
+Object* ClassInfo::create( const OidType& oid, Manager* manager ) const
 {
 	Object *object = m_function();
 	assert( object );
 	object->setOid( oid );
 	object->setModified( true );
-	Manager::self()->add( object );
+	object->setManager( manager );
+	object->manager()->add( object );
 	return object;
 }
 
@@ -221,8 +208,6 @@ void ClassInfo::addCollection( const QString& className, const QString& relation
 		name = relationName;
 
 	assert( ! m_collections.contains( name ) );
-//	assert( function );
-	//m_collections.insert( name, new RelatedCollection( this, name, function, nToOne ) );
 	m_collections.insert( name, new RelatedCollection( this, name, Classes::classInfo( className ), nToOne ) );
 }
 
@@ -291,13 +276,6 @@ bool ClassInfo::containsCollection( const QString& name ) const
 {
 	return m_collections.contains( name );
 }
-
-/*
-const RelatedCollection& ClassInfo::collection( const QString& name ) const
-{
-	return m_collections[ name ];
-}
-*/
 
 RelatedCollection* ClassInfo::collection( const QString& name ) const
 {
@@ -383,14 +361,6 @@ void Classes::addClass( const QString &name, CreateObjectFunction createInstance
 	}
 	m_classes->insert( name, new ClassInfo( name, createInstance ) );
 	m_tmpClasses->insert( name, new TmpClass( name, createRelations, createLabels ) );
-
-/*
-	m_currentClass = new ClassInfo( name, createInstance );
-	createRelations();
-	m_classes->insert( name, m_currentClass );
-	Labels::setDefaultClass( name );
-	createLabels();
-*/
 }
 
 ClassInfoIterator Classes::begin()
@@ -418,19 +388,6 @@ ClassInfo* Classes::classInfo( const QString& name )
 {
 	return (*m_classes)[ name ];
 }
-
-/*
-Object* Classes::create( const QString& name, const OidType& oid )
-{
-	Object *object = ((*m_classes)[ name ])->create();
-	if ( ! object )
-		return 0;
-	object->setOid( oid );
-	object->setModified( false );
-	Manager::self()->add( object );
-	return object;
-}
-*/
 
 ClassInfo* Classes::currentClass()
 {

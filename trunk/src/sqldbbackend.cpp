@@ -48,8 +48,9 @@ QSqlDatabase* SqlDbBackend::database( )
 	return m_db;
 }
 
-void SqlDbBackend::setup()
+void SqlDbBackend::setup( Manager* manager )
 {
+	m_manager = manager;
 }
 
 void SqlDbBackend::shutdown()
@@ -76,8 +77,8 @@ bool SqlDbBackend::load( const QSqlCursor &cursor, Object *object )
 	object->setOid( variantToOid( cursor.value( "dboid" ) ) );
 	object->setSeq( variantToSeq( cursor.value( "dbseq" ) ) );
 
-	PropertyIterator pIt( object->propertiesBegin() );
-	PropertyIterator pEnd( object->propertiesEnd() );
+	PropertiesIterator pIt( object->propertiesBegin() );
+	PropertiesIterator pEnd( object->propertiesEnd() );
 	for ( ; pIt != pEnd; ++pIt ) {
 		prop = pIt.data();
 
@@ -106,8 +107,8 @@ bool SqlDbBackend::load( const QSqlCursor &cursor, Object *object )
 	}
 
 	// Prepare for relation loading
-	ObjectIterator oIt( object->objectsBegin() );
-	ObjectIterator oEnd( object->objectsEnd() );
+	ObjectsIterator oIt( object->objectsBegin() );
+	ObjectsIterator oEnd( object->objectsEnd() );
 	for (; oIt != oEnd; ++oIt ) {
 		if ( ! cursor.contains( oIt.key() ) )
 			continue;
@@ -125,8 +126,8 @@ bool SqlDbBackend::save( Collection *collection )
 	QSqlCursor cursor( collection->collectionInfo()->name() );
 	QSqlRecord *record;
 
-	ObjectIterator it( collection->begin() );
-	ObjectIterator end( collection->end() );
+	CollectionIterator it( collection->begin() );
+	CollectionIterator end( collection->end() );
 	for ( ; it != end; ++it ) {
 		record = cursor.primeInsert();
 		record->setValue( collection->collectionInfo()->parentClassInfo()->name(), collection->parentOid() );
@@ -134,7 +135,7 @@ bool SqlDbBackend::save( Collection *collection )
 		record->setValue( "dbseq", newSeq() );
 		cursor.insert();
 		
-		Manager::self()->setModifiedRelation( collection->parentOid(), collection->collectionInfo(), (*it)->oid(), false );
+		m_manager->setModifiedRelation( collection->parentOid(), collection->collectionInfo(), (*it)->oid(), false );
 	}
 	return true;
 }
@@ -169,8 +170,8 @@ bool SqlDbBackend::save( Object *object )
 	record->setValue( "dboid", object->oid() );
 	record->setValue( "dbseq", newSeq() );
 
-	PropertyIterator pIt( object->propertiesBegin() );
-	PropertyIterator pEnd( object->propertiesEnd() );
+	PropertiesIterator pIt( object->propertiesBegin() );
+	PropertiesIterator pEnd( object->propertiesEnd() );
 	Property prop;
 	for ( ; pIt != pEnd; ++pIt ) {
 		prop = pIt.data();
@@ -196,7 +197,7 @@ bool SqlDbBackend::save( Object *object )
 	// Fill the fields for relations with other objects
 /*
 	bool analyzeRelations = true;
-	ManagerRelatedObjectMap &map = Manager::self()->relations();
+	ManagerRelatedObjectMap &map = m_manager->relations();
 	if ( ! map.contains( object->oid() ) ) {
 		analyzeRelations = false;
 	}
@@ -204,8 +205,8 @@ bool SqlDbBackend::save( Object *object )
 	if ( ! analyzeRelations  )
 		map.remove( object->oid() );
 */
-	ObjectIterator oIt( object->objectsBegin() );
-	ObjectIterator oEnd( object->objectsEnd() );
+	ObjectsIterator oIt( object->objectsBegin() );
+	ObjectsIterator oEnd( object->objectsEnd() );
 	Object *obj;
 	for ( ; oIt != oEnd; ++oIt ) {
 		obj = (*oIt);
@@ -216,7 +217,7 @@ bool SqlDbBackend::save( Object *object )
 		else
 			record->setNull( oIt.key() );
 		
-		Manager::self()->setModifiedRelation( object->oid(), object->classInfo(), oIt.key(), false );
+		m_manager->setModifiedRelation( object->oid(), object->classInfo(), oIt.key(), false );
 		/*
 		if ( analyzeRelations && omap.contains( oIt.key() ) ) {
 			omap[ oIt.key() ].second = false;
@@ -431,8 +432,8 @@ bool SqlDbBackend::createSchema()
 		exec = "CREATE TABLE " +  currentClass->name().lower() + " ( dboid BIGINT PRIMARY KEY, dbseq BIGINT NOT NULL, ";
 
 		// Create properties fields
-		PropertyIterator pIt( object->propertiesBegin() );
-		PropertyIterator pEnd( object->propertiesEnd() );
+		PropertiesIterator pIt( object->propertiesBegin() );
+		PropertiesIterator pEnd( object->propertiesEnd() );
 		for ( ; pIt != pEnd; ++pIt ) {
 			prop = *pIt;
 			exec += prop.name() + " " + sqlType( prop.type() ) + ", ";
@@ -573,8 +574,8 @@ bool SqlDbBackend::commit()
 
 	commitCollections();
 	
-	QMapIterator<OidType, Object*> it( Manager::self()->begin() );
-	QMapIterator<OidType, Object*> end( Manager::self()->end() );
+	QMapIterator<OidType, Object*> it( m_manager->begin() );
+	QMapIterator<OidType, Object*> end( m_manager->end() );
 	Object *obj;
 	for ( ; it != end; ++it ) {
 		obj = (*it);
@@ -585,7 +586,7 @@ bool SqlDbBackend::commit()
 	}
 
 /*
-	QMap<OidType, QMap<QString, QPair<OidType, bool> > > &relations = Manager::self()->relations();
+	QMap<OidType, QMap<QString, QPair<OidType, bool> > > &relations = m_manager->relations();
 	QMapIterator<OidType, QMap<QString, QPair<OidType, bool> > > mit( relations.begin() );
 	QMapIterator<OidType, QMap<QString, QPair<OidType, bool> > > mend( relations.end() );
 	for ( ; mit != mend; ++mit ) {
@@ -611,8 +612,8 @@ void SqlDbBackend::commitCollections()
 {
 	QMap<OidType, QMap<QString, Collection*> > m_collections;
 
-	ManagerRelatedCollectionIterator cit( Manager::self()->collections().begin() ) ;
-	ManagerRelatedCollectionIterator cend( Manager::self()->collections().end() );
+	ManagerRelatedCollectionIterator cit( m_manager->collections().begin() ) ;
+	ManagerRelatedCollectionIterator cend( m_manager->collections().end() );
 	Collection *c;
 	for ( ; cit != cend; ++cit ) {
 		QMapIterator<QString, Collection*> it( (*cit).begin() );

@@ -29,16 +29,30 @@
 
 class Object;
 
-/*
-TOTHINK :)
-	- It'd be nice to add some cardinality information in the constructor
-	such as the minimum and maximum number of elements that can be contained.
-	However, although the maximum is easily assured, the minimum would require
-	some thinking and envolving the manager and transactions. Too early to
-	think about it right now.
-*/
+class CollectionIterator
+{
+public:
+	CollectionIterator( QMapIterator<OidType,bool> it, CreateObjectFunction function, Manager* manager );
+	Object* data();
+	const Object* data() const;
+	OidType key();
+	const OidType& key() const;
+	CollectionIterator& operator++();
+	CollectionIterator& operator--();
+	CollectionIterator operator++(int);
+	CollectionIterator operator--(int);
+	bool operator==( const CollectionIterator& it ) const;
+	bool operator!=( const CollectionIterator& it ) const;
+	Object* operator*();
+	const Object* operator*() const;
+	CollectionIterator& operator=(const CollectionIterator& it);
 
-class ObjectIterator;
+private:
+	QMapIterator<OidType,bool> m_it;
+	CreateObjectFunction m_createObjectFunction;
+	Manager* m_manager;
+};
+
 
 /**
 @author Albert Cervera Areny
@@ -46,9 +60,10 @@ class ObjectIterator;
 class Collection
 {
 public:
-	Collection( const QString& query );
-	Collection( RelatedCollection *rel, const OidType& parent );
+	Collection( const QString& query, Manager* manager = 0 );
+	Collection( RelatedCollection *rel, const OidType& parent, Manager* manager );
 	virtual ~Collection();
+	Collection& operator=( const Collection& col );
 
 	RelatedCollection* collectionInfo() const;
 
@@ -64,8 +79,8 @@ public:
 	bool modified( const OidType& oid ) const;
 	void setModified( const OidType& oid, bool m );
 
-	ObjectIterator begin();
-	ObjectIterator end();
+	CollectionIterator begin();
+	CollectionIterator end();
 
 	int count() const;
 
@@ -105,6 +120,8 @@ private:
 	bool m_modified;
 
 	CreateObjectFunction m_createObjectFunction;
+	
+	Manager* m_manager;
 };
 
 #endif

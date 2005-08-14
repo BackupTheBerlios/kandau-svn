@@ -76,8 +76,8 @@ void TestBackendTest::browseObjectProperties()
 	Article *article = Article::create();
 
 	// Test begin, end, ++it, .data()
-	PropertyIterator it( article->propertiesBegin() );
-	PropertyIterator end( article->propertiesEnd() );
+	PropertiesIterator it( article->propertiesBegin() );
+	PropertiesIterator end( article->propertiesEnd() );
 	for ( ; it != end; ++it ) {
 		kdDebug() << "Property: name = " << it.data().name() << ", value = " << it.data().value().toString() << ", type = " << QVariant::typeToName( it.data().type() ) << endl;
 
@@ -99,8 +99,8 @@ void TestBackendTest::browseObjectObjects()
 
 	Article *article = Article::create();
 
-	ObjectIterator it( article->objectsBegin() );
-	ObjectIterator end( article->objectsEnd() );
+	ObjectsIterator it( article->objectsBegin() );
+	ObjectsIterator end( article->objectsEnd() );
 	for ( ; it != end; ++it ) {
 		if ( it.data() )
 			kdDebug() << "Object: className = " << it.data()->className() << ", oid = " << it.data()->oid() << endl;
@@ -133,8 +133,8 @@ void TestBackendTest::browseObjectCollections()
 	article->articles()->add( b );
 	article->articles()->add( c );
 */
-	CollectionIterator it( article->collectionsBegin() );
-	CollectionIterator end( article->collectionsEnd() );
+	CollectionsIterator it( article->collectionsBegin() );
+	CollectionsIterator end( article->collectionsEnd() );
 	for ( ; it != end; ++it ) {
 		kdDebug() << "Collection: count = " << it.data()->count() << endl;
 	}
@@ -206,8 +206,8 @@ void TestBackendTest::modified()
 	for ( ; cit != cend; ++cit ) {
 		Object *object = (*cit)->create();
 
-		PropertyIterator pit( object->propertiesBegin() );
-		PropertyIterator pend( object->propertiesEnd() );
+		PropertiesIterator pit( object->propertiesBegin() );
+		PropertiesIterator pend( object->propertiesEnd() );
 		for ( ; pit != pend; ++pit ) {
 			value = (*pit).value();
 			CHECK( object->isModified(), true );
@@ -261,8 +261,8 @@ void TestBackendTest::general()
 	kdDebug() << "Temps bucle: " << QString::number( time.elapsed() ) << endl;
 
 	QValueList<OidType> list;
-	ObjectIterator it( order->articles()->begin() );
-	ObjectIterator end( order->articles()->end() );
+	CollectionIterator it( order->articles()->begin() );
+	CollectionIterator end( order->articles()->end() );
 	ObjectRef<Article> first;
 	for ( ; it != end; ++it ) {
 		Article *o = (Article*)*it;
@@ -273,8 +273,8 @@ void TestBackendTest::general()
 	}
 
 	kdDebug() << "FIRST: '" << first->label() << "'" << endl;
-	ObjectIterator it4( first->orders()->begin() );
-	ObjectIterator end4( first->orders()->end() );
+	CollectionIterator it4( first->orders()->begin() );
+	CollectionIterator end4( first->orders()->end() );
 	for ( ; it4 != end4; ++it4 ) {
 		CustomerOrder *o = (CustomerOrder*)*it4;
 		kdDebug() << "=> [" << oidToString( o->oid() ) << ";" << QString::number( o->number() ) << "," << o->date().toString() << "]" << endl;
@@ -285,8 +285,8 @@ void TestBackendTest::general()
 
 	kdDebug() << "Articles eliminats" << endl;
 
-	ObjectIterator it2( order->articles()->begin() );
-	ObjectIterator end2( order->articles()->end() );
+	CollectionIterator it2( order->articles()->begin() );
+	CollectionIterator end2( order->articles()->end() );
 	for ( ; it2 != end2; ++it2 ) {
 		Article *o = (Article*)*it2;
 		kdDebug() << "(" << oidToString( o->oid() ) << "," << o->code() << "," << o->label() << "," << o->description() << ")" << endl;
@@ -294,8 +294,8 @@ void TestBackendTest::general()
 	}
 	CHECK( order->articles()->count(), 45 );
 
-	ObjectIterator it3( first->orders()->begin() );
-	ObjectIterator end3( first->orders()->end() );
+	CollectionIterator it3( first->orders()->begin() );
+	CollectionIterator end3( first->orders()->end() );
 	for ( ; it3 != end3; ++it3 ) {
 		CustomerOrder *o = (CustomerOrder*)*it3;
 		kdDebug() << "=> [" << oidToString( o->oid() ) << ";" << QString::number( o->number() ) << "," << o->date().toString() << "]" << endl;

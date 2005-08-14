@@ -30,6 +30,7 @@
 #include "sqlbackendtest.h"
 #include "xmlbackendtest.h"
 #include "inmemorysqlbackendtest.h"
+#include "multiplebackendstest.h"
 
 #include "qtester.h"
 #include "tester.h"
@@ -43,6 +44,7 @@ void KUnitTest::registerTests()
 	ADD_TEST( SqlBackendTest );
 	ADD_TEST( InMemorySqlBackendTest );
 	ADD_TEST( XmlBackendTest );
+	ADD_TEST( MultipleBackendsTest );
 }
 
 KUnitTest::KUnitTest()

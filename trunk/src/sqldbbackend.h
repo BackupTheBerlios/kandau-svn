@@ -47,7 +47,7 @@ public:
 
 	QSqlDatabase *database();
 
-	void setup();
+	void setup( Manager* m_manager );
 	void shutdown();
 	bool load( const OidType& oid, Object *object );
 	bool load( Collection *collection );
@@ -82,6 +82,8 @@ protected:
 	QValueVector<QPair<QString,OidType> > m_removedObjects;
 	// The first OidType (key) stores the Object that references the second OidType
 	QMap<OidType, QMap<QString,OidType> > m_removedRelations;
+	
+	Manager *m_manager;
 };
 
 #endif

@@ -31,7 +31,7 @@ public:
 	TestBackend();
 	virtual ~TestBackend();
 
-	void setup();
+	void setup( Manager *manager );
 	void shutdown();
 	bool load( const OidType& oid, Object *object );
 	bool load( Collection *collection );
@@ -47,6 +47,7 @@ public:
 	void afterRollback() {};
 private:
 	OidType m_lastOid;
+	Manager *m_manager;
 };
 
 #endif

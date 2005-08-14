@@ -34,10 +34,16 @@ InMemorySqlDbBackend::~InMemorySqlDbBackend()
 {
 }
 
-void InMemorySqlDbBackend::setup()
+void InMemorySqlDbBackend::setup( Manager* manager )
 {
-	Manager::self()->setMaxObjects( Manager::Unlimited );
-	Manager::self()->reset();
+	m_manager = manager;
+	m_manager->setMaxObjects( Manager::Unlimited );
+	init();
+}
+
+void InMemorySqlDbBackend::init()
+{
+	m_manager->reset();
 
 	QStringList tables = m_db->tables();
 	OidType maxOid, oid;
@@ -55,7 +61,7 @@ void InMemorySqlDbBackend::setup()
 		QSqlCursor cursor( info->name() );
 		cursor.select();
 		while ( cursor.next() ) {
-			oid = variantToOid( cursor.value( "oid" ) );
+			oid = variantToOid( cursor.value( "dboid" ) );
 
 			Object* object = Classes::classInfo( info->name() )->create( oid );
 			assert( object );
@@ -70,8 +76,8 @@ void InMemorySqlDbBackend::setup()
 void InMemorySqlDbBackend::loadObject( const QSqlCursor& cursor, Object* object )
 {
 	assert( object );
-	PropertyIterator pIt( object->propertiesBegin() );
-	PropertyIterator pEnd( object->propertiesEnd() );
+	PropertiesIterator pIt( object->propertiesBegin() );
+	PropertiesIterator pEnd( object->propertiesEnd() );
 
 	object->setOid( variantToOid( cursor.value( "dboid" ) ) );
 	// Load all properties
@@ -83,8 +89,8 @@ void InMemorySqlDbBackend::loadObject( const QSqlCursor& cursor, Object* object 
 	for ( ; oIt != oEnd; ++oIt )
 		object->setObject( (*oIt)->name(), variantToOid( cursor.value( (*oIt)->name() ) ) );
 
-	CollectionIterator cIt( object->collectionsBegin() );
-	CollectionIterator cEnd( object->collectionsEnd() );
+	CollectionsIterator cIt( object->collectionsBegin() );
+	CollectionsIterator cEnd( object->collectionsEnd() );
 	for ( ; cIt != cEnd; ++cIt ) {
 		QSqlCursor cCursor( (*cIt)->collectionInfo()->name() );
 		cCursor.select( object->classInfo()->name() + "=" + oidToString( object->oid() ) );
@@ -104,8 +110,8 @@ void InMemorySqlDbBackend::saveObject( Object* object )
 
 	buffer->setValue( "dboid", oidToVariant( object->oid() ) );
 
-	PropertyIterator pIt( object->propertiesBegin() );
-	PropertyIterator pEnd( object->propertiesEnd() );
+	PropertiesIterator pIt( object->propertiesBegin() );
+	PropertiesIterator pEnd( object->propertiesEnd() );
 	for ( ; pIt != pEnd; ++pIt )
 		buffer->setValue( (*pIt).name(), (*pIt).value() );
 	object->setModified( false );
@@ -120,8 +126,8 @@ void InMemorySqlDbBackend::saveObject( Object* object )
 	}
 	cursor.insert();
 
-	CollectionIterator cIt( object->collectionsBegin() );
-	CollectionIterator cEnd( object->collectionsEnd() );
+	CollectionsIterator cIt( object->collectionsBegin() );
+	CollectionsIterator cEnd( object->collectionsEnd() );
 	for ( ; cIt != cEnd; ++cIt ) {
 		// Ensure data is only inserted once
 		if ( m_savedCollections.contains( (*cIt)->collectionInfo()->name() ) )
@@ -132,8 +138,8 @@ void InMemorySqlDbBackend::saveObject( Object* object )
 		QSqlCursor cCursor( (*cIt)->collectionInfo()->name() );
 		cCursor.select();
 
-		ObjectIterator coIt( (*cIt)->begin() );
-		ObjectIterator coEnd( (*cIt)->end() );
+		CollectionIterator coIt( (*cIt)->begin() );
+		CollectionIterator coEnd( (*cIt)->end() );
 		for ( ; coIt != coEnd; ++coIt ) {
 			buffer = cCursor.primeInsert();
 			buffer->setValue( object->classInfo()->name(), object->oid() );
@@ -191,8 +197,8 @@ bool InMemorySqlDbBackend::createSchema()
 		exec = "CREATE TABLE " +  currentClass->name() + " ( dboid BIGINT PRIMARY KEY, ";
 
 		// Create properties fields
-		PropertyIterator pIt( object->propertiesBegin() );
-		PropertyIterator pEnd( object->propertiesEnd() );
+		PropertiesIterator pIt( object->propertiesBegin() );
+		PropertiesIterator pEnd( object->propertiesEnd() );
 		for ( ; pIt != pEnd; ++pIt ) {
 			prop = *pIt;
 			exec += prop.name() + " " + sqlType( prop.type() ) + ", ";
@@ -305,8 +311,8 @@ bool InMemorySqlDbBackend::commit()
 	}
 
 	m_savedCollections.clear();
-	ManagerObjectIterator it( Manager::self()->begin() );
-	ManagerObjectIterator end( Manager::self()->end() );
+	ManagerObjectIterator it( m_manager->begin() );
+	ManagerObjectIterator end( m_manager->end() );
 	for ( ; it != end; ++it ) {
 		saveObject( *it );
 	}
@@ -353,7 +359,7 @@ Aborts the current transaction
 */
 void InMemorySqlDbBackend::afterRollback()
 {
-	setup();
+	init();
 }
 
 bool InMemorySqlDbBackend::load( Collection */*collection*/, const QString& /*query*/ )

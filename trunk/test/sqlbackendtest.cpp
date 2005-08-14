@@ -209,8 +209,8 @@ void SqlBackendTest::collections()
 {
 	Collection col( "Article" );
 	Article *article;
-	ObjectIterator it( col.begin() );
-	ObjectIterator end( col.end() );
+	CollectionIterator it( col.begin() );
+	CollectionIterator end( col.end() );
 	for ( ; it != end; ++it ) {
 		article = static_cast<Article*>( *it );
 		// As long as we don't have a way to sort collections, we won't be
@@ -297,7 +297,7 @@ void SqlBackendTest::allTests()
 	proc->wait();
 	delete proc;
 
-	// Create de database
+	// Create the database
 	proc = new KProcess;
 	*proc << "createdb";
 	*proc << dbname;

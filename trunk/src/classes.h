@@ -27,6 +27,7 @@
 
 class Object;
 class ClassInfo;
+class Manager;
 
 //typedef QMap<QString, Object *(*)(void)> ClassMap;
 //typedef QMapIterator<QString, Object *(*)(void)> ClassIterator;
@@ -163,13 +164,19 @@ private:
 //	CreateObjectFunction m_function;
 	bool m_nToOne;
 
-	// Pointer to the parent ClassInfo
+	/*! 
+	Pointer to the parent ClassInfo
+	*/
 	ClassInfo *m_parentClassInfo;
 
-	// Contains the cached ClassInfo of the related class
+	/*!
+	Contains the cached ClassInfo of the related class
+	*/
 	ClassInfo *m_childrenClassInfo;
 
-	// If the needed data is already in the caches
+	/*!
+	If the needed data is already in the caches
+	*/
 	bool m_cached;
 };
 
@@ -195,10 +202,12 @@ public:
 	ClassInfo( const QString& name, CreateObjectFunction function );
 
 	/*!
-	Creates an instance of the class type given by name() giving it a new oid.
+	Creates an instance of the class type given by name().
+	@param oid Optional oid for the newly created object (zero if not specified)
+	@param manager Optional manager that will hold the object (Manager::self() will be used if not specified)
 	@return The pointer to the newly created object
 	*/
-	Object* create( const OidType& oid = 0 ) const;
+	Object* create( const OidType& oid = 0, Manager* manager = 0 ) const;
 
 	/*!
 	Creates an instance of the class type given by name() without assigning an oid nor adding the object to the manager. Equivalent to 'createObjectFunction()()'
@@ -301,12 +310,12 @@ public:
 	@return An iterator pointing to the first position of the list of related collections.
 	*/
 	RelatedCollectionsIterator collectionsBegin();
+	
 	/*!
 	Gets the last entry of the list of related objects.
 	@return An iterator pointing to the first position of the list of related collections.
 	*/
 	RelatedCollectionsIterator collectionsEnd();
-
 
 	/*!
 	Searches if the class contains a N-to-1 or N-to-N relation with the given name.
@@ -315,13 +324,6 @@ public:
 	*/
 	bool containsCollection( const QString& name ) const;
 	
-	/*!
-	Returns the RelatedCollection for a given 1-to-1 relation.
-	@param name Name of the relation to look for.
-	@return The RelatedCollection.
-	*/
-	//const RelatedCollection& collection( const QString& name ) const;
-
 	/*!
 	Returns the RelatedCollection for a given 1-to-1 relation.
 	@param name Name of the relation to look for.

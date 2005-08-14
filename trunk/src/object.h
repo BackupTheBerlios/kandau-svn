@@ -68,20 +68,24 @@ class Object;
 */
 
 
-#define DCLASS( obj ) static obj* create(); static obj* create( OidType oid ); static Object* createInstance(); obj* createObjectInstance(); static void createLabels(); static void createRelations();
+#define DCLASS( obj ) static obj* create( Manager* manager = 0); static obj* create( OidType oid, Manager* manager = 0 ); static Object* createInstance(); obj* createObjectInstance(); static void createLabels(); static void createRelations();
 
 #define ICLASS( class ) \
-	class* class::create() \
+	class* class::create( Manager* manager ) \
 	{\
 		class *object = new class();\
 		assert( object );\
 		object->m_modified = true;\
-		Manager::self()->add( object );\
+		object->setManager( manager );\
+		object->manager()->add( object );\
 		return object;\
 	}\
-	class* class::create( OidType oid )\
+	class* class::create( OidType oid, Manager* manager )\
 	{\
-		return static_cast<class*>( Manager::self()->load( oid, &createInstance ) );\
+		if ( manager )\
+			return static_cast<class*>( manager->load( oid, &createInstance ) );\
+		else\
+			return static_cast<class*>( Manager::self()->load( oid, &createInstance ) );\
 	}\
 	Object* class::createInstance()\
 	{\
@@ -104,8 +108,8 @@ class Object;
 //	For example, use dynamic_cast, and check the pointer
 
 //#define SETOBJECT( Class, Object ) Manager::self()->setRelation( this, #Class, Object )
-#define SETOBJECT( Class, Object ) Manager::self()->setRelation( oid(), classInfo(), #Class, Object ? Object->oid() : 0 )
-#define GETOBJECT( Class ) static_cast<Class*>(Manager::self()->load( Manager::self()->relation( this, #Class ), &Class::createInstance ) )
+#define SETOBJECT( Class, Object ) m_manager->setRelation( oid(), classInfo(), #Class, Object ? Object->oid() : 0 )
+#define GETOBJECT( Class ) static_cast<Class*>(m_manager->load( m_manager->relation( this, #Class ), &Class::createInstance ) )
 
 #define GETCOLLECTION( Class ) collection( #Class )
 
@@ -122,105 +126,123 @@ const QString& classTypeTestFunction( const QString&, Object* );
 #endif
 */
 
+class ConstProperty
+{
+public:
+	ConstProperty() {}
+	ConstProperty( const Object *obj, const QString& name );
+	QVariant::Type type() const;
+	QVariant value() const;
+	const QString& name() const;
+private:
+	const Object *m_object;
+	QString m_name;
+};
+
 class Property
 {
 public:
 	Property() {}
 	Property( Object *obj, const QString& name );
-	QVariant::Type type();
-	QVariant value();
+	QVariant::Type type() const;
+	QVariant value() const;
 	void setValue( const QVariant& value );
-	QString name();
+	const QString& name() const;
 
 private:
 	Object *m_object;
 	QString m_name;
 };
 
-
-class PropertyIterator
+class PropertiesIterator
 {
 public:
-	PropertyIterator( Object *object, int pos );
+	PropertiesIterator( Object *object, int pos );
 	Property data();
 	const Property data() const;
-	PropertyIterator& operator++();
-	PropertyIterator& operator--();
-	PropertyIterator operator++(int);
-	PropertyIterator operator--(int);
-	bool operator==( const PropertyIterator& it ) const;
-	bool operator!=( const PropertyIterator& it ) const;
+	PropertiesIterator& operator++();
+	PropertiesIterator& operator--();
+	PropertiesIterator operator++(int);
+	PropertiesIterator operator--(int);
+	bool operator==( const PropertiesIterator& it ) const;
+	bool operator!=( const PropertiesIterator& it ) const;
 	Property operator*();
 	const Property operator*() const;
-	PropertyIterator& operator=(const PropertyIterator& it);
+	PropertiesIterator& operator=(const PropertiesIterator& it);
 
 private:
 	Object *m_object;
 	int m_pos;
 };
 
-// TODO: Add a method to SET the object like in setObject function of Object class.
-class ObjectIterator
+class ConstPropertiesIterator
 {
 public:
-//	ObjectIterator( QMapIterator<QString,QPair<OidType,CreateObjectFunction> > it );
-	ObjectIterator( const OidType& oid, RelatedObjectsIterator it );
-	ObjectIterator( QMapIterator<OidType,bool> it, CreateObjectFunction function );
+	ConstPropertiesIterator( const Object *object, int pos );
+	ConstProperty data();
+	const ConstProperty data() const;
+	ConstPropertiesIterator& operator++();
+	ConstPropertiesIterator& operator--();
+	ConstPropertiesIterator operator++(int);
+	ConstPropertiesIterator operator--(int);
+	bool operator==( const ConstPropertiesIterator& it ) const;
+	bool operator!=( const ConstPropertiesIterator& it ) const;
+	ConstProperty operator*();
+	const ConstProperty operator*() const;
+	ConstPropertiesIterator& operator=(const ConstPropertiesIterator& it);
+
+private:
+	const Object *m_object;
+	int m_pos;
+};
+
+// TODO: Add a method to SET the object like in setObject function of Object class.
+class ObjectsIterator
+{
+public:
+	ObjectsIterator( const OidType& oid, RelatedObjectsIterator it, Manager* manager );
 	Object* data();
 	const Object* data() const;
 	QString key();
 	const QString& key() const;
 	const RelatedObject* relatedObject() const;
-	ObjectIterator& operator++();
-	ObjectIterator& operator--();
-	ObjectIterator operator++(int);
-	ObjectIterator operator--(int);
-	bool operator==( const ObjectIterator& it ) const;
-	bool operator!=( const ObjectIterator& it ) const;
+	ObjectsIterator& operator++();
+	ObjectsIterator& operator--();
+	ObjectsIterator operator++(int);
+	ObjectsIterator operator--(int);
+	bool operator==( const ObjectsIterator& it ) const;
+	bool operator!=( const ObjectsIterator& it ) const;
 	Object* operator*();
 	const Object* operator*() const;
-	ObjectIterator& operator=(const ObjectIterator& it);
+	ObjectsIterator& operator=(const ObjectsIterator& it);
 
 private:
-	//QMapIterator<QString,QPair<OidType,CreateObjectFunction> > m_it;
 	RelatedObjectsIterator m_it;
-	QMapIterator<OidType,bool> m_colit;
-	CreateObjectFunction m_createObjectFunction;
-	bool m_collection;
 	OidType m_oid;
-
-protected:
-	int attribute_1;
+	Manager* m_manager;
 };
 
-class CollectionIterator
+class CollectionsIterator
 {
 public:
-	CollectionIterator( const OidType& oid, RelatedCollectionsIterator it );
-	//CollectionIterator( QMapIterator<QString,Collection*> it );
+	CollectionsIterator( const OidType& oid, RelatedCollectionsIterator it, Manager* manager );
 	Collection* data();
 	const Collection* data() const;
-	CollectionIterator& operator++();
-	CollectionIterator& operator--();
-	CollectionIterator operator++(int);
-	CollectionIterator operator--(int);
-	bool operator==( const CollectionIterator& it ) const;
-	bool operator!=( const CollectionIterator& it ) const;
+	CollectionsIterator& operator++();
+	CollectionsIterator& operator--();
+	CollectionsIterator operator++(int);
+	CollectionsIterator operator--(int);
+	bool operator==( const CollectionsIterator& it ) const;
+	bool operator!=( const CollectionsIterator& it ) const;
 	Collection* operator*();
 	const Collection* operator*() const;
-	CollectionIterator& operator=(const CollectionIterator& it);
+	CollectionsIterator& operator=(const CollectionsIterator& it);
 private:
 	RelatedCollectionsIterator m_it;
 	OidType m_oid;
+	Manager* m_manager;
 };
 
-
-/*
-	We should provide an easy way to check if any class that inherits Object,
-	has the MODIFIED macro to all set operations and doesn't have it on GET
-	operations. Maybe an optional compilation flag could add a function, or
-	simply a test case should be provided.
-*/
 
 /*!
 Any object that is to be persistent must inherit from this class, declare de class with DCLASS in the header and implement it with ICLASS (see example below)
@@ -311,14 +333,17 @@ class Object : public QObject
 public:
 	Object();
 	virtual ~Object();
+	Object& operator=( const Object& obj );
 
-	static Object* create();
-	static Object* create( OidType oid );
+	static Object* create( Manager* manager = 0 );
+	static Object* create( OidType oid, Manager* manager = 0 );
 	static Object* createInstance();
 	Object* createObjectInstance() const;
 
 	ClassInfo* classInfo();
 	ClassInfo* classInfo() const;
+	Manager* manager() const;
+	void setManager( Manager* m );
 
 	OidType oid() const;
 	void setOid( const OidType& oid );
@@ -333,12 +358,16 @@ public:
 	/*
 	Functions for managing the properties
 	*/
-	PropertyIterator propertiesBegin();
-	PropertyIterator propertiesEnd();
+	PropertiesIterator propertiesBegin();
+	ConstPropertiesIterator constPropertiesBegin() const;
+	PropertiesIterator propertiesEnd();
+	ConstPropertiesIterator constPropertiesEnd() const;
 	int numProperties() const;
 	Property property( int pos );
+	ConstProperty property( int pos ) const;
 	Property property( const QString& name );
-	bool containsProperty( const QString& name );
+	ConstProperty property( const QString& name ) const;
+	bool containsProperty( const QString& name ) const;
 
 	// This property is kind of special, it is provided to allow
 	// consistency. If we create the property() function that returns
@@ -350,8 +379,8 @@ public:
 	/*
 	Functions for managing the other objects related
 	*/
-	ObjectIterator objectsBegin();
-	ObjectIterator objectsEnd();
+	ObjectsIterator objectsBegin();
+	ObjectsIterator objectsEnd();
 	bool containsObject( const QString& name ) const;
 	int numObjects() const;
 	Object* object( const QString& name ) const;
@@ -361,8 +390,8 @@ public:
 	/*
 	Functions for managing the collections of objects related
 	*/
-	CollectionIterator collectionsBegin();
-	CollectionIterator collectionsEnd();
+	CollectionsIterator collectionsBegin();
+	CollectionsIterator collectionsEnd();
 	bool containsCollection( const QString& name ) const;
 	int numCollections() const;
 	Collection* collection( const QString& name ) const;
@@ -371,9 +400,9 @@ protected:
 	// m_modified is protected because the MODIFIED macro needs it,
 	// is it a good solution?
 	bool m_modified;
+	Manager *m_manager;
 
 private:
-	bool m_removed, m_loaded;
 	OidType m_oid;
 	SeqType m_seq;
 	// Used as a cache. It is calculated the first time the classInfo() (non-const) function is called and used from there on

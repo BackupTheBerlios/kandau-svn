@@ -92,15 +92,10 @@ void XmlBackendTest::transactions()
 
 void XmlBackendTest::collections()
 {
-	/*
-	Collection col( "SELECT * FROM Article" );
-	Collection col( "SELECT article WHERE nom like '%A%'" );
-	Collection col( "customerorder.article_customerorder.* WHERE customerorder.customer_customerorder.city='Barcelona' AND customerorder.article_customerorder.description LIKE '%pepet%'" );
-	*/
 	Collection col( "Article" );
 	Article *article;
-	ObjectIterator it( col.begin() );
-	ObjectIterator end( col.end() );
+	CollectionIterator it( col.begin() );
+	CollectionIterator end( col.end() );
 	for ( ; it != end; ++it ) {
 		article = static_cast<Article*>( *it );
 		// As long as we don't have a way to sort collections, we won't be
@@ -111,14 +106,11 @@ void XmlBackendTest::collections()
 	}
 }
 
-
-
 void XmlBackendTest::allTests()
 {
 	Classes::setup();
 	DbBackendIface *backend = new XmlDbBackend( "database.xml" );
 	m_manager = new Manager( backend );
-	Manager::self()->setMaxObjects( Manager::Unlimited );
 	m_manager->createSchema();
 
 	transactions();

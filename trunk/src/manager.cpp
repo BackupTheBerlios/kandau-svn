@@ -35,7 +35,7 @@ Manager* Manager::m_self = 0;
 Manager::Manager( DbBackendIface *backend )
 {
 	assert( backend );
-	assert( m_self == 0 );
+	//assert( m_self == 0 );
 	m_dbBackend = backend;
 	m_self = this;
 	m_maxObjects = MaxObjects;
@@ -43,7 +43,7 @@ Manager::Manager( DbBackendIface *backend )
 	// Initialize the backend (maybe it needs to initialize some
 	// values of the manager such as maxObjects or fill the map of objects in a
 	// memory only backend).
-	m_dbBackend->setup();
+	m_dbBackend->setup( this );
 }
 
 Manager::~Manager()
@@ -318,6 +318,7 @@ Object* Manager::load( OidType oid, CreateObjectFunction f )
 	object = (*f)();
 	if ( ! object )
 		return 0;
+	object->setManager( this );
 
 	if ( ! m_dbBackend->load( oid, object ) ) {
 		delete object;
@@ -548,7 +549,7 @@ void Manager::addRelation( const OidType& oid, RelatedCollection* collection, co
 	QString relation = ClassInfo::relationName( collection->name(), collection->parentClassInfo()->name() );
 
 	if ( m_collections[ oid ][ relation ] == 0 )
-		m_collections[ oid ][ relation ] = new Collection( collection, oid );
+		m_collections[ oid ][ relation ] = new Collection( collection, oid, this );
 	m_collections[ oid ][ relation ]->simpleAdd( oidRelated );
 	
 	// EnsureUnderMaxCollections AFTER modifying it (simpleAdd) we couldn't ensure
@@ -689,7 +690,7 @@ Collection* Manager::collection( const Object* object, const QString& relation )
 
 		RelatedCollection* col = object->classInfo()->collection( relation );
 
-		m_collections[ object->oid() ][ relation ] = new Collection( col, object->oid() );
+		m_collections[ object->oid() ][ relation ] = new Collection( col, object->oid(), this );
 	}
 	return m_collections[ object->oid() ][ relation ];
 }
@@ -698,7 +699,7 @@ Collection* Manager::collection( const OidType& oid, RelatedCollection* collecti
 {
 	if ( ! m_collections.contains( oid ) ) {
 		if ( ! m_collections[ oid ].contains( collection->name() ) )
-			m_collections[ oid ][ collection->name() ] = new Collection( collection, oid );
+			m_collections[ oid ][ collection->name() ] = new Collection( collection, oid, this );
 	}
 	return m_collections[ oid ][ collection->name() ];
 }
@@ -724,6 +725,37 @@ void Manager::reset()
 	m_relations.clear();
 
 	m_dbBackend->reset();
+}
+
+void Manager::copy( Manager* manager )
+{
+	// There are no pointers in this structure so we can copy it using the default assignment operator
+	manager->m_relations = m_relations;
+	
+	ManagerObjectIterator it( m_objects.begin() );
+	ManagerObjectIterator end( m_objects.end() );
+	Object *srcObj, *dstObj;
+	for ( ; it != end; ++it ) {
+		srcObj = (*it);
+		dstObj = srcObj->classInfo()->create( srcObj->oid(), manager );
+		*dstObj = *srcObj;
+		dstObj->setModified( true );
+	}
+
+	ManagerRelatedCollectionIterator cit( m_collections.begin() );
+	ManagerRelatedCollectionIterator cend( m_collections.end() );
+	for ( ; cit != cend; ++cit ) {
+		QMapIterator <QString, Collection*> sit( (*cit).begin() );
+		QMapIterator <QString, Collection*> send( (*cit).end() );
+		QMap<QString,Collection*> newMap;
+		Collection *col;
+		for ( ; sit != send; ++sit ) {
+			col = new Collection( (*sit)->collectionInfo() , (*sit)->parentOid(), manager);
+			*col = *(*sit);
+			newMap.insert( sit.key(), col );
+		}
+		manager->m_collections.insert( cit.key(), newMap );
+	}
 }
 
 QMap<OidType, QMap<QString, QPair<OidType, bool> > >& Manager::relations()

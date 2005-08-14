@@ -54,8 +54,8 @@ QStringList ObjectAccess::properties( const QString& className ) const
 	Object *obj = Classes::classInfo( className )->createInstance();
 	assert( obj );
 
-	PropertyIterator it( obj->propertiesBegin() );
-	PropertyIterator end( obj->propertiesEnd() );
+	ConstPropertiesIterator it( obj->constPropertiesBegin() );
+	ConstPropertiesIterator end( obj->constPropertiesEnd() );
 	QStringList list;
 	for ( ; it != end; ++it ) {
 		list << it.data().name();
@@ -184,8 +184,8 @@ QStringList ObjectAccess::collection( const QString& className, const QString& o
 	if ( obj == 0 || ! obj->containsCollection( collection ) )
 		return QString::null;
 	Collection *col = obj->collection( collection );
-	ObjectIterator it( col->begin() );
-	ObjectIterator end( col->end() );
+	CollectionIterator it( col->begin() );
+	CollectionIterator end( col->end() );
 	QStringList list;
 	for ( ; it != end; ++it )
 		list << oidToString( (*it)->oid() );

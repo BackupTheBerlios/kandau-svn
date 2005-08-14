@@ -36,10 +36,16 @@ XmlDbBackend::~XmlDbBackend()
 {
 }
 
-void XmlDbBackend::setup()
+void XmlDbBackend::setup( Manager* manager )
 {
-	Manager::self()->setMaxObjects( Manager::Unlimited );
-	Manager::self()->reset();
+	m_manager = manager;
+	m_manager->setMaxObjects( Manager::Unlimited );
+	init();
+}
+
+void XmlDbBackend::init()
+{
+	m_manager->reset();
 
 	QFile file( m_fileName );
 	QDomDocument doc;
@@ -165,8 +171,8 @@ void XmlDbBackend::objectToElement( Object* object, QDomDocument *doc, QDomEleme
 	QDomElement collections = doc->createElement( "Collections" );
 	root.appendChild( collections );
 
-	PropertyIterator it( object->propertiesBegin() );
-	PropertyIterator end( object->propertiesEnd() );
+	PropertiesIterator it( object->propertiesBegin() );
+	PropertiesIterator end( object->propertiesEnd() );
 	for ( ; it != end; ++it ) {
 		e = doc->createElement( (*it).name() );
 		t = doc->createTextNode( (*it).value().toString() );
@@ -174,8 +180,8 @@ void XmlDbBackend::objectToElement( Object* object, QDomDocument *doc, QDomEleme
 		properties.appendChild( e );
 	}
 
-	ObjectIterator oIt( object->objectsBegin() );
-	ObjectIterator oEnd( object->objectsEnd() );
+	ObjectsIterator oIt( object->objectsBegin() );
+	ObjectsIterator oEnd( object->objectsEnd() );
 	for ( ; oIt != oEnd; ++oIt ) {
 		if (*oIt) {
 			e = doc->createElement( oIt.key() );
@@ -185,19 +191,19 @@ void XmlDbBackend::objectToElement( Object* object, QDomDocument *doc, QDomEleme
 		}
 	}
 
-	CollectionIterator cIt( object->collectionsBegin() );
-	CollectionIterator cEnd( object->collectionsEnd() );
+	CollectionsIterator cIt( object->collectionsBegin() );
+	CollectionsIterator cEnd( object->collectionsEnd() );
 	for ( ; cIt != cEnd; ++cIt ) {
 		Collection * tmp = (*cIt);
 		assert( tmp );
 		QDomElement collection = doc->createElement( tmp->collectionInfo()->childrenClassInfo()->name() );
 		collections.appendChild( collection );
 
-		oIt = tmp->begin();
-		oEnd = tmp->end();
-		for ( ; oIt != oEnd; ++oIt ) {
+		CollectionIterator cIt2( tmp->begin() );
+		CollectionIterator cEnd2( tmp->end() );
+		for ( ; cIt2 != cEnd2; ++cIt2 ) {
 			e = doc->createElement( "oid" );
-			t = doc->createTextNode( oidToString( (*oIt)->oid() ) );
+			t = doc->createTextNode( oidToString( (*cIt2)->oid() ) );
 			e.appendChild( t );
 			collection.appendChild( e );
 		}
@@ -236,8 +242,8 @@ bool XmlDbBackend::commit()
 	QDomElement root = doc.createElement( "Database" );
 	doc.appendChild( root );
 
-	ManagerObjectIterator it( Manager::self()->begin() );
-	ManagerObjectIterator end( Manager::self()->end() );
+	ManagerObjectIterator it( m_manager->begin() );
+	ManagerObjectIterator end( m_manager->end() );
 	for ( ; it != end; ++it )
 		objectToElement( *it, &doc, &root );
 
@@ -255,7 +261,7 @@ bool XmlDbBackend::commit()
 
 void XmlDbBackend::afterRollback()
 {
-	setup();
+	init();
 }
 
 bool XmlDbBackend::load( Collection */*collection*/, const QString& /*query*/ )

@@ -17,54 +17,26 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#ifndef INMEMORYSQLDBBACKEND_H
-#define INMEMORYSQLDBBACKEND_H
+#ifndef MULTIPLEBACKENDSTEST_H
+#define MULTIPLEBACKENDSTEST_H
 
-#include <dbbackendiface.h>
-#include "oidtype.h"
-#include "seqtype.h"
-#include "object.h"
+#include <tester.h>
 
-class QSqlDatabase;
-class QSqlCursor;
+class Manager;
 
 /**
 @author Albert Cervera Areny
 */
-class InMemorySqlDbBackend : public DbBackendIface
+class MultipleBackendsTest : public Tester
 {
 public:
-	InMemorySqlDbBackend( QSqlDatabase* db );
-	virtual ~InMemorySqlDbBackend();
+	void xml2xml();
+	void xml2sql();
+	void sql2xml();
 
-	void setup( Manager *manager );
-	void init();
-	void shutdown();
-	bool load( const OidType& oid, Object *object );
-	bool load( Collection *collection );
-	bool load( Collection *collection, const QString& query );
-	bool createSchema();
-	bool hasChanged( Object * object );
-	OidType newOid();
-	bool commit();
-	void reset() {};
-
-	// Callbacks
-	void afterRollback();
-	void beforeRemove( Object* /*object*/ ) {};
-
-protected:
-	QString sqlType( QVariant::Type type );
-	void loadObject( const QSqlCursor& cursor, Object* object );
-	void saveObject( Object* object );
-
-	QString idFieldName( RelatedCollection *collection ) const;
-
+	void allTests();
 private:
-	QSqlDatabase *m_db;
-	OidType m_currentOid;
-	QStringList m_savedCollections;
-	Manager *m_manager;
+	Manager *m_manager1, *m_manager2, *m_manager3, *m_manager4, *m_manager5;
 };
 
 #endif

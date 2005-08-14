@@ -130,8 +130,15 @@ public:
 	*/
 	void reset();
 
+	/*!
+	Copies the contents (objects & relations) to another manager. Only objects and relations that are currently in memory are copied currently. This means it only will copy the whole data in those src managers that have MaxObjects Unlimited. So it is possible to copy the whole Xml database to an Sql Database but not viceversa.
+	@param manager The manager to which the contents of the current manager will be copied.
+	*/
+	void copy( Manager* manager );
+
 	static const Q_ULLONG Unlimited = ULONG_MAX;
 protected:
+	
 	/*!
 	Ensures the total number of objects stays under maxObjects() as long as there
 	are unmodified objects. Right now the parameter isn't used anywhere as we call this
@@ -140,7 +147,6 @@ protected:
 	@param object if provided, ensures that object won't be freed (ie. it has just been loaded)
 	*/
 	void ensureUnderMaxObjects( Object *object = 0 );
-
 	void ensureUnderMaxRelations();
 	void ensureUnderMaxCollections();
 
@@ -149,12 +155,12 @@ protected:
 		Modified,
 		Unmodified,
 	};
+	
 	/*!
 	This function is called inside ensureUnderMaxObjects, whenever an object is decided that is no longer necessary in memory. Then, all references the object has and which have not been modified are freed. It is also used by rollback.
 	@param oid the iterator of the object which references are to be freed
 	@param filter the filter to apply and thus the references that will be removed
 	*/
-	//void removeObjectReferences( QMapIterator<OidType, QMap<QString, QPair<OidType, bool> > > oid, Filter filter );
 	void Manager::removeObjectReferences( QMap<QString, QPair<OidType, bool> > map, Filter filter );
 
 	/*!
@@ -162,8 +168,8 @@ protected:
 	@param oid the iterator of the object which references are to be freed
 	@param filter the filter to apply and thus the references that will be removed
 	*/
-	//void removeCollectionReferences( QMapIterator<OidType, QMap<QString, Collection*> > oid, Filter filter );
 	void Manager::removeCollectionReferences( QMap<QString, Collection*> map, Filter filter );
+	
 	/*!
 	This function acts as the previous function but also removes the oid from the map if it is empty when the appropiate references are removed
 	@param oid the oid of the object which references are to be freed
@@ -174,43 +180,39 @@ protected:
 public:
 	ManagerRelatedObjectMap& relations();
 	ManagerRelatedCollectionMap& collections();
-	//QMap<OidType, QMap<QString, QPair<OidType, bool> > >& relations();
-	//QMap<OidType, QMap<QString, Collection*> >& collections();
 
 private:
-	/*
+	/*!
 	This QMap contains all existing objects and thus all have a valid Oid
 	assigned
 	*/
 	ManagerObjectMap m_objects;
-	//QMap<OidType, Object*> m_objects;
 
-	/*
+	/*!
 	This is the pointer to the appropiate backend that will do the real persistance
 	*/
 	DbBackendIface *m_dbBackend;
 
-	/*
+	/*!
 	A pointer to the current manager object
 	*/
 	static Manager* m_self;
 
-	/*
+	/*!
 	Contains the maximum number of objects that should be loaded.
 	Take into account that it includes modified and unmodified objects.
 	*/
 	uint m_maxObjects;
 
-	/*
+	/*!
 	Mantains the relation between objects
 	*/
 	ManagerRelatedObjectMap m_relations;
-	//QMap<OidType, QMap<QString, QPair<OidType, bool> > > 
-	/*
+	
+	/*!
 	Mantains the collections of objects
 	*/
 	ManagerRelatedCollectionMap m_collections;
-	 //QMap<OidType, QMap<QString, Collection*> >
 };
 
 
