@@ -79,7 +79,7 @@ void TestBackendTest::browseObjectProperties()
 	PropertiesIterator it( article->propertiesBegin() );
 	PropertiesIterator end( article->propertiesEnd() );
 	for ( ; it != end; ++it ) {
-		kdDebug() << "Property: name = " << it.data().name() << ", value = " << it.data().value().toString() << ", type = " << QVariant::typeToName( it.data().type() ) << endl;
+//		kdDebug() << "Property: name = " << it.data().name() << ", value = " << it.data().value().toString() << ", type = " << QVariant::typeToName( it.data().type() ) << endl;
 
 		it.data().setValue( it.data().name() );
 	}
@@ -87,7 +87,7 @@ void TestBackendTest::browseObjectProperties()
 	// Test operator=, it++, operator*
 	it = article->propertiesBegin();
 	for ( ; it != end; it++ ) {
-		kdDebug() << "Property: name = " << (*it).name() << ", value = " << (*it).value().toString() << ", type = " << QVariant::typeToName( (*it).type() ) << endl;
+//		kdDebug() << "Property: name = " << (*it).name() << ", value = " << (*it).value().toString() << ", type = " << QVariant::typeToName( (*it).type() ) << endl;
 		CHECK( (*it).value().toString(), (*it).name() );
 	}
 	kdDebug() << endl;
@@ -95,7 +95,7 @@ void TestBackendTest::browseObjectProperties()
 
 void TestBackendTest::browseObjectObjects()
 {
-	kdDebug() << "TestBackendTest::browseObjectObjects()" << endl;
+//	kdDebug() << "TestBackendTest::browseObjectObjects()" << endl;
 
 	Article *article = Article::create();
 
@@ -121,7 +121,7 @@ void TestBackendTest::browseObjectObjects()
 
 void TestBackendTest::browseObjectCollections()
 {
-	kdDebug() << "TestBackendTest::browseObjectCollections()" << endl;
+//	kdDebug() << "TestBackendTest::browseObjectCollections()" << endl;
 	Article *article = Article::create();
 /*
 	Article *a = Article::create();
@@ -149,7 +149,7 @@ void TestBackendTest::browseObjectCollections()
 
 void TestBackendTest::browseCollectionObjects()
 {
-	kdDebug() << "TestBackendTest::browseCollectionObjects()" << endl;
+//	kdDebug() << "TestBackendTest::browseCollectionObjects()" << endl;
 /*
 	Article *article = Article::create();
 	Article *a = Article::create();
@@ -172,12 +172,12 @@ void TestBackendTest::browseCollectionObjects()
 		kdDebug() << "Object: className = " << (*it)->className() << ", oid = " << (*it)->oid() << endl;
 	}
 */
-	kdDebug() << endl;
+//	kdDebug() << endl;
 }
 
 void TestBackendTest::setObjectObjects()
 {
-	kdDebug() << "TestBackendTest::setObjectObjects()" << endl;
+//	kdDebug() << "TestBackendTest::setObjectObjects()" << endl;
 
 	Article *article = Article::create();
 	Article *a = Article::create();
@@ -193,12 +193,12 @@ void TestBackendTest::setObjectObjects()
 	CHECK( article->article()->label(), a->label() );
 	CHECK( article->article()->description(), a->description() );
 
-	kdDebug() << endl;
+//	kdDebug() << endl;
 }
 
 void TestBackendTest::modified()
 {
-	kdDebug() << "TestBackendTest::modified" << endl;
+//	kdDebug() << "TestBackendTest::modified" << endl;
 	QVariant value;
 
 	ClassInfoIterator cit( Classes::begin() );

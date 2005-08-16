@@ -148,7 +148,7 @@ OidType XmlDbBackend::elementToObject( const QDomElement& e )
 		}
 		n = n.nextSibling();
 	}
-	object->setModified( false );
+	//object->setModified( false );
 	return oid;
 }
 

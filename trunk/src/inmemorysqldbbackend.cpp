@@ -114,7 +114,7 @@ void InMemorySqlDbBackend::saveObject( Object* object )
 	PropertiesIterator pEnd( object->propertiesEnd() );
 	for ( ; pIt != pEnd; ++pIt )
 		buffer->setValue( (*pIt).name(), (*pIt).value() );
-	object->setModified( false );
+	//object->setModified( false );
 
 	RelatedObjectsConstIterator oIt( object->classInfo()->objectsBegin() );
 	RelatedObjectsConstIterator oEnd( object->classInfo()->objectsEnd() );
@@ -146,7 +146,7 @@ void InMemorySqlDbBackend::saveObject( Object* object )
 			buffer->setValue( (*coIt)->classInfo()->name(), (*coIt)->oid() );
 			cCursor.insert();
 		}
-		(*cIt)->setModified( false );
+		//(*cIt)->setModified( false );
 	}
 }
 
@@ -213,8 +213,6 @@ bool InMemorySqlDbBackend::createSchema()
 			rObj = *oIt;
 			exec += rObj->name() + " BIGINT DEFAULT NULL, ";
 			constraints << currentClass->name() + "-" + rObj->name() + "-" + rObj->relatedClassInfo()->name();
-			//constraints << rObj->name();
-			//constraints << tableName( object ) + "-" + tableName( oIt.key() );
 		}
 
 		// Search in all the classes if they have N - 1 relations with the current class
@@ -231,8 +229,6 @@ bool InMemorySqlDbBackend::createSchema()
 				if ( rCol->childrenClassInfo()->name() == currentClass->name() && rCol->isNToOne() ) {
 					exec += rCol->name() + " BIGINT DEFAULT NULL, ";
 					constraints << currentClass->name() + "-" + rCol->name() + "-" + rCol->parentClassInfo()->name();
-					//constraints << rCol->name();
-					//constraints << tableName( object ) + "-" + tableName( obj );
 				}
 			}
 		}
@@ -251,8 +247,10 @@ bool InMemorySqlDbBackend::createSchema()
 		exec = exec.left( exec.length() - 2 );
 		exec += ");";
 		m_db->exec( exec );
-		kdDebug() << k_funcinfo << exec << endl;
-		kdDebug() << k_funcinfo << m_db->lastError().text()  << endl;
+		if ( m_db->lastError().type() != QSqlError::None ) {
+			kdDebug() << k_funcinfo << exec << endl;
+			kdDebug() << k_funcinfo << m_db->lastError().text()  << endl;
+		}
 	}
 
 	// Creem les taules de relacions
@@ -263,7 +261,7 @@ bool InMemorySqlDbBackend::createSchema()
    		exec = "CREATE TABLE " + list[ 0 ] + " ( " + list[ 1 ] + " BIGINT NOT NULL REFERENCES " + list[ 1 ] + " DEFERRABLE INITIALLY DEFERRED, "+ list[ 2 ] + " BIGINT NOT NULL REFERENCES " + list[2] +" DEFERRABLE INITIALLY DEFERRED, PRIMARY KEY( "+ list[1] +" , " + list[2] + " ) );";
 
 		m_db->exec( exec );
-		kdDebug() << m_db->lastError().text() << endl;
+		//kdDebug() << m_db->lastError().text() << endl;
 	}
 
 	for ( i = 0; i < constraints.count(); ++i ) {

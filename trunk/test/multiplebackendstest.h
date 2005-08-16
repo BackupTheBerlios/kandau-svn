@@ -35,8 +35,6 @@ public:
 	void sql2xml();
 
 	void allTests();
-private:
-	Manager *m_manager1, *m_manager2, *m_manager3, *m_manager4, *m_manager5;
 };
 
 #endif

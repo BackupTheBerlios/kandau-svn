@@ -191,12 +191,39 @@ bool Manager::load( Collection* collection, const QString& query )
 bool Manager::commit()
 {
 	if ( m_dbBackend->commit() ) {
+		setEverythingUnmodified();
 		ensureUnderMaxObjects();
 		ensureUnderMaxRelations();
 		ensureUnderMaxCollections();
 		return true;
 	}
 	return false;
+}
+
+void Manager::setEverythingUnmodified()
+{
+	ManagerObjectIterator it( begin() );
+	ManagerObjectIterator end( end() );
+	for ( ; it != end; ++it )
+		(*it)->setModified( false );
+
+	ManagerRelatedObjectIterator oit( m_relations.begin() );
+	ManagerRelatedObjectIterator oend( m_relations.end() );
+	for ( ; oit != oend; ++oit ) {
+		QMapIterator<QString, QPair<OidType, bool> > oit2( (*oit).begin() );
+		QMapIterator<QString, QPair<OidType, bool> > oend2( (*oit).end() );
+		for ( ; oit2 != oend2; ++oit2 )
+			(*oit2).second = false;
+	}
+
+	ManagerRelatedCollectionIterator cit( m_collections.begin() );
+	ManagerRelatedCollectionIterator cend( m_collections.end() );
+	for ( ; cit != cend; ++cit ) {
+		QMapIterator<QString, Collection*> cit2( (*cit).begin() );
+		QMapIterator<QString, Collection*> cend2( (*cit).end() );
+		for ( ; cit2 != cend2; ++cit2 )
+			(*cit2)->setModified( false );
+	}
 }
 
 bool Manager::rollback()

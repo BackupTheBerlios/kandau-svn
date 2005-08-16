@@ -135,7 +135,7 @@ public:
 	@param manager The manager to which the contents of the current manager will be copied.
 	*/
 	void copy( Manager* manager );
-
+	
 	static const Q_ULLONG Unlimited = ULONG_MAX;
 protected:
 	
@@ -150,6 +150,10 @@ protected:
 	void ensureUnderMaxRelations();
 	void ensureUnderMaxCollections();
 
+	/*!
+	Sets objects and relations as unmodified. Used by commit once the backend has returned true from its commit function.
+	*/
+	void setEverythingUnmodified();
 
 	enum Filter {
 		Modified,

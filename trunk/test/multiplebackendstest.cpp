@@ -39,14 +39,17 @@
 void MultipleBackendsTest::xml2xml()
 {
 	DbBackendIface *backend1 = new XmlDbBackend( "database.xml" );
-	m_manager1 = new Manager( backend1 );
-	m_manager1->createSchema();
+	Manager *manager1 = new Manager( backend1 );
+	manager1->createSchema();
 	
 	DbBackendIface *backend2 = new XmlDbBackend( "database2.xml" );
-	m_manager2 = new Manager( backend2 );
-	m_manager2->createSchema();
-	m_manager1->copy( m_manager2 );
-	m_manager2->commit();
+	Manager *manager2 = new Manager( backend2 );
+	manager2->createSchema();
+	manager1->copy( manager2 );
+	manager2->commit();
+	
+	delete manager2;
+	delete manager1;
 	
 	QFile file;
 	QByteArray a1, a2;
@@ -85,6 +88,10 @@ void MultipleBackendsTest::xml2sql()
 	}
 	delete proc;
 
+	DbBackendIface *backend1 = new XmlDbBackend( "database.xml" );
+	Manager *manager1 = new Manager( backend1 );
+	manager1->createSchema();
+
 	QSqlDatabase *db = QSqlDatabase::addDatabase( "QPSQL7" );
 	db->setDatabaseName( dbname );
 	db->setUserName( "albert" );
@@ -94,12 +101,14 @@ void MultipleBackendsTest::xml2sql()
 		kdDebug() << "Failed to open database: " << db->lastError().text() << endl;
 		return;
 	}
-	DbBackendIface *backend3 = new SqlDbBackend( db );
-	m_manager3 = new Manager( backend3 );
-	m_manager3->createSchema();
-	m_manager2->copy( m_manager3 );
-	m_manager3->commit();
-	//QSqlDatabase::removeDatabase( db );
+	DbBackendIface *backend2 = new SqlDbBackend( db );
+	Manager *manager2 = new Manager( backend2 );
+	manager2->createSchema();
+	manager1->copy( manager2 );
+	manager2->commit();
+	delete manager2;
+	delete manager1;
+	QSqlDatabase::removeDatabase( db );
 }
 
 void MultipleBackendsTest::sql2xml()
@@ -114,15 +123,19 @@ void MultipleBackendsTest::sql2xml()
 		kdDebug() << "Failed to open database: " << db->lastError().text() << endl;
 		return;
 	}
-	DbBackendIface *backend4 = new InMemorySqlDbBackend( db );
-	m_manager4 = new Manager( backend4 );
+	DbBackendIface *backend1 = new InMemorySqlDbBackend( db );
+	Manager *manager1 = new Manager( backend1 );
 
-	DbBackendIface *backend5 = new XmlDbBackend( "database3.xml" );
-	m_manager5 = new Manager( backend5 );
+	DbBackendIface *backend2 = new XmlDbBackend( "database3.xml" );
+	Manager *manager2 = new Manager( backend2 );
 	
-	m_manager4->copy( m_manager5 );
-	m_manager5->commit();
+	manager1->copy( manager2 );
+	manager2->commit();
 
+	delete manager1;
+	delete manager2;
+	QSqlDatabase::removeDatabase( db );
+	
 	QFile file;
 	QByteArray a1, a2;
 	file.setName( "database.xml" );
@@ -134,7 +147,6 @@ void MultipleBackendsTest::sql2xml()
 	a2 = file.readAll();
 	file.close();
 	CHECK( a1, a2 );
-	//QSqlDatabase::removeDatabase( db );
 }
 
 void MultipleBackendsTest::allTests()
@@ -144,10 +156,4 @@ void MultipleBackendsTest::allTests()
 	xml2xml();
 	xml2sql();
 	sql2xml();
-
-	delete m_manager1;
-	delete m_manager2;
-	delete m_manager3;
-	delete m_manager4;
-	delete m_manager5;
 }

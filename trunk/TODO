@@ -36,13 +36,11 @@ There are lots of things to think about. Here are some of them:
 
 	- Implement a SortedCollection
 
-	- Separate CollectionObjectIterator and ObjectObjectIterator, while inheriting from ObjectIterator.
-
 	- Implement Collection as a template so it is possible to retrieve objects without casting.
 	
 	- Add a Signaling mechanism to allow the application to listen for "every time one/multiple property of a specific class/object is modified" 
 
-	- Solve problem when commit fails in the Database, and we've already set all objects and references to unmodified!
+(DONE)	- Solve problem when commit fails in the Database, and we've already set all objects and references to unmodified!
 	
 	- Find a smart way to add class metainformation such as Labels, information about relations, SQL like checks for values, etc.
 	

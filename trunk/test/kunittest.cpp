@@ -40,7 +40,7 @@
 
 void KUnitTest::registerTests()
 {
-//	ADD_TEST( TestBackendTest );
+	ADD_TEST( TestBackendTest );
 	ADD_TEST( SqlBackendTest );
 	ADD_TEST( InMemorySqlBackendTest );
 	ADD_TEST( XmlBackendTest );

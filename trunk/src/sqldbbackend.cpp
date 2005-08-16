@@ -135,7 +135,7 @@ bool SqlDbBackend::save( Collection *collection )
 		record->setValue( "dbseq", newSeq() );
 		cursor.insert();
 		
-		m_manager->setModifiedRelation( collection->parentOid(), collection->collectionInfo(), (*it)->oid(), false );
+		//m_manager->setModifiedRelation( collection->parentOid(), collection->collectionInfo(), (*it)->oid(), false );
 	}
 	return true;
 }
@@ -217,7 +217,7 @@ bool SqlDbBackend::save( Object *object )
 		else
 			record->setNull( oIt.key() );
 		
-		m_manager->setModifiedRelation( object->oid(), object->classInfo(), oIt.key(), false );
+		//m_manager->setModifiedRelation( object->oid(), object->classInfo(), oIt.key(), false );
 		/*
 		if ( analyzeRelations && omap.contains( oIt.key() ) ) {
 			omap[ oIt.key() ].second = false;
@@ -486,8 +486,11 @@ bool SqlDbBackend::createSchema()
 		exec = exec.left( exec.length() - 2 );
 		exec += ");";
 		m_db->exec( exec );
-		kdDebug() << k_funcinfo << exec << endl;
-		kdDebug() << k_funcinfo << m_db->lastError().text()  << endl;
+		
+		if ( m_db->lastError().type() != QSqlError::None ) {
+			kdDebug() << k_funcinfo << exec << endl;
+			kdDebug() << k_funcinfo << m_db->lastError().text()  << endl;
+		}
 	}
 
 	// Creem les taules de relacions
@@ -497,16 +500,22 @@ bool SqlDbBackend::createSchema()
 		kdDebug() << "Creant taula... " << list[0] << endl;
    		exec = "CREATE TABLE " + list[ 0 ] + " ( " + list[ 1 ] + " BIGINT NOT NULL REFERENCES " + list[ 1 ] + " DEFERRABLE INITIALLY DEFERRED, "+ list[ 2 ] + " BIGINT NOT NULL REFERENCES " + list[2] + " DEFERRABLE INITIALLY DEFERRED, dbseq BIGINT NOT NULL , PRIMARY KEY( "+ list[1] +" , " + list[2] + " ) );";
 
-		kdDebug() << exec << endl;
 		m_db->exec( exec );
-		kdDebug() << m_db->lastError().text() << endl;
+		if ( m_db->lastError().type() != QSqlError::None ) {
+			kdDebug() << exec << endl;
+			kdDebug() << m_db->lastError().text() << endl;
+		}
 	}
 
 	for ( i = 0; i < constraints.count(); ++i ) {
 		list = QStringList::split( QString( "-" ), constraints[ i ] );
 		exec = "ALTER TABLE " + list[ 0 ] + " ADD FOREIGN KEY (" + list[ 1 ] + ") REFERENCES " + list[ 2 ] + "( dboid ) DEFERRABLE INITIALLY DEFERRED";
-		kdDebug() << exec << endl;
+		
 		m_db->exec( exec );
+		if ( m_db->lastError().type() != QSqlError::None ) {
+			kdDebug() << exec << endl;
+			kdDebug() << m_db->lastError().text() << endl;
+		}
 	}
 	return true;
 }
@@ -581,7 +590,7 @@ bool SqlDbBackend::commit()
 		obj = (*it);
 		if ( obj->isModified() ) {
 			save( obj );
-			obj->setModified( false );
+//			obj->setModified( false );
 		}
 	}
 
@@ -622,7 +631,7 @@ void SqlDbBackend::commitCollections()
 			c = *it;
 			if ( c->modified() ) {
 				save( c );
-				c->setModified( false );
+//				c->setModified( false );
 			}
 		}
 	}
