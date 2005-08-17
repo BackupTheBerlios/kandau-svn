@@ -45,3 +45,11 @@ There are lots of things to think about. Here are some of them:
 	- Find a smart way to add class metainformation such as Labels, information about relations, SQL like checks for values, etc.
 	
 	- Create widgets to access Object classes and relations.
+
+	- Implement an SQL backend that can read JDO XML configuration files.
+	
+	- Allow to browse the properties in ClassInfo (no need to instantiate an object).
+	
+	- Create a DynamicObject class and the necessary components to be able to define classes dynamically.
+	
+	- Make it easy to create reports, forms, etc. 
