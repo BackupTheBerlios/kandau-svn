@@ -52,7 +52,7 @@ RelatedObject::RelatedObject()
 	m_cached = false;
 }
 
-RelatedObject::RelatedObject( ClassInfo *classInfo, const QString& name, CreateObjectFunction function )
+RelatedObject::RelatedObject( const ClassInfo *classInfo, const QString& name, CreateObjectFunction function )
 {
 	m_parentClassInfo = classInfo;
 	m_name = name;
@@ -77,7 +77,7 @@ bool RelatedObject::isOneToOne()
 	return m_oneToOne;
 }
 
-ClassInfo* RelatedObject::relatedClassInfo()
+const ClassInfo* RelatedObject::relatedClassInfo()
 {
 	if ( ! m_cached )
 		cacheData();
@@ -188,6 +188,10 @@ Object* ClassInfo::create( const OidType& oid, Manager* manager ) const
 {
 	Object *object = m_function();
 	assert( object );
+	// This has been introduced for DynamicObject to let them know which 
+	// ClassInfo they should use.
+	object->setClassInfo( this );
+	// ^^^
 	object->setOid( oid );
 	object->setModified( true );
 	object->setManager( manager );
@@ -237,6 +241,11 @@ void ClassInfo::addCollection( const QString& className, const QString& relation
 	m_collections.insert( name, new RelatedCollection( this, name, Classes::classInfo( className ), nToOne ) );
 }
 
+void ClassInfo::addProperty( const QString& name, QVariant::Type type )
+{
+	m_properties.insert( name, new PropertyInfo( name, type ) );
+}
+
 RelatedObjectsConstIterator ClassInfo::objectsBegin() const
 {
 	return m_objects.begin();
@@ -256,7 +265,6 @@ RelatedObjectsIterator ClassInfo::objectsEnd()
 {
 	return m_objects.end();
 }
-
 
 bool ClassInfo::containsObject( const QString& name ) const
 {
@@ -412,7 +420,8 @@ void Classes::addClass( const QString &name, CreateObjectFunction createInstance
 		m_tmpClasses = new TmpClassMap();
 	}
 	m_classes->insert( name, new ClassInfo( name, createInstance ) );
-	m_tmpClasses->insert( name, new TmpClass( name, createRelations, createLabels ) );
+	if ( m_tmpClasses )
+		m_tmpClasses->insert( name, new TmpClass( name, createRelations, createLabels ) );
 }
 
 ClassInfoIterator Classes::begin()

@@ -515,7 +515,7 @@ ManagerObjectIterator Manager::end()
 	Relation management functions
 */
 
-void Manager::setRelation( const OidType& oid, ClassInfo* classInfo, const QString& relationName, const OidType& oidRelated, bool recursive )
+void Manager::setRelation( const OidType& oid, const ClassInfo* classInfo, const QString& relationName, const OidType& oidRelated, bool recursive )
 {
 	assert( classInfo );
 	QString relation = ClassInfo::relationName( relationName, classInfo->name() );
@@ -625,7 +625,7 @@ void Manager::removeRelation( const OidType& oid, RelatedCollection* collection,
 	}
 }
 
-void Manager::setModifiedRelation( const OidType& oid, ClassInfo* classInfo, const QString& relationName, bool modified, bool recursive )
+void Manager::setModifiedRelation( const OidType& oid, const ClassInfo* classInfo, const QString& relationName, bool modified, bool recursive )
 {
 	assert( classInfo );
 	QString relation = ClassInfo::relationName( relationName, classInfo->name() );

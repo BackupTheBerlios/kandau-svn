@@ -97,11 +97,11 @@ public:
 	ManagerObjectIterator end();
 
 	/* Relation management functions */
-	void setRelation( const OidType& oid, ClassInfo* classInfo, const QString& relation, const OidType& oidRelated, bool recursive = true );
+	void setRelation( const OidType& oid, const ClassInfo* classInfo, const QString& relation, const OidType& oidRelated, bool recursive = true );
 	void addRelation( const OidType& oid, RelatedCollection* collection, const OidType& oidRelated, bool recursive = true );
 	void removeRelation( const OidType& oid, RelatedCollection* collection, const OidType& oidRelated, bool recursive = true );
 	
-	void setModifiedRelation( const OidType& oid, ClassInfo* classInfo, const QString& relationName, bool modified, bool recursive = true );
+	void setModifiedRelation( const OidType& oid, const ClassInfo* classInfo, const QString& relationName, bool modified, bool recursive = true );
 	void setModifiedRelation( const OidType& oid, RelatedCollection* collection, const OidType& oidRelated, bool modified, bool recursive = true );
 
 

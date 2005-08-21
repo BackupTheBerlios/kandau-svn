@@ -22,6 +22,7 @@
 
 #include "tester.h"
 
+class Manager;
 
 /**
 @author Albert Cervera Areny
@@ -30,6 +31,8 @@ class DynamicObjectsTest : public Tester
 {
 public:
 	void allTests();
+private:
+	Manager* m_manager;
 };
 
 #endif

@@ -19,20 +19,45 @@
  ***************************************************************************/
 #include "dynamicobject.h"
 
-DynamicObject::DynamicObject()
+DynamicObject* DynamicObject::create( Manager* manager )
 {
-	
+	DynamicObject *o = new DynamicObject();
+	assert( o );
+	o->m_modified = true;
+	o->setManager( manager );
+	o->m_manager->add( o );
+	return o;
+}
+
+DynamicObject* DynamicObject::create( OidType oid, Manager* manager )
+{
+	if ( manager )
+		return static_cast<DynamicObject*>( manager->load( oid, &createInstance ) );
+	else
+		return static_cast<DynamicObject*>( Manager::self()->load( oid, &createInstance ) );
+}
+
+DynamicObject* DynamicObject::createObjectInstance() const
+{
+	return new DynamicObject();
+}
+
+Object* DynamicObject::createInstance()
+{
+	return new DynamicObject();
 }
 
 bool DynamicObject::setProperty( const char* name, const QVariant& value )
 {
+	assert( classInfo()->containsProperty( name ) );
 	m_properties[ QString( name ) ] = value;
 	return true;
 }
 
-QVariant DynamicObject::propertyValue( const char* name )
+QVariant DynamicObject::propertyValue( const char* name ) const
 {
 	// If we don't check if the property exists and let QMap to return a default QVariant object, then the QMap will create an entry for that property 
+	
 	if ( m_properties.contains( QString( name ) ) ) 
 		return m_properties[ QString( name ) ];
 	else

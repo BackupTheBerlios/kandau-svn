@@ -42,7 +42,7 @@ Property::Property( const Object *obj, const QString& name )
 
 QVariant::Type Property::type() const
 {
-	return m_constObject->propertyValue( m_name.ascii() ).type();
+	return m_constObject->classInfo()->property( m_name )->type();
 }
 
 QVariant Property::value() const
@@ -174,7 +174,7 @@ PropertiesConstIterator& PropertiesConstIterator::operator=(const PropertiesCons
 
 // ObjectsIterator
 
-ObjectsIterator::ObjectsIterator( const OidType& oid, RelatedObjectsIterator it, Manager* manager )
+ObjectsIterator::ObjectsIterator( const OidType& oid, RelatedObjectsConstIterator it, Manager* manager )
 {
 	m_oid = oid;
 	m_it = it;
@@ -261,7 +261,7 @@ ObjectsIterator& ObjectsIterator::operator=(const ObjectsIterator& it)
 
 // CollectionsIterator
 
-CollectionsIterator::CollectionsIterator( const OidType& oid, RelatedCollectionsIterator it, Manager* manager )
+CollectionsIterator::CollectionsIterator( const OidType& oid, RelatedCollectionsConstIterator it, Manager* manager )
 {
 	m_oid = oid;
 	m_it = it;
@@ -387,15 +387,23 @@ Object* Object::createObjectInstance() const
 	return new Object();
 }
 
-ClassInfo* Object::classInfo()
+/*!
+With this function you can force the ClassInfo of the object. It has been introduced for dynamic objects as they don't know which object they are emulating at a given moment
+*/
+void Object::setClassInfo( const ClassInfo* info )
+{
+	m_classInfo = info;
+}
+/*
+const ClassInfo* Object::classInfo()
 {
 	if ( m_classInfo )
 		return m_classInfo;
 	m_classInfo = Classes::classInfo( className() );
 	return m_classInfo;
 }
-
-ClassInfo* Object::classInfo() const
+*/
+const ClassInfo* Object::classInfo() const
 {
 	if ( m_classInfo )
 		return m_classInfo;
@@ -477,6 +485,7 @@ int Object::numProperties() const
 {
 	return classInfo()->numProperties();
 }
+
 Property Object::property( const QString& name )
 {
 	return Property( this, name );

@@ -29,14 +29,13 @@ class DynamicObject : public Object
 {
 	Q_OBJECT
 public:
-	DynamicObject();
-	static Object* create( Manager* manager = 0 );
-	static Object* create( OidType oid, Manager* manager = 0 );
+	static DynamicObject* create( Manager* manager = 0 );
+	static DynamicObject* create( OidType oid, Manager* manager = 0 );
 	static Object* createInstance();
-	Object* createObjectInstance() const;
+	DynamicObject* createObjectInstance() const;
 
 	bool setProperty( const char* name, const QVariant& value );
-	QVariant propertyValue( const char* name );
+	QVariant propertyValue( const char* name ) const;
 
 private:
 	QMap<QString,QVariant> m_properties;

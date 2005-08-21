@@ -70,7 +70,7 @@ public:
 	@param name The name of the relation (not the class of the related object)
 	@param function The function which creates an object of the type of the related one
 	*/
-	RelatedObject( ClassInfo *classInfo, const QString& name, CreateObjectFunction function );
+	RelatedObject( const ClassInfo *classInfo, const QString& name, CreateObjectFunction function );
 
 	/*!
 	Get the name of the relation
@@ -94,7 +94,7 @@ public:
 	Gets the ClassInfo of the class of the objects related.
 	@return The name of the class.
 	*/
-	ClassInfo* relatedClassInfo();
+	const ClassInfo* relatedClassInfo();
 
 private:
 	/*!
@@ -107,10 +107,10 @@ private:
 	bool m_oneToOne;
 
 	// Pointer to the parent ClassInfo
-	ClassInfo *m_parentClassInfo;
+	const ClassInfo *m_parentClassInfo;
 
 	// Contains the cached ClassInfo of the related class
-	ClassInfo *m_relatedClassInfo;
+	const ClassInfo *m_relatedClassInfo;
 
 	// If the needed data is already in the caches
 	bool m_cached;
@@ -256,6 +256,8 @@ public:
 	@param definitiveName true if the name of the relation shouldn't be calculated by the function. If false, the function will, create a relation name using the name of both classes (concatenated in alphabetical order).
 	*/
 	void addCollection( const QString& className, const QString& relationName, bool nToOne = true);
+
+	void addProperty( const QString& name, QVariant::Type type );
 
 	/*!
 	Gets the name of the class.

@@ -84,8 +84,8 @@ void InMemorySqlDbBackend::loadObject( const QSqlCursor& cursor, Object* object 
 	for ( ; pIt != pEnd; ++pIt )
 		(*pIt).setValue( cursor.value( (*pIt).name() ) );
 	// Load all object relations
-	RelatedObjectsIterator oIt( object->classInfo()->objectsBegin() );
-	RelatedObjectsIterator oEnd( object->classInfo()->objectsEnd() );
+	RelatedObjectsConstIterator oIt( object->classInfo()->objectsBegin() );
+	RelatedObjectsConstIterator oEnd( object->classInfo()->objectsEnd() );
 	for ( ; oIt != oEnd; ++oIt )
 		object->setObject( (*oIt)->name(), variantToOid( cursor.value( (*oIt)->name() ) ) );
 

@@ -187,7 +187,7 @@ private:
 class ObjectsIterator
 {
 public:
-	ObjectsIterator( const OidType& oid, RelatedObjectsIterator it, Manager* manager );
+	ObjectsIterator( const OidType& oid, RelatedObjectsConstIterator it, Manager* manager );
 	Object* data();
 	const Object* data() const;
 	QString key();
@@ -204,7 +204,7 @@ public:
 	ObjectsIterator& operator=(const ObjectsIterator& it);
 
 private:
-	RelatedObjectsIterator m_it;
+	RelatedObjectsConstIterator m_it;
 	OidType m_oid;
 	Manager* m_manager;
 };
@@ -212,7 +212,7 @@ private:
 class CollectionsIterator
 {
 public:
-	CollectionsIterator( const OidType& oid, RelatedCollectionsIterator it, Manager* manager );
+	CollectionsIterator( const OidType& oid, RelatedCollectionsConstIterator it, Manager* manager );
 	Collection* data();
 	const Collection* data() const;
 	CollectionsIterator& operator++();
@@ -225,7 +225,7 @@ public:
 	const Collection* operator*() const;
 	CollectionsIterator& operator=(const CollectionsIterator& it);
 private:
-	RelatedCollectionsIterator m_it;
+	RelatedCollectionsConstIterator m_it;
 	OidType m_oid;
 	Manager* m_manager;
 };
@@ -327,8 +327,9 @@ public:
 	static Object* createInstance();
 	Object* createObjectInstance() const;
 
-	ClassInfo* classInfo();
-	ClassInfo* classInfo() const;
+	void setClassInfo( const ClassInfo* info );
+	//ClassInfo* classInfo();
+	const ClassInfo* classInfo() const;
 	Manager* manager() const;
 	void setManager( Manager* m );
 
@@ -350,6 +351,7 @@ public:
 	PropertiesIterator propertiesEnd();
 	PropertiesConstIterator propertiesConstEnd() const;
 	int numProperties() const;
+	//Property property( const char* name ) const;
 	Property property( const QString& name );
 	const Property property( const QString& name ) const;
 	bool containsProperty( const QString& name ) const;
@@ -391,7 +393,7 @@ private:
 	OidType m_oid;
 	SeqType m_seq;
 	// Used as a cache. It is calculated the first time the classInfo() (non-const) function is called and used from there on
-	ClassInfo *m_classInfo;
+	const ClassInfo *m_classInfo;
 };
 
 
