@@ -31,6 +31,7 @@
 #include "xmlbackendtest.h"
 #include "inmemorysqlbackendtest.h"
 #include "multiplebackendstest.h"
+#include "dynamicobjectstest.h"
 
 #include "qtester.h"
 #include "tester.h"
@@ -45,6 +46,7 @@ void KUnitTest::registerTests()
 	ADD_TEST( InMemorySqlBackendTest );
 	ADD_TEST( XmlBackendTest );
 	ADD_TEST( MultipleBackendsTest );
+	ADD_TEST( DynamicObjectsTest );
 }
 
 KUnitTest::KUnitTest()
