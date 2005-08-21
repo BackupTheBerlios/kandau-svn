@@ -54,8 +54,8 @@ QStringList ObjectAccess::properties( const QString& className ) const
 	Object *obj = Classes::classInfo( className )->createInstance();
 	assert( obj );
 
-	ConstPropertiesIterator it( obj->constPropertiesBegin() );
-	ConstPropertiesIterator end( obj->constPropertiesEnd() );
+	PropertiesConstIterator it( obj->propertiesConstBegin() );
+	PropertiesConstIterator end( obj->propertiesConstEnd() );
 	QStringList list;
 	for ( ; it != end; ++it ) {
 		list << it.data().name();

@@ -27,6 +27,24 @@ ClassInfoMap *Classes::m_classes = 0;
 ClassInfo* Classes::m_currentClass = 0;
 TmpClassMap* Classes::m_tmpClasses = 0;
 
+/* PropertyInfo */
+
+PropertyInfo::PropertyInfo( const QString& name, QVariant::Type type )
+{
+	m_name = name;
+	m_type = type;
+}
+
+QVariant::Type PropertyInfo::type() const
+{
+	return m_type;
+}
+
+const QString& PropertyInfo::name() const
+{
+	return m_name;
+}
+
 /* RelatedObject */
 
 RelatedObject::RelatedObject()
@@ -156,6 +174,14 @@ ClassInfo::ClassInfo( const QString& name, CreateObjectFunction function )
 {
 	m_name = name;
 	m_function = function;
+	// Fill in the Properties Map
+	
+	Object* obj = createInstance();
+	for ( int i = 0; i < obj->metaObject()->numProperties(); ++i ) {
+		const QMetaProperty *meta = obj->metaObject()->property( i );
+		PropertyInfo *p = new PropertyInfo( meta->name(),  QVariant::nameToType( meta->type() ) );
+		m_properties.insert( meta->name(), p );
+	}
 }
 
 Object* ClassInfo::create( const OidType& oid, Manager* manager ) const
@@ -304,6 +330,28 @@ QString ClassInfo::relationName( const QString& relation, const QString& classNa
 	return list.join( "_" );
 }
 
+
+PropertiesInfoConstIterator ClassInfo::propertiesBegin() const
+{
+	return m_properties.begin();
+}
+
+PropertiesInfoConstIterator ClassInfo::propertiesEnd() const
+{
+	return m_properties.end();
+}
+
+const PropertyInfo* ClassInfo::property( const QString& name ) const
+{
+	return m_properties[name];
+}
+
+bool ClassInfo::containsProperty( const QString& name ) const
+{
+	return m_properties.contains( name );
+}
+
+
 /* TmpClass */
 
 TmpClass::TmpClass( const QString &name, CreateRelationsFunction createRelations, CreateLabelsFunction createLabels )
@@ -332,7 +380,7 @@ CreateLabelsFunction TmpClass::createLabels() const
 
 void Classes::setup()
 {
-	// If m_tmpClasses has not been initialized probably setup() has
+	// If m_tmpClasses has been initialized probably setup() has
 	// already been called.
 	if ( m_tmpClasses == 0 )
 		return;

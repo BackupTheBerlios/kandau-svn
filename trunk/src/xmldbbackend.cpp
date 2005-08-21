@@ -26,10 +26,12 @@
 #include "classes.h"
 #include "object.h"
 
-XmlDbBackend::XmlDbBackend( const QString& fileName )
+XmlDbBackend::XmlDbBackend( const QString& fileName, bool truncate )
 {
 	m_currentOid = 1;
 	m_fileName = fileName;
+	if ( truncate )
+		QFile::remove( fileName );
 }
 
 XmlDbBackend::~XmlDbBackend()

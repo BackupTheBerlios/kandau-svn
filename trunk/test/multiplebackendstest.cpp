@@ -54,11 +54,11 @@ void MultipleBackendsTest::xml2xml()
 	QFile file;
 	QByteArray a1, a2;
 	file.setName( "database.xml" );
-	file.open( IO_ReadOnly );
+	CHECK( file.open( IO_ReadOnly ), true );
 	a1 = file.readAll();
 	file.close();
 	file.setName( "database2.xml" );
-	file.open( IO_ReadOnly );
+	CHECK( file.open( IO_ReadOnly ), true );
 	a2 = file.readAll();
 	file.close();
 	CHECK( a1, a2 );
@@ -139,14 +139,49 @@ void MultipleBackendsTest::sql2xml()
 	QFile file;
 	QByteArray a1, a2;
 	file.setName( "database.xml" );
-	file.open( IO_ReadOnly );
+	CHECK( file.open( IO_ReadOnly ), true );
 	a1 = file.readAll();
 	file.close();
 	file.setName( "database3.xml" );
-	file.open( IO_ReadOnly );
+	CHECK( file.open( IO_ReadOnly ), true );
 	a2 = file.readAll();
 	file.close();
 	CHECK( a1, a2 );
+}
+
+void MultipleBackendsTest::creates()
+{
+	DbBackendIface *backend1 = new XmlDbBackend( "databaseA.xml", true );
+	Manager *m1 = new Manager( backend1 );
+
+	DbBackendIface *backend2 = new XmlDbBackend( "databaseB.xml", true );
+	Manager *m2 = new Manager( backend2 );
+
+	ObjectRef<Customer> c1 = Customer::create( m1 );
+	c1->setCustomerName( "Customer Name" );
+	ObjectRef<Customer> c2 = Customer::create( m2 );
+	c2->setCustomerName( "Customer Name" );
+	
+	CHECK( m1->count(), m2->count() );
+	
+	CHECK( m1->commit(), true );
+	CHECK( m2->commit(), true );
+	
+	
+	QFile file;
+	QByteArray a1, a2;
+	file.setName( "databaseA.xml" );
+	CHECK( file.open( IO_ReadOnly ), true );
+	a1 = file.readAll();
+	file.close();
+	file.setName( "databaseB.xml" );
+	CHECK( file.open( IO_ReadOnly ), true );
+	a2 = file.readAll();
+	file.close();
+	CHECK( a1, a2 );
+
+	delete m1;
+	delete m2;
 }
 
 void MultipleBackendsTest::allTests()
@@ -156,4 +191,5 @@ void MultipleBackendsTest::allTests()
 	xml2xml();
 	xml2sql();
 	sql2xml();
+	creates();
 }

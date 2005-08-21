@@ -126,24 +126,12 @@ const QString& classTypeTestFunction( const QString&, Object* );
 #endif
 */
 
-class ConstProperty
-{
-public:
-	ConstProperty() {}
-	ConstProperty( const Object *obj, const QString& name );
-	QVariant::Type type() const;
-	QVariant value() const;
-	const QString& name() const;
-private:
-	const Object *m_object;
-	QString m_name;
-};
-
 class Property
 {
 public:
 	Property() {}
 	Property( Object *obj, const QString& name );
+	Property( const Object *obj, const QString& name );
 	QVariant::Type type() const;
 	QVariant value() const;
 	void setValue( const QVariant& value );
@@ -151,6 +139,7 @@ public:
 
 private:
 	Object *m_object;
+	const Object *m_constObject;
 	QString m_name;
 };
 
@@ -175,21 +164,19 @@ private:
 	int m_pos;
 };
 
-class ConstPropertiesIterator
+class PropertiesConstIterator
 {
 public:
-	ConstPropertiesIterator( const Object *object, int pos );
-	ConstProperty data();
-	const ConstProperty data() const;
-	ConstPropertiesIterator& operator++();
-	ConstPropertiesIterator& operator--();
-	ConstPropertiesIterator operator++(int);
-	ConstPropertiesIterator operator--(int);
-	bool operator==( const ConstPropertiesIterator& it ) const;
-	bool operator!=( const ConstPropertiesIterator& it ) const;
-	ConstProperty operator*();
-	const ConstProperty operator*() const;
-	ConstPropertiesIterator& operator=(const ConstPropertiesIterator& it);
+	PropertiesConstIterator( const Object *object, int pos );
+	const Property data() const;
+	PropertiesConstIterator& operator++();
+	PropertiesConstIterator& operator--();
+	PropertiesConstIterator operator++(int);
+	PropertiesConstIterator operator--(int);
+	bool operator==( const PropertiesConstIterator& it ) const;
+	bool operator!=( const PropertiesConstIterator& it ) const;
+	const Property operator*() const;
+	PropertiesConstIterator& operator=(const PropertiesConstIterator& it);
 
 private:
 	const Object *m_object;
@@ -359,14 +346,14 @@ public:
 	Functions for managing the properties
 	*/
 	PropertiesIterator propertiesBegin();
-	ConstPropertiesIterator constPropertiesBegin() const;
+	PropertiesConstIterator propertiesConstBegin() const;
 	PropertiesIterator propertiesEnd();
-	ConstPropertiesIterator constPropertiesEnd() const;
+	PropertiesConstIterator propertiesConstEnd() const;
 	int numProperties() const;
 	Property property( int pos );
-	ConstProperty property( int pos ) const;
+	const Property property( int pos ) const;
 	Property property( const QString& name );
-	ConstProperty property( const QString& name ) const;
+	const Property property( const QString& name ) const;
 	bool containsProperty( const QString& name ) const;
 
 	// This property is kind of special, it is provided to allow
@@ -417,16 +404,19 @@ public:
 	ObjectRef()
 	{
 		m_oid = 0;
+		m_manager = 0;
 	}
 
 	ObjectRef( T* object )
 	{
 		m_oid = static_cast<Object*>( object )->oid();
+		m_manager = static_cast<Object*>( object )->manager();
 	}
 
-	ObjectRef( const OidType& oid )
+	ObjectRef( const OidType& oid, Manager* manager = 0 )
 	{
 		m_oid = oid;
+		m_manager = manager;
 	}
 
 	ObjectRef<T>& operator=( T* object )
@@ -443,17 +433,17 @@ public:
 
 	T* operator->()
 	{
-		return T::create( m_oid );
+		return T::create( m_oid, m_manager );
 	}
 
 	T& operator*()
 	{
-		return *T::create( m_oid );
+		return *T::create( m_oid, m_manager );
 	}
 
 	operator T*() const
 	{
-		return T::create( m_oid );
+		return T::create( m_oid, m_manager );
 	}
 
 	OidType oid() const
@@ -468,6 +458,7 @@ public:
 
 private:
 	OidType m_oid;
+	Manager* m_manager;
 };
 
 #endif // _OBJECT_H_

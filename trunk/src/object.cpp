@@ -24,46 +24,30 @@
 #include "object.h"
 
 
-// ConstProperty
-
-ConstProperty::ConstProperty( const Object *obj, const QString& name )
-{
-	m_object = obj;
-	m_name = name;
-}
-
-QVariant::Type ConstProperty::type() const
-{
-	return m_object->propertyValue( m_name.ascii() ).type();
-}
-
-QVariant ConstProperty::value() const
-{
-	return m_object->propertyValue( m_name.ascii() );
-}
-
-const QString& ConstProperty::name() const
-{
-	return m_name;
-}
-
-
 // Property
 
 Property::Property( Object *obj, const QString& name )
 {
 	m_object = obj;
+	m_constObject = obj;
+	m_name = name;
+}
+
+Property::Property( const Object *obj, const QString& name )
+{
+	m_object = 0;
+	m_constObject = obj;
 	m_name = name;
 }
 
 QVariant::Type Property::type() const
 {
-	return m_object->propertyValue( m_name.ascii() ).type();
+	return m_constObject->propertyValue( m_name.ascii() ).type();
 }
 
 QVariant Property::value() const
 {
-	return m_object->propertyValue( m_name.ascii() );
+	return m_constObject->propertyValue( m_name.ascii() );
 }
 
 void Property::setValue( const QVariant& value )
@@ -137,59 +121,70 @@ PropertiesIterator& PropertiesIterator::operator=(const PropertiesIterator& it)
 }
 
 
-// ConstPropertiesIterator
+// PropertiesConstIterator
 
-ConstPropertiesIterator::ConstPropertiesIterator( const Object *object, int pos ) : m_object( object ), m_pos( pos )
+PropertiesConstIterator::PropertiesConstIterator( const Object *object, int pos ) : m_object( object ), m_pos( pos )
 {
 }
-ConstProperty ConstPropertiesIterator::data()
-{
-	return m_object->property( m_pos );
-}
-const ConstProperty ConstPropertiesIterator::data() const
+/*
+ConstProperty PropertiesConstIterator::data()
 {
 	return m_object->property( m_pos );
 }
-ConstPropertiesIterator& ConstPropertiesIterator::operator++()
+const ConstProperty PropertiesConstIterator::data() const
+{
+	return m_object->property( m_pos );
+}
+*/
+const Property PropertiesConstIterator::data() const
+{
+	return m_object->property( m_pos );
+}
+PropertiesConstIterator& PropertiesConstIterator::operator++()
 {
 	m_pos++;
 	return *this;
 }
-ConstPropertiesIterator& ConstPropertiesIterator::operator--()
+PropertiesConstIterator& PropertiesConstIterator::operator--()
 {
 	m_pos--;
 	return *this;
 }
-ConstPropertiesIterator ConstPropertiesIterator::operator++(int)
+PropertiesConstIterator PropertiesConstIterator::operator++(int)
 {
-	ConstPropertiesIterator tmp = *this;
+	PropertiesConstIterator tmp = *this;
 	m_pos++;
 	return tmp;
 }
-ConstPropertiesIterator ConstPropertiesIterator::operator--(int)
+PropertiesConstIterator PropertiesConstIterator::operator--(int)
 {
-	ConstPropertiesIterator tmp = *this;
+	PropertiesConstIterator tmp = *this;
 	m_pos--;
 	return tmp;
 }
-bool ConstPropertiesIterator::operator==( const ConstPropertiesIterator& it ) const
+bool PropertiesConstIterator::operator==( const PropertiesConstIterator& it ) const
 {
 	return m_pos == it.m_pos && m_object == it.m_object;
 }
-bool ConstPropertiesIterator::operator!=( const ConstPropertiesIterator& it ) const
+bool PropertiesConstIterator::operator!=( const PropertiesConstIterator& it ) const
 {
 	return m_pos != it.m_pos || m_object != it.m_object;
 }
-ConstProperty ConstPropertiesIterator::operator*()
+/*
+ConstProperty PropertiesConstIterator::operator*()
 {
 	return m_object->property( m_pos );
 }
-const ConstProperty ConstPropertiesIterator::operator*() const
+const ConstProperty PropertiesConstIterator::operator*() const
 {
 	return m_object->property( m_pos );
 }
-
-ConstPropertiesIterator& ConstPropertiesIterator::operator=(const ConstPropertiesIterator& it)
+*/
+const Property PropertiesConstIterator::operator*() const
+{
+	return m_object->property( m_pos );
+}
+PropertiesConstIterator& PropertiesConstIterator::operator=(const PropertiesConstIterator& it)
 {
 	m_object = it.m_object;
 	m_pos = it.m_pos;
@@ -480,9 +475,9 @@ PropertiesIterator Object::propertiesBegin()
 	return PropertiesIterator( this, 0 );
 }
 
-ConstPropertiesIterator Object::constPropertiesBegin() const
+PropertiesConstIterator Object::propertiesConstBegin() const
 {
-	return ConstPropertiesIterator( this, 0 );
+	return PropertiesConstIterator( this, 0 );
 }
 
 PropertiesIterator Object::propertiesEnd()
@@ -490,9 +485,9 @@ PropertiesIterator Object::propertiesEnd()
 	return PropertiesIterator( this, numProperties() );
 }
 
-ConstPropertiesIterator Object::constPropertiesEnd() const
+PropertiesConstIterator Object::propertiesConstEnd() const
 {
-	return ConstPropertiesIterator( this, numProperties() );
+	return PropertiesConstIterator( this, numProperties() );
 }
 
 int Object::numProperties() const
@@ -505,9 +500,9 @@ Property Object::property( int pos )
 	return Property( this, metaObject()->propertyNames().at( pos ) );
 }
 
-ConstProperty Object::property( int pos ) const
+const Property Object::property( int pos ) const
 {
-	return ConstProperty( this, metaObject()->propertyNames().at( pos ) );
+	return Property( this, metaObject()->propertyNames().at( pos ) );
 }
 
 Property Object::property( const QString& name )
@@ -515,9 +510,9 @@ Property Object::property( const QString& name )
 	return Property( this, name );
 }
 
-ConstProperty Object::property( const QString& name ) const
+const Property Object::property( const QString& name ) const
 {
-	return ConstProperty( this, name );
+	return Property( this, name );
 }
 
 bool Object::containsProperty( const QString& name ) const

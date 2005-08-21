@@ -243,14 +243,14 @@ bool SqlDbBackend::save( Object *object )
 
 	if ( update ) {
 		if (! cursor.update() ) {
-			kdDebug() << "EOOOOOO -> " << cursor.lastError().text() << endl;
-			kdDebug() << "EOOOOOO -> " << cursor.executedQuery() << endl;
+			kdDebug() << k_funcinfo << " -> " << cursor.lastError().text() << endl;
+			kdDebug() << k_funcinfo << " -> " << cursor.executedQuery() << endl;
 			ERROR( "Update failed" );
 		}
 	} else {
 		if ( ! cursor.insert() ) {
-			kdDebug() << "EOOOOOO -> " << cursor.lastError().text() << endl;
-			kdDebug() << "EOOOOOO -> " << cursor.executedQuery() << endl;
+			kdDebug() << k_funcinfo << " -> " << cursor.lastError().text() << endl;
+			kdDebug() << k_funcinfo << " -> " << cursor.executedQuery() << endl;
 			ERROR( "Insert failed" );
 		}
 	}
@@ -362,11 +362,11 @@ OidType SqlDbBackend::filterValue( Collection *collection ) const
 {
 	assert( collection );
 	if ( ! collection->parent() ) {
-		kdDebug() << "The collection doesn't have a parent" << endl;
+		kdDebug() << k_funcinfo << " -> " << "The collection doesn't have a parent" << endl;
 		return 0;
 	}
 	if ( ! collection->parent()->inherits( "Object" ) ) {
-		kdDebug() << "The parent doesn't inherit from Object" << endl;
+		kdDebug() << k_funcinfo << " -> " << "The parent doesn't inherit from Object" << endl;
 		return 0;
 	}
 	return static_cast<Object*>(collection->parent())->oid();
@@ -409,11 +409,8 @@ bool SqlDbBackend::createSchema()
 	QStringList tables;
 	QStringList constraints;
 	QString exec;
-	Object *object;
-	Property prop;
+	PropertyInfo *prop;
 	uint i;
-
-	//m_db->exec( "ROLLBACK;" );
 
 	// This sequence is incremented every time a new object is created
 	m_db->exec( "CREATE SEQUENCE seq_dboid;" );
@@ -427,19 +424,17 @@ bool SqlDbBackend::createSchema()
 	ClassInfo *currentClass;
 	for ( ; it != end; ++it ) {
 		currentClass = *it;
-		// We need to create an object because it's the only way to iterate through a class' properties right now
-		object = currentClass->createInstance();
+
 		exec = "CREATE TABLE " +  currentClass->name().lower() + " ( dboid BIGINT PRIMARY KEY, dbseq BIGINT NOT NULL, ";
 
 		// Create properties fields
-		PropertiesIterator pIt( object->propertiesBegin() );
-		PropertiesIterator pEnd( object->propertiesEnd() );
+		PropertiesInfoConstIterator pIt( currentClass->propertiesBegin() );
+		PropertiesInfoConstIterator pEnd( currentClass->propertiesEnd() );
 		for ( ; pIt != pEnd; ++pIt ) {
 			prop = *pIt;
-			exec += prop.name() + " " + sqlType( prop.type() ) + ", ";
+			exec += prop->name() + " " + sqlType( prop->type() ) + ", ";
 		}
-		delete object;
-
+		
 		// Create related objects fields
 		RelatedObjectsConstIterator oIt( currentClass->objectsBegin() );
 		RelatedObjectsConstIterator oEnd( currentClass->objectsEnd() );
@@ -502,8 +497,8 @@ bool SqlDbBackend::createSchema()
 
 		m_db->exec( exec );
 		if ( m_db->lastError().type() != QSqlError::None ) {
-			kdDebug() << exec << endl;
-			kdDebug() << m_db->lastError().text() << endl;
+			kdDebug() << k_funcinfo << " -> " << exec << endl;
+			kdDebug() << k_funcinfo << " -> " << m_db->lastError().text() << endl;
 		}
 	}
 
@@ -513,8 +508,8 @@ bool SqlDbBackend::createSchema()
 		
 		m_db->exec( exec );
 		if ( m_db->lastError().type() != QSqlError::None ) {
-			kdDebug() << exec << endl;
-			kdDebug() << m_db->lastError().text() << endl;
+			kdDebug() << k_funcinfo << " -> " << exec << endl;
+			kdDebug() << k_funcinfo << " -> " << m_db->lastError().text() << endl;
 		}
 	}
 	return true;

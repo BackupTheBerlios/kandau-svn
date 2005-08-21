@@ -33,6 +33,7 @@ public:
 	void xml2xml();
 	void xml2sql();
 	void sql2xml();
+	void creates();
 
 	void allTests();
 };

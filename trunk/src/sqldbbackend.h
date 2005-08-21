@@ -34,7 +34,7 @@ class RelatedCollection;
 @author Albert Cervera Areny
 */
 
-#define ERROR( msg ) { kdDebug() << msg << endl; return false; }
+#define ERROR( msg ) { kdDebug() << k_funcinfo << ": " << msg << endl; return false; }
 
 /*!
 	This class implements a backend for accessing/storing objects in a SQL database. It uses the database access classes provided by Qt.

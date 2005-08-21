@@ -31,7 +31,7 @@ class QDomElement;
 class XmlDbBackend : public DbBackendIface
 {
 public:
-	XmlDbBackend( const QString& fileName );
+	XmlDbBackend( const QString& fileName, bool truncate = false );
 	virtual ~XmlDbBackend();
 
 	void setup( Manager* manager );

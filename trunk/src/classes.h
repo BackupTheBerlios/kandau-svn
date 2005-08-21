@@ -37,6 +37,20 @@ class Manager;
 @author Albert Cervera Areny
 */
 
+class PropertyInfo
+{
+public:
+	PropertyInfo() {}
+	PropertyInfo( const QString& name, QVariant::Type type );
+	QVariant::Type type() const;
+	const QString& name() const;
+
+private:
+	QString m_name;
+	QVariant::Type m_type;
+};
+
+
 /*!
 Stores the information of a relation to an object. Mainly stores the name of the relation and a pointer to a function that allows the creation of an object of the related class type.
 
@@ -179,6 +193,11 @@ private:
 	*/
 	bool m_cached;
 };
+
+
+typedef QMap<QString,PropertyInfo*> PropertiesInfo;
+//typedef QMapIterator<QString,PropertyInfo*> PropertiesInfoIterator;
+typedef QMapConstIterator<QString,PropertyInfo*> PropertiesInfoConstIterator;
 
 typedef QMap<QString,RelatedObject*> RelatedObjects;
 typedef QMapIterator<QString,RelatedObject*> RelatedObjectsIterator;
@@ -345,12 +364,18 @@ public:
 
 	static QString relationName( const QString& relation, const QString& className );
 
+	PropertiesInfoConstIterator propertiesBegin() const;
+	PropertiesInfoConstIterator propertiesEnd() const;
+	const PropertyInfo* property( const QString& name ) const;
+	bool containsProperty( const QString& name ) const;
+
 private:
 	QString m_name;
 	CreateObjectFunction m_function;
 
 	RelatedObjects m_objects;
 	RelatedCollections m_collections;
+	PropertiesInfo m_properties;
 };
 
 typedef QMap<QString, ClassInfo*> ClassInfoMap;

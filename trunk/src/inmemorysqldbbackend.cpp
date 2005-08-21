@@ -182,8 +182,7 @@ bool InMemorySqlDbBackend::createSchema()
 	QStringList tables;
 	QStringList constraints;
 	QString exec;
-	Object *object;
-	Property prop;
+	PropertyInfo *prop;
 	uint i;
 
 	// Create the tables
@@ -192,18 +191,15 @@ bool InMemorySqlDbBackend::createSchema()
 	ClassInfo *currentClass;
 	for ( ; it != end; ++it ) {
 		currentClass = *it;
-		// We need to create an object because it's the only way to iterate through a class' properties right now
-		object = currentClass->createInstance();
 		exec = "CREATE TABLE " +  currentClass->name() + " ( dboid BIGINT PRIMARY KEY, ";
 
 		// Create properties fields
-		PropertiesIterator pIt( object->propertiesBegin() );
-		PropertiesIterator pEnd( object->propertiesEnd() );
+		PropertiesInfoConstIterator pIt( currentClass->propertiesBegin() );
+		PropertiesInfoConstIterator pEnd( currentClass->propertiesEnd() );
 		for ( ; pIt != pEnd; ++pIt ) {
 			prop = *pIt;
-			exec += prop.name() + " " + sqlType( prop.type() ) + ", ";
+			exec += prop->name() + " " + sqlType( prop->type() ) + ", ";
 		}
-		delete object;
 
 		// Create related objects fields
 		RelatedObjectsConstIterator oIt( currentClass->objectsBegin() );
