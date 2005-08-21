@@ -380,7 +380,7 @@ CreateLabelsFunction TmpClass::createLabels() const
 
 void Classes::setup()
 {
-	// If m_tmpClasses has been initialized probably setup() has
+	// If m_tmpClasses has not been initialized probably setup() has
 	// already been called.
 	if ( m_tmpClasses == 0 )
 		return;
