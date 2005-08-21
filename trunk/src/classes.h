@@ -368,6 +368,7 @@ public:
 	PropertiesInfoConstIterator propertiesEnd() const;
 	const PropertyInfo* property( const QString& name ) const;
 	bool containsProperty( const QString& name ) const;
+	uint numProperties() const;
 
 private:
 	QString m_name;

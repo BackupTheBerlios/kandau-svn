@@ -146,7 +146,7 @@ private:
 class PropertiesIterator
 {
 public:
-	PropertiesIterator( Object *object, int pos );
+	PropertiesIterator( Object *object, PropertiesInfoConstIterator it );
 	Property data();
 	const Property data() const;
 	PropertiesIterator& operator++();
@@ -161,13 +161,13 @@ public:
 
 private:
 	Object *m_object;
-	int m_pos;
+	PropertiesInfoConstIterator m_it;
 };
 
 class PropertiesConstIterator
 {
 public:
-	PropertiesConstIterator( const Object *object, int pos );
+	PropertiesConstIterator( const Object *object, PropertiesInfoConstIterator it );
 	const Property data() const;
 	PropertiesConstIterator& operator++();
 	PropertiesConstIterator& operator--();
@@ -180,7 +180,7 @@ public:
 
 private:
 	const Object *m_object;
-	int m_pos;
+	PropertiesInfoConstIterator m_it;
 };
 
 // TODO: Add a method to SET the object like in setObject function of Object class.
@@ -350,8 +350,6 @@ public:
 	PropertiesIterator propertiesEnd();
 	PropertiesConstIterator propertiesConstEnd() const;
 	int numProperties() const;
-	Property property( int pos );
-	const Property property( int pos ) const;
 	Property property( const QString& name );
 	const Property property( const QString& name ) const;
 	bool containsProperty( const QString& name ) const;
@@ -361,7 +359,7 @@ public:
 	// a Property then we need some kind of function to allow access
 	// to the inherited property( const char*) function, to let the
 	// Property class do its job.
-	QVariant propertyValue( const char* name ) const;
+	virtual QVariant propertyValue( const char* name ) const;
 
 	/*
 	Functions for managing the other objects related

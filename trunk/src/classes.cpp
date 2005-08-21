@@ -351,6 +351,10 @@ bool ClassInfo::containsProperty( const QString& name ) const
 	return m_properties.contains( name );
 }
 
+uint ClassInfo::numProperties() const
+{
+	return m_properties.count();
+}
 
 /* TmpClass */
 

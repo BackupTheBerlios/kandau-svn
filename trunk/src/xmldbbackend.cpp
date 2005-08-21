@@ -52,7 +52,6 @@ void XmlDbBackend::init()
 	QFile file( m_fileName );
 	QDomDocument doc;
 	if ( ! file.open( IO_ReadOnly ) || ! doc.setContent( &file ) ) {
-		kdDebug() << "File not found" << endl;
 		doc.appendChild( doc.createElement( "Database" ) );
 	}
 	file.close();
