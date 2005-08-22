@@ -85,6 +85,8 @@ public:
 	@param f The pointer to the function that creates an object of the type of the expected object
 	*/
 	Object* load( OidType oid, CreateObjectFunction f );
+	
+	Object* load( OidType oid, const ClassInfo* info );
 
 	/* Functions related to collection management */
 	bool load( Collection* collection );

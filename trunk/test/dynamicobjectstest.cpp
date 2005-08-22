@@ -72,6 +72,7 @@ void DynamicObjectsTest::allTests()
 	DbBackendIface *backend = new SqlDbBackend( db );
 
 	m_manager = new Manager( backend );
+	m_manager->setMaxObjects( 1 );
 	m_manager->createSchema();
 
 
@@ -98,6 +99,8 @@ void DynamicObjectsTest::allTests()
 	obj->collection( "Article_Test" )->add( a2 );
 
 	m_manager->commit();
+
+	CHECK( obj->property( "Property1" ).value().toString(), QString( "Property number one" ) );
 
 	delete m_manager;
 }

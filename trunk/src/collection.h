@@ -32,7 +32,7 @@ class Object;
 class CollectionIterator
 {
 public:
-	CollectionIterator( QMapIterator<OidType,bool> it, CreateObjectFunction function, Manager* manager );
+	CollectionIterator( QMapIterator<OidType,bool> it, const ClassInfo* classInfo, Manager* manager );
 	Object* data();
 	const Object* data() const;
 	OidType key();
@@ -49,7 +49,7 @@ public:
 
 private:
 	QMapIterator<OidType,bool> m_it;
-	CreateObjectFunction m_createObjectFunction;
+	const ClassInfo* m_classInfo;
 	Manager* m_manager;
 };
 
@@ -95,7 +95,7 @@ public:
 	bool simpleAdd( const OidType& oid );
 	void simpleRemove( const OidType& oid );
 protected:
-	CreateObjectFunction createObjectFunction();
+//	CreateObjectFunction createObjectFunction();
 
 private:
 	// This variable contains the name of the class of the objects the collection
@@ -119,7 +119,8 @@ private:
 	// Whether the collection has been modified or not
 	bool m_modified;
 
-	CreateObjectFunction m_createObjectFunction;
+//	CreateObjectFunction m_createObjectFunction;
+	const ClassInfo *m_classInfo;
 	
 	Manager* m_manager;
 };

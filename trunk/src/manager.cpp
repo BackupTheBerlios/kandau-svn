@@ -319,6 +319,47 @@ bool Manager::rollback()
 }
 */
 
+Object* Manager::load( OidType oid, const ClassInfo* info )
+{
+	// This shouldn't be necessary but it is here because
+	// GETOBJECT macro doesn't work correctly when you try to
+	// load an object which hasn't been initialized. Could be solved
+	// there too. So let's put a TODO
+	// The problem exists with TestBackend because always returns true, but
+	// with other backends it would simply be suboptimal/inefficient
+	if ( oid == 0 )
+		return 0;
+	assert( info );
+
+	Object *object;
+	if ( m_objects.contains( oid ) ) {
+		object = m_objects[ oid ];
+		if ( ! m_dbBackend->hasChanged( object ) )
+			return object;
+		// The object might have been deleted so we remove
+		// it and we'll see what happens next
+		delete object;
+		m_objects.remove( oid );
+	}
+	object =  info->createInstance();
+	if ( ! object )
+		return 0;
+	object->setManager( this );
+	// IMPORTANT: This will set the ClassInfo for the object!! Necessary for DynamicObjects
+	object->setClassInfo( info );
+
+	if ( ! m_dbBackend->load( oid, object ) ) {
+		delete object;
+		return 0;
+	}
+
+	// Call before m_objects.insert as it might free the just added object.
+	ensureUnderMaxObjects();
+
+	m_objects.insert( oid, object );
+	return object;
+}
+
 Object* Manager::load( OidType oid, CreateObjectFunction f )
 {
 	// This shouldn't be necessary but it is here because

@@ -388,12 +388,12 @@ protected:
 	// is it a good solution?
 	bool m_modified;
 	Manager *m_manager;
+	// Used as a cache. It is calculated the first time the classInfo() (non-const) function is called and used from there on
+	const ClassInfo *m_classInfo;
 
 private:
 	OidType m_oid;
 	SeqType m_seq;
-	// Used as a cache. It is calculated the first time the classInfo() (non-const) function is called and used from there on
-	const ClassInfo *m_classInfo;
 };
 
 
@@ -405,45 +405,54 @@ public:
 	{
 		m_oid = 0;
 		m_manager = 0;
+		m_classInfo = 0;
 	}
 
 	ObjectRef( T* object )
 	{
-		m_oid = static_cast<Object*>( object )->oid();
-		m_manager = static_cast<Object*>( object )->manager();
+		Object* obj = static_cast<Object*>( object );
+		m_oid = obj->oid();
+		m_manager = obj->manager();
+		m_classInfo = obj->classInfo();
 	}
-
-	ObjectRef( const OidType& oid, Manager* manager = 0 )
+/*
+	ObjectRef( const OidType& oid, Manager* manager = 0, ClassInfo* info = 0 )
 	{
 		m_oid = oid;
 		m_manager = manager;
+		m_classInfo = info;
 	}
-
+*/
 	ObjectRef<T>& operator=( T* object )
 	{
-		m_oid = static_cast<Object*>( object )->oid();
+		Object* obj = static_cast<Object*>( object );
+		m_oid = obj->oid();
+		m_manager = obj->manager();
+		m_classInfo = obj->classInfo();
 		return *this;
 	}
 
 	ObjectRef<T>& operator=( ObjectRef<T> ref )
 	{
 		m_oid = ref.m_oid;
+		m_manager = ref.m_manager;
+		m_classInfo = ref.m_classInfo;
 		return *this;
 	}
 
 	T* operator->()
 	{
-		return T::create( m_oid, m_manager );
+		return static_cast<T*>( m_manager->load( m_oid, m_classInfo ) );
 	}
 
 	T& operator*()
 	{
-		return *T::create( m_oid, m_manager );
+		return &(static_cast<T*>( m_manager->load( m_oid, m_classInfo ) ));
 	}
 
 	operator T*() const
 	{
-		return T::create( m_oid, m_manager );
+		return static_cast<T*>( m_manager->load( m_oid, m_classInfo ) );
 	}
 
 	OidType oid() const
@@ -459,6 +468,7 @@ public:
 private:
 	OidType m_oid;
 	Manager* m_manager;
+	const ClassInfo *m_classInfo;
 };
 
 #endif // _OBJECT_H_

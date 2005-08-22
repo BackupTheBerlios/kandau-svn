@@ -183,12 +183,12 @@ ObjectsIterator::ObjectsIterator( const OidType& oid, RelatedObjectsConstIterato
 
 Object* ObjectsIterator::data()
 {
-	return m_manager->load( m_manager->relation( m_oid, (*m_it)->name() ), (*m_it)->createObjectFunction() );
+	return m_manager->load( m_manager->relation( m_oid, (*m_it)->name() ), (*m_it)->relatedClassInfo() );
 }
 
 const Object* ObjectsIterator::data() const
 {
-	return m_manager->load( m_manager->relation( m_oid, (*m_it)->name() ), (*m_it)->createObjectFunction() );
+	return m_manager->load( m_manager->relation( m_oid, (*m_it)->name() ), (*m_it)->relatedClassInfo() );
 }
 
 QString ObjectsIterator::key()
@@ -244,12 +244,12 @@ bool ObjectsIterator::operator!=( const ObjectsIterator& it ) const
 
 Object* ObjectsIterator::operator*()
 {
-	return m_manager->load( m_manager->relation( m_oid, (*m_it)->name() ), (*m_it)->createObjectFunction() );
+	return m_manager->load( m_manager->relation( m_oid, (*m_it)->name() ), (*m_it)->relatedClassInfo() );
 }
 
 const Object* ObjectsIterator::operator*() const
 {
-	return m_manager->load( m_manager->relation( m_oid, (*m_it)->name() ), (*m_it)->createObjectFunction() );
+	return m_manager->load( m_manager->relation( m_oid, (*m_it)->name() ), (*m_it)->relatedClassInfo() );
 }
 
 ObjectsIterator& ObjectsIterator::operator=(const ObjectsIterator& it)
@@ -528,7 +528,7 @@ int Object::numObjects() const
 Object* Object::object( const QString& name ) const
 {
 	assert( containsObject( name ) );
-	return m_manager->load( m_manager->relation( m_oid, name ), classInfo()->object( name )->createObjectFunction() );
+	return m_manager->load( m_manager->relation( m_oid, name ), classInfo()->object( name )->relatedClassInfo() );
 }
 
 bool Object::containsObject( const QString& name ) const

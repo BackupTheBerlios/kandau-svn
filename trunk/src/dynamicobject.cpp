@@ -39,7 +39,9 @@ DynamicObject* DynamicObject::create( OidType oid, Manager* manager )
 
 DynamicObject* DynamicObject::createObjectInstance() const
 {
-	return new DynamicObject();
+	DynamicObject *obj = new DynamicObject();
+	obj->m_classInfo = m_classInfo;
+	return obj;
 }
 
 Object* DynamicObject::createInstance()

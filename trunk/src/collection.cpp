@@ -28,24 +28,24 @@
 
 // CollectionIterator
 
-CollectionIterator::CollectionIterator( QMapIterator<OidType,bool> it, CreateObjectFunction function, Manager* manager )
+CollectionIterator::CollectionIterator( QMapIterator<OidType,bool> it, const ClassInfo *classInfo, Manager* manager )
 {
-	assert( function );
+	assert( classInfo );
 	m_it = it;
-	m_createObjectFunction = function;
+	m_classInfo = classInfo;
 	m_manager = manager;
 }
 
 Object* CollectionIterator::data()
 {
-	assert( m_createObjectFunction );
-	return m_manager->load( m_it.key(), m_createObjectFunction );
+	assert( m_classInfo );
+	return m_manager->load( m_it.key(), m_classInfo );
 }
 
 const Object* CollectionIterator::data() const
 {
-	assert( m_createObjectFunction );
-	return m_manager->load( m_it.key(), m_createObjectFunction );
+	assert( m_classInfo );
+	return m_manager->load( m_it.key(), m_classInfo );
 }
 
 OidType CollectionIterator::key()
@@ -96,20 +96,21 @@ bool CollectionIterator::operator!=( const CollectionIterator& it ) const
 
 Object* CollectionIterator::operator*()
 {
-	assert( m_createObjectFunction );
-	return m_manager->load( m_it.key(), m_createObjectFunction );
+	assert( m_classInfo );
+	return m_manager->load( m_it.key(), m_classInfo );
 }
 
 const Object* CollectionIterator::operator*() const
 {
-	assert( m_createObjectFunction );
-	return m_manager->load( m_it.key(), m_createObjectFunction );
+	assert( m_classInfo );
+	return m_manager->load( m_it.key(), m_classInfo );
 }
 
 CollectionIterator& CollectionIterator::operator=(const CollectionIterator& it)
 {
 	m_it = it.m_it;
-	m_createObjectFunction = it.m_createObjectFunction;
+	m_classInfo = it.m_classInfo;
+	m_manager = it.m_manager;
 	return *this;
 }
 
@@ -124,7 +125,7 @@ Collection::Collection( const QString& query, Manager* manager )
 	else
 		m_manager = Manager::self();
 	m_manager->load( this, query );
-	m_createObjectFunction = Classes::classInfo( query )->createObjectFunction();
+	m_classInfo = Classes::classInfo( query );
 }
 
 Collection::Collection( RelatedCollection *rel, const OidType& parent, Manager* manager )
@@ -133,7 +134,7 @@ Collection::Collection( RelatedCollection *rel, const OidType& parent, Manager* 
 	m_collectionInfo = rel;
 	m_parent = parent;
 	m_modified = false;
-	m_createObjectFunction = m_collectionInfo->childrenClassInfo()->createObjectFunction();
+	m_classInfo = m_collectionInfo->childrenClassInfo();
 	m_manager = manager;
 	assert( m_collectionInfo );
 }
@@ -151,7 +152,7 @@ Collection& Collection::operator=( const Collection& col )
 	m_nToOneSet = col.m_nToOneSet;
 	m_loaded = col.m_loaded;
 	m_modified = col.m_modified;
-	m_createObjectFunction = col.m_createObjectFunction;
+	m_classInfo = col.m_classInfo;
 	return *this;
 }
 
@@ -264,7 +265,7 @@ Returns an iterator pointing the first object of the collection
 */
 CollectionIterator Collection::begin()
 {
-	return CollectionIterator( m_collection.begin(), m_createObjectFunction, m_manager );
+	return CollectionIterator( m_collection.begin(), m_classInfo, m_manager );
 }
 
 /*!
@@ -272,7 +273,7 @@ Returns an iterator pointing past the last object of the collection.
 */
 CollectionIterator Collection::end()
 {
-	return CollectionIterator( m_collection.end(), m_createObjectFunction, m_manager );
+	return CollectionIterator( m_collection.end(), m_classInfo, m_manager );
 }
 
 /*!
@@ -306,7 +307,7 @@ Returns a pointer to the object the collection is in.
 */
 Object* Collection::parent() const
 {
-	return m_manager->load( m_parent, m_createObjectFunction );
+	return m_manager->load( m_parent, m_classInfo );
 }
 
 /*!
