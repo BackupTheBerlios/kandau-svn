@@ -15,7 +15,7 @@ There are lots of things to think about. Here are some of them:
 
 (PART)	- Add the possibility to attach i18n() information to properties and
 	relations 1-1 and 1-n and n-n. This shouldn't be too complex (with a
-	simple approach, of course) but it is not a priority ATM.
+	simple approach, of course) but it is not a priority ATM. Maybe it has something to do with how other metadata can be added to a class definition. See, below.
 
 	- Add cardinality to the collection (minimum and maximum of elements)
 	but needs collaboration from the manager. Maybe it has something to do with how other metadata can be added to a class definition. See, below.
@@ -48,8 +48,10 @@ There are lots of things to think about. Here are some of them:
 
 	- Implement an SQL backend that can read JDO XML configuration files.
 	
-	- Allow to browse the properties in ClassInfo (no need to instantiate an object).
+(DONE)	- Allow to browse the properties in ClassInfo (no need to instantiate an object).
 	
-	- Create a DynamicObject class and the necessary components to be able to define classes dynamically.
+(PART)	- Create a DynamicObject class and the necessary components to be able to define classes dynamically.
 	
 	- Make it easy to create reports, forms, etc. 
+	
+	- Improve the GETOBJECT macro to be able to use multiple relations to an object and use the changes required by DynamicObject. That is, using load(Oid,ClassInfo), instead of load(Oid,CreateObjectFunction), or create a new load(Oid,const QString&) where the QString is the name of the class.
