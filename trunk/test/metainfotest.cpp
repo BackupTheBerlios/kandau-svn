@@ -17,29 +17,25 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#ifndef LABELS_H
-#define LABELS_H
+#include <labelsmetainfo.h>
+#include <object.h>
+#include <classes.h>
 
-#include <qstring.h>
-#include <qmap.h>
+#include "metainfotest.h"
 
-/**
-@author Albert Cervera Areny
-*/
-#define LABEL( property, label ) Labels::add( property, label );
-
-class Labels
+void MetaInfoTest::labels()
 {
-public:
-	static void setDefaultClass( const QString &className );
-	static void add( const QString &className, const QString &property, const QString &label  );
-	static void add( const QString &property, const QString &label  );
-	static QString label( const QString &className, const QString &property );
-	static void dump();
-private:
-	static QMap<QString, QString> *m_labels;
-	static QString m_defaultClass;
-};
+	QObject *meta = Classes::classInfo( "Article" )->metaInfo( "labels" );
+	assert( meta );
+	assert( meta->inherits( "LabelsMetaInfo" ) );
+	LabelsMetaInfo *labels = static_cast<LabelsMetaInfo*>( meta );
+	CHECK( labels->label( "code" ), QString( "Code" ) );
+	CHECK( labels->label( "label" ), QString( "Label" ) );
+	CHECK( labels->label( "description" ), QString( "Description" ) );
+	CHECK( labels->label( "Unknown" ), QString::null );
+}
 
-
-#endif
+void MetaInfoTest::allTests()
+{
+	labels();
+}

@@ -17,7 +17,31 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
+#ifndef LABELSMETAINFO_H
+#define LABELSMETAINFO_H
 
-class Object;
-typedef Object*(*CreateObjectFunction)(void);
-typedef void (*CreateRelationsFunction)(void);
+#include <qobject.h>
+
+/**
+	@author Albert Cervera Areny <albertca@hotpop.com>
+*/
+
+struct LabelDescription
+{
+	const char *name;
+	const char *description;
+};
+
+#define LabelDescriptionLast { 0, 0 }
+
+class LabelsMetaInfo : public QObject
+{
+	Q_OBJECT
+public:
+	LabelsMetaInfo( const LabelDescription *labels );
+	const QString& label( const QString& name );
+private:
+	QMap<QString,QString> m_labels;
+};
+
+#endif

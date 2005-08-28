@@ -17,42 +17,26 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#include <stdarg.h>
+#include <assert.h>
 
-#include <kdebug.h>
+#include "labelsmetainfo.h"
 
-#include "labels.h"
-
-QMap<QString, QString>* Labels::m_labels = 0;
-QString Labels::m_defaultClass;
-
-void Labels::setDefaultClass( const QString &className )
+LabelsMetaInfo::LabelsMetaInfo( const LabelDescription *labels ) : QObject()
 {
-	m_defaultClass = className;
+	assert( labels );
+	int i = 0;
+	while ( labels[i].name ) {
+		m_labels.insert( labels[i].name, labels[i].description );
+		i++;
+	}
 }
 
-void Labels::add( const QString &property, const QString &label )
+const QString& LabelsMetaInfo::label( const QString& name )
 {
-	add( m_defaultClass, property, label );
+	if ( m_labels.contains( name ) )
+		return m_labels[ name ];
+	else
+		return QString::null;
 }
 
-void Labels::add( const QString &className, const QString &property, const QString &label )
-{
-	if ( ! m_labels )
-		m_labels = new QMap<QString, QString>();
-	m_labels->insert( className + "-" + property, label );
-}
-
-QString Labels::label( const QString &className, const QString &property )
-{
-	return (*m_labels)[ className + "-" + property ];
-}
-
-void Labels::dump()
-{
-	QMapConstIterator <QString,QString> it( m_labels->constBegin() );
-	QMapConstIterator <QString,QString> end( m_labels->constEnd() );
-	kdDebug() << "Labels::dump()" << endl;
-	for ( ; it != end; ++it )
-		kdDebug() << "Key = " << it.key() << ", Value = " << (*it) << endl;
-}
+#include "labelsmetainfo.moc"

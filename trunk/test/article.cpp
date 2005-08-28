@@ -21,23 +21,25 @@
 
 #include <klocale.h>
 
-#include <labels.h>
+#include <labelsmetainfo.h>
 
 #include "article.h"
 #include "customerorder.h"
 
 ICLASS( Article );
 
+static const LabelDescription articleLabels[] = { 
+	{ "code", I18N_NOOP("Code")},
+	{ "label", I18N_NOOP("Label") },
+	{ "description", I18N_NOOP("Description") },
+	LabelDescriptionLast
+};
+
 void Article::createRelations()
 {
 	OBJECT( Article );
 	COLLECTION( CustomerOrder );
-}
-
-void Article::createLabels()
-{
-	LABEL( "number", i18n( "Number" ) );
-	LABEL( "date", i18n( "Date" ) );
+	ADDMETAINFO( "labels", new LabelsMetaInfo( articleLabels ) );
 }
 
 const QString& Article::code() const

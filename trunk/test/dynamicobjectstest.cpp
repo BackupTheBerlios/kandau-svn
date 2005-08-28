@@ -32,7 +32,7 @@ void DynamicObjectsTest::allTests()
 {
 	QString dbname = "testdynamic";
 
-	Classes::addClass( "Test", DynamicObject::createInstance, 0, 0 );
+	Classes::addClass( "Test", DynamicObject::createInstance, 0 );
 	ClassInfo *ci = Classes::classInfo( "Test" );
 	ci->addObject( "Customer", "Customer_Test", &Customer::createInstance );
 	ci->addCollection( "Article", "Article_Test" );

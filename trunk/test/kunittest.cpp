@@ -32,7 +32,7 @@
 #include "inmemorysqlbackendtest.h"
 #include "multiplebackendstest.h"
 #include "dynamicobjectstest.h"
-
+#include "metainfotest.h" 
 #include "qtester.h"
 #include "tester.h"
 
@@ -47,6 +47,7 @@ void KUnitTest::registerTests()
 	ADD_TEST( XmlBackendTest );
 	ADD_TEST( MultipleBackendsTest );
 	ADD_TEST( DynamicObjectsTest );
+	ADD_TEST( MetaInfoTest );
 }
 
 KUnitTest::KUnitTest()

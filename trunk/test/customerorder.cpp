@@ -19,13 +19,18 @@
  ***************************************************************************/
 #include <klocale.h>
 
-#include <labels.h>
+#include <labelsmetainfo.h>
 
 #include "customerorder.h"
 #include "customer.h"
 #include "article.h"
 
 ICLASS( CustomerOrder );
+
+static const LabelDescription customerOrderLabels[] = {
+	{ "number", I18N_NOOP( "Number" ) },
+	{ "date", I18N_NOOP( "Date" ) }
+};
 
 CustomerOrder::CustomerOrder()
 {
@@ -37,12 +42,7 @@ void CustomerOrder::createRelations()
 	OBJECT( Customer );
 	OBJECT( CustomerOrder ); // For test purposes only, see if the other order is updated
 	COLLECTION( Article );
-}
-
-void CustomerOrder::createLabels()
-{
-	LABEL( "number", i18n( "Number" ) );
-	LABEL( "date", i18n( "Date" ) );
+	ADDMETAINFO( "labels", new LabelsMetaInfo( customerOrderLabels ) );
 }
 
 Q_ULLONG CustomerOrder::number() const

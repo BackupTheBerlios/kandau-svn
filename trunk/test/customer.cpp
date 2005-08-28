@@ -19,24 +19,24 @@
  ***************************************************************************/
 #include <klocale.h>
 
-#include <labels.h>
+#include <labelsmetainfo.h>
 
 #include "customer.h"
 
 ICLASS( Customer );
 
+static const LabelDescription customerLabels[] = {
+	{ "code", I18N_NOOP( "Code" ) },
+	{ "customerName", I18N_NOOP( "Name" ) },
+	{ "address", I18N_NOOP( "Address" ) },
+	{ "city", I18N_NOOP( "City" ) },
+	{ "zipCode", I18N_NOOP( "Zip Code" ) },
+	{ "coutry", I18N_NOOP( "Coutry" ) }
+};
+
 void Customer::createRelations()
 {
-}
-
-void Customer::createLabels()
-{
-	LABEL( "code", i18n( "Code" ) );
-	LABEL( "customerName", i18n( "Name" ) );
-	LABEL( "address", i18n( "Address" ) );
-	LABEL( "city", i18n( "City" ) );
-	LABEL( "zipCode", i18n( "Zip Code" ) );
-	LABEL( "country", i18n( "Country" ) );
+	ADDMETAINFO( "labels", new LabelsMetaInfo( customerLabels ) );
 }
 
 const QString& Customer::code() const

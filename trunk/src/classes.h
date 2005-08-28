@@ -25,6 +25,7 @@
 #include "oidtype.h"
 #include "defs.h"
 
+class QObject;
 class Object;
 class ClassInfo;
 class Manager;
@@ -372,6 +373,9 @@ public:
 	bool containsProperty( const QString& name ) const;
 	uint numProperties() const;
 
+	void addMetaInfo( const QString& name, QObject *object );
+	QObject* metaInfo( const QString& name ) const;
+
 private:
 	QString m_name;
 	CreateObjectFunction m_function;
@@ -379,6 +383,7 @@ private:
 	RelatedObjects m_objects;
 	RelatedCollections m_collections;
 	PropertiesInfo m_properties;
+	QMap<QString,QObject*> m_metaInfo;
 };
 
 typedef QMap<QString, ClassInfo*> ClassInfoMap;
@@ -389,15 +394,13 @@ typedef QMapConstIterator<QString, ClassInfo*> ClassInfoConstIterator;
 class TmpClass
 {
 public:
-	TmpClass( const QString &name, CreateRelationsFunction createRelations, CreateLabelsFunction createLabels );
+	TmpClass( const QString &name, CreateRelationsFunction createRelations );
 	const QString& name() const;
 	CreateRelationsFunction createRelations() const;
-	CreateLabelsFunction createLabels() const;
 
 private:
 	QString m_name;
 	CreateRelationsFunction m_createRelations;
-	CreateLabelsFunction m_createLabels;
 };
 
 typedef QMap<QString, TmpClass*> TmpClassMap;
@@ -417,10 +420,9 @@ public:
 	Registers a new class to the list of known classes. This function is used by DeclareClass.
 	@param name The name of the class.
 	@param createInstance The pointer to the function that allows the creation of objects of the type class given by name.
-	@param createLabels The pointer to the function that creates the labels for the properties of the class.
 	@param createRelations The pointer to the function that creates the relations of the class.
 	*/
-	static void addClass( const QString& name, CreateObjectFunction createInstance, CreateRelationsFunction createRelations, CreateLabelsFunction createLabels );
+	static void addClass( const QString& name, CreateObjectFunction createInstance, CreateRelationsFunction createRelations );
 
 	/*!
 	Returns an iterator pointing to the first class
@@ -489,12 +491,11 @@ public:
 	/*!
 	@param name The name of the class.
 	@param createInstance The pointer to the function that allows the creation of objects of the type class given by name.
-	@param createLabels The pointer to the function that creates the labels for the properties of the class.
 	@param createRelations The pointer to the function that creates the relations of the class.
 	*/
-	DeclareClass( const QString& name, CreateObjectFunction createInstance, CreateLabelsFunction createLabels, CreateRelationsFunction createRelations )
+	DeclareClass( const QString& name, CreateObjectFunction createInstance, CreateRelationsFunction createRelations )
 	{
-		Classes::addClass( name, createInstance, createRelations, createLabels );
+		Classes::addClass( name, createInstance, createRelations );
 	}
 };
 

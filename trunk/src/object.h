@@ -57,6 +57,8 @@ class Object;
 #define COLLECTIONR( Object, name ) Classes::currentClass()->addCollection( #Object, name )
 #define COLLECTIONNR( Object, name ) Classes::currentClass()->addCollection( #Object, name, false )
 
+#define ADDMETAINFO( name, object ) Classes::currentClass()->addMetaInfo( name, object )
+
 /*
 #define OBJECT( Object ) Classes::currentClass()->addObject( #Object, QString::null, &Object::createInstance )
 #define COLLECTION( Object ) Classes::currentClass()->addCollection( #Object, QString::null, &Object::createInstance )
@@ -68,7 +70,7 @@ class Object;
 */
 
 
-#define DCLASS( obj ) static obj* create( Manager* manager = 0); static obj* create( OidType oid, Manager* manager = 0 ); static Object* createInstance(); obj* createObjectInstance(); static void createLabels(); static void createRelations();
+#define DCLASS( obj ) static obj* create( Manager* manager = 0); static obj* create( OidType oid, Manager* manager = 0 ); static Object* createInstance(); obj* createObjectInstance(); static void createRelations();
 
 #define ICLASS( class ) \
 	class* class::create( Manager* manager ) \
@@ -99,7 +101,7 @@ class Object;
 		assert( obj );\
 		return obj;\
 	}\
-	DeclareClass declareClass##class( #class, &class::createInstance, &class::createLabels, &class::createRelations );
+	DeclareClass declareClass##class( #class, &class::createInstance, &class::createRelations );
 
 #define MODIFIED m_modified = true;
 
@@ -282,11 +284,6 @@ void Example::createRelations()
 {
 	OBJECT( AnotherExample );
 	COLLECTION( AnotherExample);
-}
-
-void Example::createLabels()
-{
-	LABEL( "exampleProperty", i18n( "Property of the example" ) );
 }
 
 const QString& Example::exampleProperty() const

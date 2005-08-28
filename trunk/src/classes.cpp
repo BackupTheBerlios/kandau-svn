@@ -21,7 +21,6 @@
 
 #include "classes.h"
 #include "object.h"
-#include "labels.h"
 
 ClassInfoMap *Classes::m_classes = 0;
 ClassInfo* Classes::m_currentClass = 0;
@@ -364,13 +363,25 @@ uint ClassInfo::numProperties() const
 	return m_properties.count();
 }
 
+void ClassInfo::addMetaInfo( const QString& name, QObject *object )
+{
+	m_metaInfo.insert( name, object );
+}
+
+QObject* ClassInfo::metaInfo( const QString& name ) const
+{
+	if ( m_metaInfo.contains( name ) ) 
+		return m_metaInfo[ name ];
+	else
+		return 0;
+}
+
 /* TmpClass */
 
-TmpClass::TmpClass( const QString &name, CreateRelationsFunction createRelations, CreateLabelsFunction createLabels )
+TmpClass::TmpClass( const QString &name, CreateRelationsFunction createRelations )
 {
 	m_name = name;
 	m_createRelations = createRelations;
-	m_createLabels = createLabels;
 }
 
 const QString& TmpClass::name() const
@@ -381,11 +392,6 @@ const QString& TmpClass::name() const
 CreateRelationsFunction TmpClass::createRelations() const
 {
 	return m_createRelations;
-}
-
-CreateLabelsFunction TmpClass::createLabels() const
-{
-	return m_createLabels;
 }
 
 /* Classes */
@@ -404,8 +410,6 @@ void Classes::setup()
 		tmp = (*it);
 		m_currentClass = Classes::classInfo( tmp->name() );
 		tmp->createRelations()();
-		Labels::setDefaultClass( tmp->name() );
-		tmp->createLabels()();
 		delete tmp;
 		tmp = 0;
 	}
@@ -413,7 +417,7 @@ void Classes::setup()
 	m_tmpClasses = 0;
 }
 
-void Classes::addClass( const QString &name, CreateObjectFunction createInstance, CreateRelationsFunction createRelations, CreateLabelsFunction createLabels )
+void Classes::addClass( const QString &name, CreateObjectFunction createInstance, CreateRelationsFunction createRelations )
 {
 	if ( ! m_classes ) {
 		m_classes = new ClassInfoMap();
@@ -421,7 +425,7 @@ void Classes::addClass( const QString &name, CreateObjectFunction createInstance
 	}
 	m_classes->insert( name, new ClassInfo( name, createInstance ) );
 	if ( m_tmpClasses )
-		m_tmpClasses->insert( name, new TmpClass( name, createRelations, createLabels ) );
+		m_tmpClasses->insert( name, new TmpClass( name, createRelations ) );
 }
 
 ClassInfoIterator Classes::begin()

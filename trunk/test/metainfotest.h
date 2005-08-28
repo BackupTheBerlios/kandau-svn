@@ -17,7 +17,19 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
+#ifndef METAINFOTEST_H
+#define METAINFOTEST_H
 
-class Object;
-typedef Object*(*CreateObjectFunction)(void);
-typedef void (*CreateRelationsFunction)(void);
+#include <tester.h>
+
+/**
+	@author Albert Cervera Areny <albertca@hotpop.com>
+*/
+class MetaInfoTest : public Tester
+{
+public:
+	void labels();
+	void allTests();
+};
+
+#endif
