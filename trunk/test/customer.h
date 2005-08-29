@@ -22,6 +22,8 @@
 
 #include <object.h>
 
+class Article;
+
 /**
 @author Albert Cervera Areny
 */
@@ -52,6 +54,13 @@ public:
 	const QString& country() const;
 	void setCountry( const QString& country );
 
+	Article* defaultArticle() const;
+	void setDefaultArticle( Article *article );
+	Article* secondDefaultArticle() const;
+	void setSecondDefaultArticle( Article *article );
+	
+	Collection* discountedArticles();
+	Collection* adaptedArticles();
 private:
 	QString m_code;
 	QString m_customerName;

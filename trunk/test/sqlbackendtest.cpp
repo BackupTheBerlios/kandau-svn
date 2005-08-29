@@ -58,6 +58,12 @@ void SqlBackendTest::transactions()
 	c->setCity( "City" );
 	c->setZipCode( "Zip Code" );
 	c->setCountry( "Country" );
+	c->setDefaultArticle( a1 );
+	c->setSecondDefaultArticle( a2 );
+	c->discountedArticles()->add( a1 );
+	c->discountedArticles()->add( a2 );
+	c->adaptedArticles()->add( a1 );
+	c->adaptedArticles()->add( a2 );
 	order->setCustomer( c );
 
 	CHECK( Manager::self()->commit(), true );
@@ -82,7 +88,19 @@ void SqlBackendTest::transactions()
 	cursor.select( "article = " + oidToString( a1->oid() ) + " AND customerorder = " + oidToString( order->oid() ) );
 	CHECK( cursor.next(), true );
 	CHECK( cursor.next(), false );
+
+	cursor.setName( "discounted_articles" );
+	cursor.select( "article = " + oidToString( a1->oid() ) + " AND customer = " + oidToString( c->oid() ) );
+	CHECK( cursor.next(), true );
+	CHECK( cursor.next(), false );
 	
+	cursor.setName( "adapted_articles" );
+	cursor.select( "article = " + oidToString( a1->oid() ) + " AND customer = " + oidToString( c->oid() ) );
+	CHECK( cursor.next(), true );
+	CHECK( cursor.next(), false );
+
+//	exit();
+		
 	cursor.setName( "article" );
 	cursor.select( "code = '2'" );
 	CHECK( cursor.next(), true );
@@ -98,6 +116,8 @@ void SqlBackendTest::transactions()
 	CHECK( cursor.value( "city" ).toString(), QString("City") );
 	CHECK( cursor.value( "zipcode" ).toString(), QString("Zip Code") );
 	CHECK( cursor.value( "country" ).toString(), QString("Country") );
+	CHECK( variantToOid( cursor.value( "default_article" ) ), a1->oid() );
+	CHECK( variantToOid( cursor.value( "second_default_article" ) ), a2->oid() );
 	CHECK( cursor.next(), false );
 	
 	

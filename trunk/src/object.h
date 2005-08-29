@@ -111,12 +111,13 @@ class Object;
 
 //#define SETOBJECT( Class, Object ) Manager::self()->setRelation( this, #Class, Object )
 #define SETOBJECT( Class, Object ) m_manager->setRelation( oid(), classInfo(), #Class, Object ? Object->oid() : 0 )
+#define SETOBJECTR( Class, Relation, Object ) m_manager->setRelation( oid(), classInfo(), Relation, Object ? Object->oid() : 0 )
 #define GETOBJECT( Class ) static_cast<Class*>(m_manager->load( m_manager->relation( this, #Class ), &Class::createInstance ) )
-#define GETOBJECTR( Class, Relation ) static_cast<Class*>(m_manager->load( #Relation, &Class::createInstance ) )
+#define GETOBJECTR( Class, Relation ) static_cast<Class*>(m_manager->load( m_manager->relation( this, Relation ), &Class::createInstance ) )
 
 //#define SETDYNOBJECT( Class, Object ) m_manager->setRelation( oid(), classInfo(), 
 #define GETDYNOBJECT( Class ) static_cast<DynamicObject*>(m_manager->load( m_manager->relation( this, #Class ), &DynamicObject::createInstance ) )
-#define GETDYNOBJECTR( Class, Relation ) static_cast<DynamicObject*>(m_manager->load( #Relation, &DynamicObject::createInstance ) )
+#define GETDYNOBJECTR( Class, Relation ) static_cast<DynamicObject*>(m_manager->load( Relation, &DynamicObject::createInstance ) )
 
 #define GETCOLLECTION( Class ) collection( #Class )
 
@@ -330,7 +331,6 @@ public:
 	Object* createObjectInstance() const;
 
 	void setClassInfo( const ClassInfo* info );
-	//ClassInfo* classInfo();
 	const ClassInfo* classInfo() const;
 	Manager* manager() const;
 	void setManager( Manager* m );

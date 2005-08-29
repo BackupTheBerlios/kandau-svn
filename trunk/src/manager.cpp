@@ -752,23 +752,23 @@ OidType Manager::relation( const Object* object, const QString& relationName )
 Collection* Manager::collection( const Object* object, const QString& relation )
 {
 	assert( object );
-	if ( ! m_collections.contains( object->oid() ) ) {
-		if ( ! object->classInfo()->containsCollection( relation ) )
+	if ( ! m_collections[ object->oid() ].contains( relation ) ) {
+		if ( ! object->classInfo()->containsCollection( relation ) ) {
+			kdDebug() << k_funcinfo << "Collection '" << relation << "' doesn't exist" << endl;
 			return 0;
-
+		}
 		RelatedCollection* col = object->classInfo()->collection( relation );
 
 		m_collections[ object->oid() ][ relation ] = new Collection( col, object->oid(), this );
 	}
+	assert( m_collections[ object->oid() ][ relation ] );
 	return m_collections[ object->oid() ][ relation ];
 }
 
 Collection* Manager::collection( const OidType& oid, RelatedCollection* collection )
 {
-	if ( ! m_collections.contains( oid ) ) {
-		if ( ! m_collections[ oid ].contains( collection->name() ) )
-			m_collections[ oid ][ collection->name() ] = new Collection( collection, oid, this );
-	}
+	if ( ! m_collections[ oid ].contains( collection->name() ) )
+		m_collections[ oid ][ collection->name() ] = new Collection( collection, oid, this );
 	return m_collections[ oid ][ collection->name() ];
 }
 

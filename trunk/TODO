@@ -1,6 +1,7 @@
 
 There are lots of things to think about. Here are some of them:
 
+	(TEST) -> implemented but needs testing
 	(PART) -> partially implemented
 	(WORK) -> work in progress
 	(DONE) -> mmm.. pretty obvious
@@ -42,7 +43,7 @@ There are lots of things to think about. Here are some of them:
 
 (DONE)	- Solve problem when commit fails in the Database, and we've already set all objects and references to unmodified!
 	
-	- Find a smart way to add class metainformation such as Labels, information about relations, SQL like checks for values, etc.
+(DONE)	- Find a smart way to add class metainformation such as Labels, information about relations, SQL like checks for values, etc.
 	
 	- Create widgets to access Object classes and relations.
 
@@ -50,8 +51,8 @@ There are lots of things to think about. Here are some of them:
 	
 (DONE)	- Allow to browse the properties in ClassInfo (no need to instantiate an object).
 	
-(PART)	- Create a DynamicObject class and the necessary components to be able to define classes dynamically.
+(TEST)	- Create a DynamicObject class and the necessary components to be able to define classes dynamically.
 	
 	- Make it easy to create reports, forms, etc. 
 	
-	- Improve the GETOBJECT macro to be able to use multiple relations to an object and use the changes required by DynamicObject. That is, using load(Oid,ClassInfo), instead of load(Oid,CreateObjectFunction), or create a new load(Oid,const QString&) where the QString is the name of the class.
+(TEST)	- Improve the GETOBJECT macro to be able to use multiple relations to an object and use the changes required by DynamicObject. That is, using load(Oid,ClassInfo), instead of load(Oid,CreateObjectFunction), or create a new load(Oid,const QString&) where the QString is the name of the class.

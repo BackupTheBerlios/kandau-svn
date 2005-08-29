@@ -22,6 +22,7 @@
 #include <labelsmetainfo.h>
 
 #include "customer.h"
+#include "article.h"
 
 ICLASS( Customer );
 
@@ -36,6 +37,10 @@ static const LabelDescription customerLabels[] = {
 
 void Customer::createRelations()
 {
+	OBJECTR( Article, "default_article" );
+	OBJECTR( Article, "second_default_article" );
+	COLLECTIONR( Article, "discounted_articles" );
+	COLLECTIONR( Article, "adapted_articles" );
 	ADDMETAINFO( "labels", new LabelsMetaInfo( customerLabels ) );
 }
 
@@ -103,6 +108,36 @@ void Customer::setCountry( const QString& country )
 {
 	MODIFIED;
 	m_country = country;
+}
+
+Article* Customer::defaultArticle() const
+{
+	return GETOBJECTR( Article, "default_article" );
+}
+
+void Customer::setDefaultArticle( Article *article )
+{
+	SETOBJECTR( Article, "default_article", article );
+}
+
+Article* Customer::secondDefaultArticle() const
+{
+	return GETOBJECTR( Article, "second_default_article" );
+}
+
+void Customer::setSecondDefaultArticle( Article *article )
+{
+	SETOBJECTR( Article, "second_default_article", article );
+}
+
+Collection* Customer::discountedArticles()
+{
+	return GETCOLLECTION( discounted_articles );
+}
+
+Collection* Customer::adaptedArticles()
+{
+	return GETCOLLECTION( adapted_articles );
 }
 
 #include "customer.moc"
