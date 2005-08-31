@@ -32,6 +32,7 @@
 
 #include "sqldbbackend.h"
 #include "object.h"
+#include "tokenizer.h"
 
 SqlDbBackend::SqlDbBackend( QSqlDatabase *db )
 {
@@ -134,8 +135,6 @@ bool SqlDbBackend::save( Collection *collection )
 		record->setValue( collection->collectionInfo()->childrenClassInfo()->name(), (*it)->oid() );
 		record->setValue( "dbseq", newSeq() );
 		cursor.insert();
-		
-		//m_manager->setModifiedRelation( collection->parentOid(), collection->collectionInfo(), (*it)->oid(), false );
 	}
 	return true;
 }
@@ -216,14 +215,6 @@ bool SqlDbBackend::save( Object *object )
 			record->setValue( oIt.key(), obj->oid() );
 		else
 			record->setNull( oIt.key() );
-		
-		//m_manager->setModifiedRelation( object->oid(), object->classInfo(), oIt.key(), false );
-		/*
-		if ( analyzeRelations && omap.contains( oIt.key() ) ) {
-			omap[ oIt.key() ].second = false;
-		}
-		*/
-		//typedef QMap<OidType, QMap<QString, QPair<OidType, bool> > > ManagerRelatedObjectMap;
 	}
 /*
 	if ( analyzeRelations ) {
@@ -443,8 +434,6 @@ bool SqlDbBackend::createSchema()
 			rObj = *oIt;
 			exec += rObj->name().lower() + " BIGINT DEFAULT NULL, ";
 			constraints << currentClass->name().lower() + "-" + rObj->name().lower() + "-" + rObj->relatedClassInfo()->name().lower();
-			//constraints << rObj->name();
-			//constraints << tableName( object ) + "-" + tableName( oIt.key() );
 		}
 
 		// Search in all the classes if they have N - 1 relations with the current class
@@ -458,11 +447,9 @@ bool SqlDbBackend::createSchema()
 			RelatedCollection *rCol;
 			for ( ; colIt != colEnd; ++colIt ) {
 				rCol = *colIt;
-				if ( rCol->childrenClassInfo()->name() == currentClass->name() && rCol->isNToOne() ) {
+				if ( rCol->childrenClassInfo()->name() == currentClass->name() && rCol->isNToOne() && constraints.grep( rCol->name().lower() ).count() == 0 ) {
 					exec += rCol->name().lower() + " BIGINT DEFAULT NULL, ";
 					constraints << currentClass->name().lower() + "-" + rCol->name().lower() + "-" + rCol->parentClassInfo()->name().lower();
-					//constraints << rCol->name();
-					//constraints << tableName( object ) + "-" + tableName( obj );
 				}
 			}
 		}
@@ -472,7 +459,7 @@ bool SqlDbBackend::createSchema()
 		RelatedCollection *col;
 		for ( ; colIt != colEnd; ++colIt ) {
 			col = *colIt;
-			if ( ! tables.grep( col->name() ).count() > 0 && ! col->isNToOne() ) {
+			if ( ! tables.grep( col->name().lower() ).count() > 0 && ! col->isNToOne() ) {
 				tables << col->name().lower() + "-"  + filterFieldName( col ).lower() + "-" + idFieldName( col ).lower();
 			}
 		}
@@ -585,7 +572,6 @@ bool SqlDbBackend::commit()
 		obj = (*it);
 		if ( obj->isModified() ) {
 			save( obj );
-//			obj->setModified( false );
 		}
 	}
 
@@ -626,7 +612,6 @@ void SqlDbBackend::commitCollections()
 			c = *it;
 			if ( c->modified() ) {
 				save( c );
-//				c->setModified( false );
 			}
 		}
 	}
@@ -672,35 +657,92 @@ QString SqlDbBackend::expandDots( const QString& msg )
 	}
 }
 */
+
+QString SqlDbBackend::expandDotsString( const QString& string )
+{
+	QString className;
+	QString relationName;
+	QString expanded;
+	
+	assert( string.contains( "." ) );
+	
+	Tokenizer tokenizer( string, "." );
+	className = tokenizer.nextToken();
+	relationName = tokenizer.nextToken();
+	do {
+		if ( ! Classes::contains( className ) ) {
+			kdDebug() << k_funcinfo << "Class '" << className << "' not found." << endl;
+			return string;
+		}
+		ClassInfo *classInfo = Classes::classInfo( className );
+		if ( classInfo->containsObject( relationName ) ) {
+			RelatedObject *rel = classInfo->object( relationName );
+			if ( rel->isOneToOne() ) {
+				expanded += className + "." + relationName + "=";
+				expanded += rel->relatedClassInfo()->name() + ".dboid AND ";
+				className=rel->relatedClassInfo()->name();
+			} else {
+				expanded += className + "." + relationName + "=";
+				expanded += rel->relatedClassInfo()->name() + ".dboid AND ";
+				className=rel->relatedClassInfo()->name();
+			}
+		} else if ( classInfo->containsCollection( relationName ) ) {
+			RelatedCollection *rel = classInfo->collection( relationName );
+			if ( rel->isNToOne() ) {
+				expanded += className + ".dboid=";
+				expanded += rel->childrenClassInfo()->name() + "." + relationName + " AND ";
+				className=rel->childrenClassInfo()->name();
+			} else {
+				expanded += className + ".dboid=";
+				expanded += relationName + "." + className + " AND ";
+				expanded += relationName + "." + rel->childrenClassInfo()->name() + "=";
+				expanded += rel->childrenClassInfo()->name() + ".dboid AND ";
+				className = rel->childrenClassInfo()->name();
+			}
+		} else {
+			kdDebug() << k_funcinfo << "Class '" << className << "' doesn't contain any relation named '" << relationName << "'" << endl;
+			expanded += className + "." + tokenizer.tail();
+			break;
+		}
+		relationName = tokenizer.nextToken();	
+	} while ( ! relationName.isNull() );
+	expanded += className + "." + tokenizer.tail() + " ";
+	//expanded += "." + tokenizer.tail();
+	kdDebug() << k_funcinfo << "Expanded string: " << expanded  << endl;
+	return expanded;
+}
+
 bool SqlDbBackend::load( Collection* collection, const QString& query )
 {
 	assert( collection );
-
-	collection->clear();
-/*
 	QString newQuery;
-	QString token, element;
-	QString curClass;
-	for ( int i = 0; ( token = pickToken( query, i ) ) != QString::null; ++i ) {
-		if ( i == 0 ) {
-			newQuery = "SELECT " + token + ".* ";
-		} else {
-			{}
-				
+
+	if ( Classes::contains( query ) ) {
+		newQuery = "SELECT * FROM " + query;
+	} else {
+		QStringList seps;
+		seps << " ";
+		seps << ")";
+		seps << "(";
+		seps << "=";
+		seps << ">";
+		seps << "<";
+		Tokenizer tokenizer( query, seps );
+		QString token;
+		int lastIndex = 0;	
+		while ( ( token = tokenizer.nextToken() ) != QString::null ) {
+			if ( token.contains( "." ) && ! token.contains( "*" ) ) {
+				newQuery += expandDotsString( token );
 			} else {
-				newQuery.append( token + " " );
+				newQuery += query.mid( lastIndex, tokenizer.currentIndex() - lastIndex );
 			}
+			lastIndex = tokenizer.currentIndex();
 		}
+		newQuery += tokenizer.tail();
 	}
-	QString newQuery;
-	QString item = query.section( ' ', 0, 0, QString::SectionSkipEmpty );
-	item.append( ".*" );
-
-	newQuery.append( "SELECT " + item + " " );
-
-	query.section( ' ', 1, -1, QString::SectionIncludeLeadingSep | QString::SectionIncludeTralingSep );
-*/
-	QSqlCursor cursor( query );
+	kdDebug() << k_funcinfo << "FINAL QUERY: " << newQuery << endl;
+	collection->clear();
+	QSqlSelectCursor cursor( newQuery );
 	cursor.select();
 	while ( cursor.next() ) {
 		collection->simpleAdd( variantToOid( cursor.value( "dboid" ) ) );

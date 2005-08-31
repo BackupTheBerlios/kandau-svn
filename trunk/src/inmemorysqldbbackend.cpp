@@ -53,13 +53,18 @@ void InMemorySqlDbBackend::init()
 	maxOid = 0;
 	for ( ; m_it != m_end; ++m_it ) {
 		ClassInfo* info = (*m_it);
-		
+
 		// Don't try to read from recordset if table doesn't exist
 		if ( tables.grep( info->name(), false ).count() == 0 )
 			continue;
 
-		QSqlCursor cursor( info->name() );
+		QSqlCursor cursor( info->name().lower());
 		cursor.select();
+		if ( m_db->lastError().type() != QSqlError::None ) {
+			//kdDebug() << k_funcinfo << exec << endl;
+			kdDebug() << k_funcinfo << m_db->lastError().text()  << endl;
+		}
+
 		while ( cursor.next() ) {
 			oid = variantToOid( cursor.value( "dboid" ) );
 
@@ -92,8 +97,16 @@ void InMemorySqlDbBackend::loadObject( const QSqlCursor& cursor, Object* object 
 	CollectionsIterator cIt( object->collectionsBegin() );
 	CollectionsIterator cEnd( object->collectionsEnd() );
 	for ( ; cIt != cEnd; ++cIt ) {
-		QSqlCursor cCursor( (*cIt)->collectionInfo()->name() );
+		if ( (*cIt)->collectionInfo()->isNToOne() )
+			continue;
+	
+		QSqlCursor cCursor( (*cIt)->collectionInfo()->name().lower() );
 		cCursor.select( object->classInfo()->name() + "=" + oidToString( object->oid() ) );
+		if ( m_db->lastError().type() != QSqlError::None ) {
+			//kdDebug() << k_funcinfo << exec << endl;
+			kdDebug() << k_funcinfo << m_db->lastError().text()  << endl;
+		}
+
 		while ( cCursor.next() ) {
 			(*cIt)->simpleAdd( variantToOid( cCursor.value( (*cIt)->collectionInfo()->childrenClassInfo()->name() ) ) );
 		}
@@ -104,8 +117,13 @@ void InMemorySqlDbBackend::saveObject( Object* object )
 {
 	assert( object );
 	assert( object->classInfo() );
-	QSqlCursor cursor( object->classInfo()->name() );
+	QSqlCursor cursor( object->classInfo()->name().lower() );
 	cursor.select();
+	if ( m_db->lastError().type() != QSqlError::None ) {
+		//kdDebug() << k_funcinfo << exec << endl;
+		kdDebug() << k_funcinfo << m_db->lastError().text()  << endl;
+	}
+
 	QSqlRecord *buffer = cursor.primeInsert();
 
 	buffer->setValue( "dboid", oidToVariant( object->oid() ) );
@@ -114,7 +132,6 @@ void InMemorySqlDbBackend::saveObject( Object* object )
 	PropertiesIterator pEnd( object->propertiesEnd() );
 	for ( ; pIt != pEnd; ++pIt )
 		buffer->setValue( (*pIt).name(), (*pIt).value() );
-	//object->setModified( false );
 
 	RelatedObjectsConstIterator oIt( object->classInfo()->objectsBegin() );
 	RelatedObjectsConstIterator oEnd( object->classInfo()->objectsEnd() );
@@ -129,14 +146,21 @@ void InMemorySqlDbBackend::saveObject( Object* object )
 	CollectionsIterator cIt( object->collectionsBegin() );
 	CollectionsIterator cEnd( object->collectionsEnd() );
 	for ( ; cIt != cEnd; ++cIt ) {
+		if ( (*cIt)->collectionInfo()->isNToOne() )
+			continue;
+		
 		// Ensure data is only inserted once
 		if ( m_savedCollections.contains( (*cIt)->collectionInfo()->name() ) )
 			continue;
 
 		m_savedCollections << (*cIt)->collectionInfo()->name();
 
-		QSqlCursor cCursor( (*cIt)->collectionInfo()->name() );
+		QSqlCursor cCursor( (*cIt)->collectionInfo()->name().lower() );
 		cCursor.select();
+		if ( m_db->lastError().type() != QSqlError::None ) {
+			//kdDebug() << k_funcinfo << exec << endl;
+			kdDebug() << k_funcinfo << m_db->lastError().text()  << endl;
+		}
 
 		CollectionIterator coIt( (*cIt)->begin() );
 		CollectionIterator coEnd( (*cIt)->end() );
@@ -146,7 +170,6 @@ void InMemorySqlDbBackend::saveObject( Object* object )
 			buffer->setValue( (*coIt)->classInfo()->name(), (*coIt)->oid() );
 			cCursor.insert();
 		}
-		//(*cIt)->setModified( false );
 	}
 }
 
@@ -191,7 +214,7 @@ bool InMemorySqlDbBackend::createSchema()
 	ClassInfo *currentClass;
 	for ( ; it != end; ++it ) {
 		currentClass = *it;
-		exec = "CREATE TABLE " +  currentClass->name() + " ( dboid BIGINT PRIMARY KEY, ";
+		exec = "CREATE TABLE " +  currentClass->name().lower() + " ( dboid BIGINT PRIMARY KEY, ";
 
 		// Create properties fields
 		PropertiesInfoConstIterator pIt( currentClass->propertiesBegin() );
@@ -207,8 +230,8 @@ bool InMemorySqlDbBackend::createSchema()
 		RelatedObject *rObj;
 		for ( ; oIt != oEnd; ++oIt ) {
 			rObj = *oIt;
-			exec += rObj->name() + " BIGINT DEFAULT NULL, ";
-			constraints << currentClass->name() + "-" + rObj->name() + "-" + rObj->relatedClassInfo()->name();
+			exec += rObj->name().lower() + " BIGINT DEFAULT NULL, ";
+			constraints << currentClass->name().lower() + "-" + rObj->name().lower() + "-" + rObj->relatedClassInfo()->name().lower();
 		}
 
 		// Search in all the classes if they have N - 1 relations with the current class
@@ -222,9 +245,9 @@ bool InMemorySqlDbBackend::createSchema()
 			RelatedCollection *rCol;
 			for ( ; colIt != colEnd; ++colIt ) {
 				rCol = *colIt;
-				if ( rCol->childrenClassInfo()->name() == currentClass->name() && rCol->isNToOne() ) {
-					exec += rCol->name() + " BIGINT DEFAULT NULL, ";
-					constraints << currentClass->name() + "-" + rCol->name() + "-" + rCol->parentClassInfo()->name();
+				if ( rCol->childrenClassInfo()->name() == currentClass->name() && rCol->isNToOne() && constraints.grep( rCol->name().lower() ).count() == 0 ) {
+					exec += rCol->name().lower() + " BIGINT DEFAULT NULL, ";
+					constraints << currentClass->name().lower() + "-" + rCol->name().lower() + "-" + rCol->parentClassInfo()->name().lower();
 				}
 			}
 		}
@@ -234,8 +257,9 @@ bool InMemorySqlDbBackend::createSchema()
 		RelatedCollection *col;
 		for ( ; colIt != colEnd; ++colIt ) {
 			col = *colIt;
-			if ( ! tables.grep( col->name() ).count() > 0 && ! col->isNToOne() ) {
-				tables << col->name() + "-"  + col->parentClassInfo()->name() + "-" + idFieldName( col );
+			if ( ! tables.grep( col->name().lower() ).count() > 0 && ! col->isNToOne() ) {
+				//tables << col->name().lower() + "-"  + col->parentClassInfo()->name() + "-" + idFieldName( col );
+				tables << col->name().lower() + "-"  + col->parentClassInfo()->name().lower() + "-" + idFieldName( col ).lower();
 			}
 		}
 
@@ -257,13 +281,20 @@ bool InMemorySqlDbBackend::createSchema()
    		exec = "CREATE TABLE " + list[ 0 ] + " ( " + list[ 1 ] + " BIGINT NOT NULL REFERENCES " + list[ 1 ] + " DEFERRABLE INITIALLY DEFERRED, "+ list[ 2 ] + " BIGINT NOT NULL REFERENCES " + list[2] +" DEFERRABLE INITIALLY DEFERRED, PRIMARY KEY( "+ list[1] +" , " + list[2] + " ) );";
 
 		m_db->exec( exec );
-		//kdDebug() << m_db->lastError().text() << endl;
+		if ( m_db->lastError().type() != QSqlError::None ) {
+			kdDebug() << k_funcinfo << exec << endl;
+			kdDebug() << k_funcinfo << m_db->lastError().text()  << endl;
+		}
 	}
 
 	for ( i = 0; i < constraints.count(); ++i ) {
 		list = QStringList::split( QString( "-" ), constraints[ i ] );
 		exec = "ALTER TABLE " + list[ 0 ] + " ADD FOREIGN KEY (" + list[ 1 ] + ") REFERENCES " + list[ 2 ] + "( dboid ) DEFERRABLE INITIALLY DEFERRED";
 		m_db->exec( exec );
+		if ( m_db->lastError().type() != QSqlError::None ) {
+			kdDebug() << k_funcinfo << exec << endl;
+			kdDebug() << k_funcinfo << m_db->lastError().text()  << endl;
+		}
 	}
 	return true;
 }
@@ -291,17 +322,31 @@ bool InMemorySqlDbBackend::commit()
 {
 	m_db->transaction();
 	m_db->exec( "SET CONSTRAINTS ALL DEFERRED" );
+	if ( m_db->lastError().type() != QSqlError::None ) {
+		//kdDebug() << k_funcinfo << exec << endl;
+		kdDebug() << k_funcinfo << m_db->lastError().text()  << endl;
+	}
 
 	// Remove all existing information
 	ClassInfoIterator m_it( Classes::begin() );
 	ClassInfoIterator m_end( Classes::end() );
 	for ( ; m_it != m_end; ++m_it ) {
 		m_db->exec( "DELETE FROM " + (*m_it)->name() );
+		if ( m_db->lastError().type() != QSqlError::None ) {
+			//kdDebug() << k_funcinfo << exec << endl;
+			kdDebug() << k_funcinfo << m_db->lastError().text()  << endl;
+		}
 
 		RelatedCollectionsIterator m_cIt( (*m_it)->collectionsBegin() );
 		RelatedCollectionsIterator m_cEnd( (*m_it)->collectionsEnd() );
-		for ( ; m_cIt != m_cEnd; ++m_cIt )
-			m_db->exec( "DELETE FROM " + (*m_cIt)->name() );
+		for ( ; m_cIt != m_cEnd; ++m_cIt ) {
+			if ( ! (*m_cIt)->isNToOne() )
+				m_db->exec( "DELETE FROM " + (*m_cIt)->name() );
+			if ( m_db->lastError().type() != QSqlError::None ) {
+				//kdDebug() << k_funcinfo << exec << endl;
+				kdDebug() << k_funcinfo << m_db->lastError().text()  << endl;
+			}
+		}
 	}
 
 	m_savedCollections.clear();

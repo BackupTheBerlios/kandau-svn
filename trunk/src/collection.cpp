@@ -25,6 +25,7 @@
 #include "defs.h"
 #include "object.h"
 #include "manager.h"
+#include "tokenizer.h"
 
 // CollectionIterator
 
@@ -119,13 +120,25 @@ CollectionIterator& CollectionIterator::operator=(const CollectionIterator& it)
 
 Collection::Collection( const QString& query, Manager* manager )
 {
-	assert( Classes::contains( query ) );
 	if ( manager )
 		m_manager = manager;
 	else
 		m_manager = Manager::self();
 	m_manager->load( this, query );
-	m_classInfo = Classes::classInfo( query );
+	if ( Classes::contains( query ) )
+		m_classInfo = Classes::classInfo( query );
+	else {
+		Tokenizer tokenizer( query, " " );
+		tokenizer.nextToken(); // First item should be SELECT
+		QString c = tokenizer.nextToken();
+		c = c.left( c.find( '.' ) );
+		if ( ! Classes::contains( c ) ) {
+			kdDebug() << k_funcinfo << "Could not find class '" << c << "'" << endl;
+			m_classInfo = 0;
+			return;
+		}
+		m_classInfo = Classes::classInfo( c );
+	}
 }
 
 Collection::Collection( RelatedCollection *rel, const OidType& parent, Manager* manager )

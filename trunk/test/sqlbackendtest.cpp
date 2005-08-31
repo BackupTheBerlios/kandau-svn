@@ -239,6 +239,32 @@ void SqlBackendTest::collections()
 			CHECK( true, false );
 		}
 	}
+	
+	ObjectRef<Customer> c1 = Customer::create();
+	c1->setCustomerName( "foo" );
+	ObjectRef<Customer> c2 = Customer::create();
+	c2->setCustomerName( "bar" );
+
+	ObjectRef<Article> a1 = Article::create();
+	a1->setLabel( "foo" );
+	a1->setDescription( "liluli foo liluli" );
+	ObjectRef<CustomerOrder> o1 = CustomerOrder::create();
+	o1->setNumber( 3000 );
+	o1->setCustomer( c1 );
+	o1->articles()->add( a1 );
+	Manager::self()->commit();
+
+	Collection col2( "SELECT Customer.* WHERE Customer.Customer_CustomerOrder.Article_CustomerOrder.description like '%foo%'" );
+	Customer *customer;
+	CollectionIterator it2( col2.begin() );
+	CollectionIterator end2( col2.end() );
+	CHECK( col2.begin() == col2.end(), false );
+	for ( ; it2 != end2; ++it2 ) {
+		customer = static_cast<Customer*>( *it2 );
+		// As long as we don't have a way to sort collections, we won't be
+		// able to make this test nicer
+		CHECK( customer->customerName(), QString( "foo" ) );
+	}
 }
 
 void SqlBackendTest::cache()

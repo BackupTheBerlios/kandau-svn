@@ -38,7 +38,7 @@ void XmlBackendTest::transactions()
 	a1->setLabel( "Article One" );
 	a1->setDescription( "Description of article number one" );
 	order->articles()->add( a1 );
-
+	
 	ObjectRef<Article> a2 = Article::create();
 	a2->setCode( "2" );
 	a2->setLabel( "Article Two" );
@@ -53,9 +53,8 @@ void XmlBackendTest::transactions()
 	c->setZipCode( "Zip Code" );
 	c->setCountry( "Country" );
 	order->setCustomer( c );
-
 	CHECK( Manager::self()->commit(), true );
-
+	
 	a1->setDescription( "MODIFIED description of article number one" );
 	CHECK( Manager::self()->commit(), true );
 
@@ -115,6 +114,5 @@ void XmlBackendTest::allTests()
 
 	transactions();
 	collections();
-
 	delete m_manager;
 }

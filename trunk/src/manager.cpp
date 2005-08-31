@@ -754,7 +754,7 @@ Collection* Manager::collection( const Object* object, const QString& relation )
 	assert( object );
 	if ( ! m_collections[ object->oid() ].contains( relation ) ) {
 		if ( ! object->classInfo()->containsCollection( relation ) ) {
-			kdDebug() << k_funcinfo << "Collection '" << relation << "' doesn't exist" << endl;
+			kdDebug() << k_funcinfo << "Collection '" << relation << "' doesn't exist in class '" << object->classInfo()->name() << "'" << endl;
 			return 0;
 		}
 		RelatedCollection* col = object->classInfo()->collection( relation );

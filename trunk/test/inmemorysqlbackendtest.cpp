@@ -37,7 +37,7 @@ void InMemorySqlBackendTest::transactions()
 	order->setNumber( 50000 );
 	order->setDate( QDate::currentDate() );
 	order->setOrder( order );
-
+	
 	ObjectRef<Article> a1 = Article::create();
 	a1->setCode( "1" );
 	a1->setLabel( "Article One" );
@@ -192,7 +192,7 @@ void InMemorySqlBackendTest::allTests()
 	m_manager->createSchema();
 
 	transactions();
-	collections();
+	//collections();
 
 	delete m_manager;
 }

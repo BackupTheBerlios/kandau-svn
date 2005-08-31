@@ -69,6 +69,7 @@ protected:
 	bool save( Collection *collection );
 	bool load( const QSqlCursor &cursor, Object *object );
 	void commitCollections();
+	QString expandDotsString( const QString& string );
 
 	SeqType newSeq();
 

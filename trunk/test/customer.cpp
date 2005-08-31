@@ -41,6 +41,7 @@ void Customer::createRelations()
 	OBJECTR( Article, "second_default_article" );
 	COLLECTIONR( Article, "discounted_articles" );
 	COLLECTIONR( Article, "adapted_articles" );
+	COLLECTION( CustomerOrder );
 	ADDMETAINFO( "labels", new LabelsMetaInfo( customerLabels ) );
 }
 

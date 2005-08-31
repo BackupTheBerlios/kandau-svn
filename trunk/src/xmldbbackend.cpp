@@ -197,7 +197,7 @@ void XmlDbBackend::objectToElement( Object* object, QDomDocument *doc, QDomEleme
 	for ( ; cIt != cEnd; ++cIt ) {
 		Collection * tmp = (*cIt);
 		assert( tmp );
-		QDomElement collection = doc->createElement( tmp->collectionInfo()->childrenClassInfo()->name() );
+		QDomElement collection = doc->createElement( tmp->collectionInfo()->name() );
 		collections.appendChild( collection );
 
 		CollectionIterator cIt2( tmp->begin() );
