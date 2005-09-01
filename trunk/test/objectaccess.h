@@ -30,7 +30,7 @@
 /**
 @author Albert Cervera Areny
 */
-class ObjectAccess : public KDialog, virtual public DCOPIface
+class ObjectAccess : public QObject, virtual public DCOPIface
 {
 Q_OBJECT
 

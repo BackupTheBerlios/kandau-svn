@@ -46,7 +46,7 @@ int main( int argc, char** argv )
 	KCmdLineArgs::init( argc, argv, &aboutData );
 	KCmdLineArgs::addCmdLineOptions( options );
 	
-	KApplication app;
+	KApplication app( false, false );
 	
 	KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
 	Q_UNUSED( args );

@@ -27,7 +27,7 @@
 
 #include "objectaccess.h"
 
-ObjectAccess::ObjectAccess( KApplication *app ) : KDialog(), DCOPObject( "ObjectAccess" )
+ObjectAccess::ObjectAccess( KApplication *app ) : QObject(), DCOPObject( "ObjectAccess" )
 {
 	if ( !app->dcopClient()->isRegistered() ) {
 		app->dcopClient()->registerAs( "ObjectAccess" );
