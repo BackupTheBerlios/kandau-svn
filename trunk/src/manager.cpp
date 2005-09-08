@@ -805,7 +805,8 @@ void Manager::copy( Manager* manager )
 	Object *srcObj, *dstObj;
 	for ( ; it != end; ++it ) {
 		srcObj = (*it);
-		dstObj = srcObj->classInfo()->create( srcObj->oid(), manager );
+		dstObj = srcObj->classInfo()->create( manager );
+		dstObj->setOid( srcObj->oid() );
 		*dstObj = *srcObj;
 		dstObj->setModified( true );
 	}

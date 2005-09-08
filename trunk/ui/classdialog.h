@@ -17,82 +17,40 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#include <assert.h>
+#ifndef CLASSDIALOG_H
+#define CLASSDIALOG_H
 
-#include <qstring.h>
+#include <kdialogbase.h>
+#include <object.h>
 
-#include <klocale.h>
 
-#include <labelsmetainfo.h>
-#include <defaultpropertymetainfo.h>
+/**
+	@author Albert Cervera Areny <albertca@hotpop.com>
+*/
+class ClassDialog : public KDialogBase
+{
+	Q_OBJECT
+public:
+	ClassDialog( Object* object, QWidget *parent = 0 );
+	Object* object() const;
 
-#include "article.h"
-#include "customerorder.h"
+signals:
+	void objectSelected( Object* object );
 
-ICLASS( Article );
+protected:
+	static QWidget* createInput( QWidget* parent, const Property& property );
+	static QVariant readInput( QWidget* widget );
 
-static const LabelDescription articleLabels[] = { 
-	{ "Article", I18N_NOOP("Product")},
-	{ "code", I18N_NOOP("Code")},
-	{ "label", I18N_NOOP("Label") },
-	{ "description", I18N_NOOP("Description") },
-	LabelDescriptionLast
+private slots:
+	void slotObjectSelected( const QString& oid );
+	void slotOkClicked();
+	void slotChangeClicked();
+
+private:
+	QMap<QString,QWidget*> m_mapProperties;
+	QMap<QString,QWidget*> m_mapObjects;
+	QMap<const QWidget*,RelatedObject*> m_mapChangeButtons;
+	ObjectRef<Object> m_object;
 };
 
-void Article::createRelations()
-{
-	OBJECT( Article );
-	COLLECTION( CustomerOrder );
-	ADDMETAINFO( "labels", new LabelsMetaInfo( articleLabels ) );
-	ADDMETAINFO( "defaultProperty", new DefaultPropertyMetaInfo( "label" ) );
-}
-
-const QString& Article::code() const
-{
-	return m_code;
-}
-
-void Article::setCode( const QString& code )
-{
-	MODIFIED;
-	m_code = code;
-}
-
-const QString& Article::label() const
-{
-	return m_label;
-}
-
-void Article::setLabel( const QString& label )
-{
-	MODIFIED;
-	m_label = label;
-}
-
-const QString& Article::description() const
-{
-	return m_description;
-}
-
-void Article::setDescription( const QString& description )
-{
-	MODIFIED;
-	m_description = description;
-}
-
-Article* Article::article()
-{
-	return GETOBJECT( Article );
-}
-
-void Article::setArticle( Article* article )
-{
-	SETOBJECT( Article, article );
-}
-
-Collection* Article::orders()
-{
-	return GETCOLLECTION( CustomerOrder );
-}
-
-#include "article.moc"
+#endif

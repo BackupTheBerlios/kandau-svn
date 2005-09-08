@@ -20,6 +20,7 @@
 #include <klocale.h>
 
 #include <labelsmetainfo.h>
+#include <defaultpropertymetainfo.h>
 
 #include "customerorder.h"
 #include "customer.h"
@@ -28,8 +29,13 @@
 ICLASS( CustomerOrder );
 
 static const LabelDescription customerOrderLabels[] = {
+	{ "CustomerOrder", I18N_NOOP( "Customer Order" ) },
 	{ "number", I18N_NOOP( "Number" ) },
-	{ "date", I18N_NOOP( "Date" ) }
+	{ "date", I18N_NOOP( "Date" ) },
+	{ "Customer_CustomerOrder", I18N_NOOP( "Customer" ) },
+	{ "CustomerOrder_CustomerOrder", I18N_NOOP( "Customer Order" ) },
+	{ "one_to_one", I18N_NOOP( "One To One" ) },
+	{ "Article_CustomerOrder", I18N_NOOP( "Article" ) }
 };
 
 CustomerOrder::CustomerOrder()
@@ -39,10 +45,12 @@ CustomerOrder::CustomerOrder()
 
 void CustomerOrder::createRelations()
 {
+	OBJECTR( Customer, "one_to_one" );
 	OBJECT( Customer );
 	OBJECT( CustomerOrder ); // For test purposes only, see if the other order is updated
 	COLLECTION( Article );
 	ADDMETAINFO( "labels", new LabelsMetaInfo( customerOrderLabels ) );
+	ADDMETAINFO( "defaultProperty", new DefaultPropertyMetaInfo( "number" ) );
 }
 
 Q_ULLONG CustomerOrder::number() const

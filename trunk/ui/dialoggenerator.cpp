@@ -17,82 +17,58 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#include <assert.h>
+#include "dialoggenerator.h"
+#include "classdialog.h"
 
-#include <qstring.h>
-
-#include <klocale.h>
-
-#include <labelsmetainfo.h>
-#include <defaultpropertymetainfo.h>
-
-#include "article.h"
-#include "customerorder.h"
-
-ICLASS( Article );
-
-static const LabelDescription articleLabels[] = { 
-	{ "Article", I18N_NOOP("Product")},
-	{ "code", I18N_NOOP("Code")},
-	{ "label", I18N_NOOP("Label") },
-	{ "description", I18N_NOOP("Description") },
-	LabelDescriptionLast
-};
-
-void Article::createRelations()
+KDialog* DialogGenerator::generateDialog( QWidget* parent, Object* object )
 {
-	OBJECT( Article );
-	COLLECTION( CustomerOrder );
-	ADDMETAINFO( "labels", new LabelsMetaInfo( articleLabels ) );
-	ADDMETAINFO( "defaultProperty", new DefaultPropertyMetaInfo( "label" ) );
+	//KDialogBase *dialog = new KDialogBase( parent );
+	ClassDialog *dialog = new ClassDialog( object, parent );
+	return dialog;
 }
 
-const QString& Article::code() const
+/*
+QWidget* DialogGenerator::createInput( QWidget* parent, const Property& property )
 {
-	return m_code;
+	QWidget *widget;
+	switch ( property.type() ) {
+		case QVariant::String: {
+			KLineEdit *line = new KLineEdit( parent );
+			line->setText( property.value().toString() );
+			widget = line;
+			break;	
+		}
+		case QVariant::LongLong:
+		case QVariant::ULongLong:
+		case QVariant::Int:
+		case QVariant::UInt: {
+			KIntNumInput *input = new KIntNumInput( parent );
+			input->setValue( property.value().toLongLong() );
+			widget = input;
+			break;
+		}
+		case QVariant::Date: {
+			KDateWidget *date = new KDateWidget( parent );
+			date->setDate( property.value().toDate() );
+			widget = date;
+			break;
+		}
+		case QVariant::Time: {
+			KTimeWidget *time = new KTimeWidget( parent );
+			time->setTime( property.value().toTime() );
+			widget = time;
+			break;
+		}
+		case QVariant::DateTime: {
+			break;
+		}
+		case QVariant::Double: {
+			break;
+		}
+		default: {
+			break;
+		}
+	}
+	return widget;
 }
-
-void Article::setCode( const QString& code )
-{
-	MODIFIED;
-	m_code = code;
-}
-
-const QString& Article::label() const
-{
-	return m_label;
-}
-
-void Article::setLabel( const QString& label )
-{
-	MODIFIED;
-	m_label = label;
-}
-
-const QString& Article::description() const
-{
-	return m_description;
-}
-
-void Article::setDescription( const QString& description )
-{
-	MODIFIED;
-	m_description = description;
-}
-
-Article* Article::article()
-{
-	return GETOBJECT( Article );
-}
-
-void Article::setArticle( Article* article )
-{
-	SETOBJECT( Article, article );
-}
-
-Collection* Article::orders()
-{
-	return GETCOLLECTION( CustomerOrder );
-}
-
-#include "article.moc"
+*/

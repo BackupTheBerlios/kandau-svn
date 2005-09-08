@@ -20,13 +20,16 @@
 #include <klocale.h>
 
 #include <labelsmetainfo.h>
+#include <defaultpropertymetainfo.h>
 
 #include "customer.h"
 #include "article.h"
+#include "customerorder.h"
 
 ICLASS( Customer );
 
 static const LabelDescription customerLabels[] = {
+	{ "Customer", I18N_NOOP( "Customer" ) },
 	{ "code", I18N_NOOP( "Code" ) },
 	{ "customerName", I18N_NOOP( "Name" ) },
 	{ "address", I18N_NOOP( "Address" ) },
@@ -37,12 +40,14 @@ static const LabelDescription customerLabels[] = {
 
 void Customer::createRelations()
 {
+	OBJECTR( CustomerOrder, "one_to_one" );
 	OBJECTR( Article, "default_article" );
 	OBJECTR( Article, "second_default_article" );
 	COLLECTIONR( Article, "discounted_articles" );
 	COLLECTIONR( Article, "adapted_articles" );
 	COLLECTION( CustomerOrder );
 	ADDMETAINFO( "labels", new LabelsMetaInfo( customerLabels ) );
+	ADDMETAINFO( "defaultProperty", new DefaultPropertyMetaInfo( "customerName" ) );
 }
 
 const QString& Customer::code() const

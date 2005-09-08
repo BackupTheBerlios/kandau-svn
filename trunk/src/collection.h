@@ -91,6 +91,7 @@ public:
 	Object* object( OidType oid );
 	Object* parent() const;
 	OidType parentOid() const;
+	const ClassInfo *childrenClassInfo() const;
 
 	bool simpleAdd( const OidType& oid );
 	void simpleRemove( const OidType& oid );

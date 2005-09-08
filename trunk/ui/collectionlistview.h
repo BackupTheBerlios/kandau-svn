@@ -17,82 +17,27 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#include <assert.h>
+#ifndef COLLECTIONLISTVIEW_H
+#define COLLECTIONLISTVIEW_H
 
-#include <qstring.h>
+#include <klistview.h>
 
-#include <klocale.h>
+class ClassInfo;
 
-#include <labelsmetainfo.h>
-#include <defaultpropertymetainfo.h>
+/**
+	@author Albert Cervera Areny <albertca@hotpop.com>
+*/
+class CollectionListView : public KListView
+{
+Q_OBJECT
+public:
+	CollectionListView( const ClassInfo *classInfo = 0, QWidget *parent = 0 );
+	void setClassInfo( const ClassInfo *classInfo );
+	const ClassInfo* classInfo() const;
+	void fill();
 
-#include "article.h"
-#include "customerorder.h"
-
-ICLASS( Article );
-
-static const LabelDescription articleLabels[] = { 
-	{ "Article", I18N_NOOP("Product")},
-	{ "code", I18N_NOOP("Code")},
-	{ "label", I18N_NOOP("Label") },
-	{ "description", I18N_NOOP("Description") },
-	LabelDescriptionLast
+private:
+	const ClassInfo *m_classInfo;
 };
 
-void Article::createRelations()
-{
-	OBJECT( Article );
-	COLLECTION( CustomerOrder );
-	ADDMETAINFO( "labels", new LabelsMetaInfo( articleLabels ) );
-	ADDMETAINFO( "defaultProperty", new DefaultPropertyMetaInfo( "label" ) );
-}
-
-const QString& Article::code() const
-{
-	return m_code;
-}
-
-void Article::setCode( const QString& code )
-{
-	MODIFIED;
-	m_code = code;
-}
-
-const QString& Article::label() const
-{
-	return m_label;
-}
-
-void Article::setLabel( const QString& label )
-{
-	MODIFIED;
-	m_label = label;
-}
-
-const QString& Article::description() const
-{
-	return m_description;
-}
-
-void Article::setDescription( const QString& description )
-{
-	MODIFIED;
-	m_description = description;
-}
-
-Article* Article::article()
-{
-	return GETOBJECT( Article );
-}
-
-void Article::setArticle( Article* article )
-{
-	SETOBJECT( Article, article );
-}
-
-Collection* Article::orders()
-{
-	return GETCOLLECTION( CustomerOrder );
-}
-
-#include "article.moc"
+#endif

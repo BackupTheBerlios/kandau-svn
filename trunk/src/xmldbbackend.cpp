@@ -99,7 +99,9 @@ OidType XmlDbBackend::elementToObject( const QDomElement& e )
 
 	OidType oid = stringToOid( el.text() );
 	// TODO: Ensure dboid is numeric?
-	ObjectRef<Object> object = Classes::classInfo( name )->create( oid );
+	ObjectRef<Object> object = Classes::classInfo( name )->create();
+	object->setOid( oid );
+	
 
 	QDomNode nx;
 	QDomElement ex;

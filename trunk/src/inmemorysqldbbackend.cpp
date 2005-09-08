@@ -68,7 +68,7 @@ void InMemorySqlDbBackend::init()
 		while ( cursor.next() ) {
 			oid = variantToOid( cursor.value( "dboid" ) );
 
-			Object* object = Classes::classInfo( info->name() )->create( oid );
+			Object* object = Classes::classInfo( info->name() )->create( m_manager );
 			assert( object );
 			loadObject( cursor, object );
 			if ( oid > maxOid )

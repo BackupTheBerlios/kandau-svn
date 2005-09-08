@@ -17,82 +17,50 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#include <assert.h>
+#include <classes.h>
+#include <collection.h>
 
-#include <qstring.h>
+#include "collectionlistview.h"
 
-#include <klocale.h>
-
-#include <labelsmetainfo.h>
-#include <defaultpropertymetainfo.h>
-
-#include "article.h"
-#include "customerorder.h"
-
-ICLASS( Article );
-
-static const LabelDescription articleLabels[] = { 
-	{ "Article", I18N_NOOP("Product")},
-	{ "code", I18N_NOOP("Code")},
-	{ "label", I18N_NOOP("Label") },
-	{ "description", I18N_NOOP("Description") },
-	LabelDescriptionLast
-};
-
-void Article::createRelations()
+CollectionListView::CollectionListView( const ClassInfo *classInfo, QWidget *parent ) : 
+	KListView(parent),
+	m_classInfo(classInfo)
 {
-	OBJECT( Article );
-	COLLECTION( CustomerOrder );
-	ADDMETAINFO( "labels", new LabelsMetaInfo( articleLabels ) );
-	ADDMETAINFO( "defaultProperty", new DefaultPropertyMetaInfo( "label" ) );
+	setAllColumnsShowFocus( true );
+	setAlternateBackground( QColor(40, 40, 40) );
 }
 
-const QString& Article::code() const
+void CollectionListView::fill()
 {
-	return m_code;
+	clear();
+	if ( ! m_classInfo )
+		return;
+	PropertiesInfoConstIterator it( m_classInfo->propertiesBegin() );
+	PropertiesInfoConstIterator end( m_classInfo->propertiesEnd() );
+	addColumn( "oid" );
+	for ( ; it != end; ++it ) {
+		addColumn( it.data()->name() );
+	}
+	Collection col( m_classInfo->name() );
+	CollectionIterator it2( col.begin() );
+	CollectionIterator end2( col.end() );
+	for (; it2 != end2; ++it2 ) {
+		QListViewItem *item = new QListViewItem( this );
+		item->setText( 0, oidToString( it2.data()->oid() ) );
+		for ( int i = 0; i < columns(); ++i ) {
+			item->setText( i + 1, it2.data()->property( columnText( i + 1 ) ).value().toString() );
+		}
+	}
 }
 
-void Article::setCode( const QString& code )
+void CollectionListView::setClassInfo( const ClassInfo *classInfo )
 {
-	MODIFIED;
-	m_code = code;
+	m_classInfo = classInfo;
 }
 
-const QString& Article::label() const
+const ClassInfo* CollectionListView::classInfo() const
 {
-	return m_label;
+	return m_classInfo;
 }
-
-void Article::setLabel( const QString& label )
-{
-	MODIFIED;
-	m_label = label;
-}
-
-const QString& Article::description() const
-{
-	return m_description;
-}
-
-void Article::setDescription( const QString& description )
-{
-	MODIFIED;
-	m_description = description;
-}
-
-Article* Article::article()
-{
-	return GETOBJECT( Article );
-}
-
-void Article::setArticle( Article* article )
-{
-	SETOBJECT( Article, article );
-}
-
-Collection* Article::orders()
-{
-	return GETCOLLECTION( CustomerOrder );
-}
-
-#include "article.moc"
+	
+#include "collectionlistview.moc"

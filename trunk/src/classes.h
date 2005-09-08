@@ -221,13 +221,14 @@ public:
 	*/
 	ClassInfo( const QString& name, CreateObjectFunction function );
 
+	Object* create( Manager* manager = 0 ) const;
 	/*!
 	Creates an instance of the class type given by name().
 	@param oid Optional oid for the newly created object (zero if not specified)
 	@param manager Optional manager that will hold the object (Manager::self() will be used if not specified)
 	@return The pointer to the newly created object
 	*/
-	Object* create( const OidType& oid = 0, Manager* manager = 0 ) const;
+	Object* create( const OidType& oid, Manager* manager = 0 ) const;
 
 	/*!
 	Creates an instance of the class type given by name() without assigning an oid nor adding the object to the manager. Equivalent to 'createObjectFunction()()'

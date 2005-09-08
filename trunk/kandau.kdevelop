@@ -15,7 +15,7 @@
     <description>Nom del projecte: Kandau</description>
     <ignoreparts/>
     <secondaryLanguages/>
-    <versioncontrol>kdevsubversion</versioncontrol>
+<!--    <versioncontrol>kdevsubversion</versioncontrol>-->    <versioncontrol>kdevsubversion</versioncontrol>
   </general>
   <kdevfileview>
     <groups>
@@ -165,9 +165,7 @@
       <argumentsHintDelay>500</argumentsHintDelay>
       <headerCompletionDelay>250</headerCompletionDelay>
     </codecompletion>
-    <references>
-      <pcs>Qt</pcs>
-    </references>
+    <references/>
     <creategettersetter>
       <prefixGet/>
       <prefixSet>set</prefixSet>
@@ -177,9 +175,9 @@
       <inlineSet>true</inlineSet>
     </creategettersetter>
     <qt>
-      <used>false</used>
+      <used>true</used>
       <version>3</version>
-      <root/>
+      <root>/opt/kde3/</root>
     </qt>
   </kdevcppsupport>
   <kdevdocumentation>

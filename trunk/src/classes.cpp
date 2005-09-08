@@ -183,8 +183,23 @@ ClassInfo::ClassInfo( const QString& name, CreateObjectFunction function )
 	}
 }
 
+Object* ClassInfo::create( Manager* manager ) const
+{
+	Object *object = m_function();
+	assert( object );
+	// This has been introduced for DynamicObject to let them know which 
+	// ClassInfo they should use.
+	object->setClassInfo( this );
+	// ^^^
+	object->setModified( true );
+	object->setManager( manager );
+	object->manager()->add( object );
+	return object;
+}
+
 Object* ClassInfo::create( const OidType& oid, Manager* manager ) const
 {
+/*
 	Object *object = m_function();
 	assert( object );
 	// This has been introduced for DynamicObject to let them know which 
@@ -195,7 +210,14 @@ Object* ClassInfo::create( const OidType& oid, Manager* manager ) const
 	object->setModified( true );
 	object->setManager( manager );
 	object->manager()->add( object );
-	return object;
+*/	
+	if ( manager )
+		return manager->load( oid, m_function );
+	else
+		return Manager::self()->load( oid, m_function );
+
+	//return manager->load( oid, &m_function );
+	//return object;
 }
 
 Object* ClassInfo::createInstance() const

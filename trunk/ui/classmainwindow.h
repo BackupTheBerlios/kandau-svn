@@ -17,82 +17,49 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#include <assert.h>
+#ifndef CLASSMAINWINDOW_H
+#define CLASSMAINWINDOW_H
 
-#include <qstring.h>
+#include <kmainwindow.h>
 
-#include <klocale.h>
+class ClassDialog;
+class QToolBox;
+class CollectionListView;
+class KListViewSearchLine;
+class ClassInfo;
+class QListViewItem;
 
-#include <labelsmetainfo.h>
-#include <defaultpropertymetainfo.h>
+/**
+	@author Albert Cervera Areny <albertca@hotpop.com>
+*/
+class ClassMainWindow : public KMainWindow
+{
+	Q_OBJECT
+public:
+	ClassMainWindow(QWidget *parent = 0, const char *name = 0);
 
-#include "article.h"
-#include "customerorder.h"
+protected:
+	void initGUI();
+	void fillListView();
 
-ICLASS( Article );
+protected slots:
+	void slotObjectSelected( Object *object );
+	void slotDialogFinished();
+	void slotDoubleClicked ( QListViewItem *item, const QPoint &, int );
+	void slotCurrentClassChanged( int i );
 
-static const LabelDescription articleLabels[] = { 
-	{ "Article", I18N_NOOP("Product")},
-	{ "code", I18N_NOOP("Code")},
-	{ "label", I18N_NOOP("Label") },
-	{ "description", I18N_NOOP("Description") },
-	LabelDescriptionLast
+private slots:
+	void slotSetup();
+
+private:
+	QMap<int,ClassInfo*> m_mapClasses;
+	QMap<OidType,ClassDialog*> m_mapDialogs;
+	QWidget *m_centralWidget;
+	QToolBox *m_classSelector;
+	CollectionListView *m_listView;
+	KListViewSearchLine *m_listViewSearchLine;
+
+	ClassInfo *m_currentClass;
 };
 
-void Article::createRelations()
-{
-	OBJECT( Article );
-	COLLECTION( CustomerOrder );
-	ADDMETAINFO( "labels", new LabelsMetaInfo( articleLabels ) );
-	ADDMETAINFO( "defaultProperty", new DefaultPropertyMetaInfo( "label" ) );
-}
-
-const QString& Article::code() const
-{
-	return m_code;
-}
-
-void Article::setCode( const QString& code )
-{
-	MODIFIED;
-	m_code = code;
-}
-
-const QString& Article::label() const
-{
-	return m_label;
-}
-
-void Article::setLabel( const QString& label )
-{
-	MODIFIED;
-	m_label = label;
-}
-
-const QString& Article::description() const
-{
-	return m_description;
-}
-
-void Article::setDescription( const QString& description )
-{
-	MODIFIED;
-	m_description = description;
-}
-
-Article* Article::article()
-{
-	return GETOBJECT( Article );
-}
-
-void Article::setArticle( Article* article )
-{
-	SETOBJECT( Article, article );
-}
-
-Collection* Article::orders()
-{
-	return GETCOLLECTION( CustomerOrder );
-}
-
-#include "article.moc"
+#endif

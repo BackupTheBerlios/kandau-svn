@@ -17,82 +17,59 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#include <assert.h>
+#include <qwidget.h>
+#include <qlayout.h>
 
-#include <qstring.h>
+#include <klistviewsearchline.h>
 
-#include <klocale.h>
+#include <collection.h>
 
-#include <labelsmetainfo.h>
-#include <defaultpropertymetainfo.h>
+#include "collectionlistview.h"
+#include "chooseobjectdialog.h"
 
-#include "article.h"
-#include "customerorder.h"
-
-ICLASS( Article );
-
-static const LabelDescription articleLabels[] = { 
-	{ "Article", I18N_NOOP("Product")},
-	{ "code", I18N_NOOP("Code")},
-	{ "label", I18N_NOOP("Label") },
-	{ "description", I18N_NOOP("Description") },
-	LabelDescriptionLast
-};
-
-void Article::createRelations()
+ChooseObjectDialog::ChooseObjectDialog( Collection *collection, QWidget *parent ) :
+	KDialogBase(parent)
 {
-	OBJECT( Article );
-	COLLECTION( CustomerOrder );
-	ADDMETAINFO( "labels", new LabelsMetaInfo( articleLabels ) );
-	ADDMETAINFO( "defaultProperty", new DefaultPropertyMetaInfo( "label" ) );
+	m_collection = collection;
+	QWidget *dummy = new QWidget( this );
+	setMainWidget( dummy );
+	QVBoxLayout *vlayout = new QVBoxLayout( dummy );
+	
+	KListViewSearchLine *m_searchLine = new KListViewSearchLine( dummy );
+	if ( collection )
+		m_listView = new CollectionListView( collection->childrenClassInfo(), dummy );
+	else
+		m_listView = new CollectionListView( 0, dummy );
+	m_searchLine->setListView( m_listView );
+	vlayout->addWidget( m_searchLine );
+	vlayout->addWidget( m_listView );
+	m_listView->fill();
 }
 
-const QString& Article::code() const
+Object* ChooseObjectDialog::selectedObject() const
 {
-	return m_code;
+	QListViewItem *selected = m_listView->selectedItem();
+	if ( ! selected )
+		return 0;
+		
+	OidType oid = stringToOid( selected->text( 0 ) );
+	return Classes::classInfo( m_collection->childrenClassInfo()->name() )->create( oid );
 }
 
-void Article::setCode( const QString& code )
+void ChooseObjectDialog::setCollection( Collection *collection )
 {
-	MODIFIED;
-	m_code = code;
+	m_collection = collection;
+	if ( collection )
+		m_listView->setClassInfo( collection->collectionInfo()->childrenClassInfo() );
+	else
+		m_listView->setClassInfo(0);
+	m_listView->fill();
 }
 
-const QString& Article::label() const
+Collection* ChooseObjectDialog::collection() const
 {
-	return m_label;
+	return m_collection;
 }
 
-void Article::setLabel( const QString& label )
-{
-	MODIFIED;
-	m_label = label;
-}
 
-const QString& Article::description() const
-{
-	return m_description;
-}
-
-void Article::setDescription( const QString& description )
-{
-	MODIFIED;
-	m_description = description;
-}
-
-Article* Article::article()
-{
-	return GETOBJECT( Article );
-}
-
-void Article::setArticle( Article* article )
-{
-	SETOBJECT( Article, article );
-}
-
-Collection* Article::orders()
-{
-	return GETCOLLECTION( CustomerOrder );
-}
-
-#include "article.moc"
+#include "chooseobjectdialog.moc"

@@ -538,8 +538,11 @@ bool Object::containsObject( const QString& name ) const
 
 void Object::setObject( const QString& name, Object* object )
 {
-	assert( object );
-	setObject( name, object->oid() );
+//	assert( object );
+	if ( object )
+		setObject( name, object->oid() );
+	else
+		setObject( name, static_cast<OidType>( 0 ) );
 }
 
 void Object::setObject( const QString& name, const OidType& oid )

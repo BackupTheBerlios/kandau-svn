@@ -139,6 +139,7 @@ Collection::Collection( const QString& query, Manager* manager )
 		}
 		m_classInfo = Classes::classInfo( c );
 	}
+	m_collectionInfo = 0;
 }
 
 Collection::Collection( RelatedCollection *rel, const OidType& parent, Manager* manager )
@@ -320,7 +321,7 @@ Returns a pointer to the object the collection is in.
 */
 Object* Collection::parent() const
 {
-	return m_manager->load( m_parent, m_classInfo );
+	return m_manager->load( m_parent, m_collectionInfo->parentClassInfo() );
 }
 
 /*!
@@ -339,4 +340,9 @@ RelatedCollection* Collection::collectionInfo() const
 {
 	assert( m_collectionInfo );
 	return m_collectionInfo;
+}
+
+const ClassInfo* Collection::childrenClassInfo() const
+{
+	return m_classInfo;
 }

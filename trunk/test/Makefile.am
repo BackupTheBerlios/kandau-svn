@@ -18,9 +18,12 @@ noinst_HEADERS = article.h customer.h testbackendtest.h sqlbackendtest.h \
 	multiplebackendstest.h dynamicobjectstest.h metainfotest.h
 AM_CFLAGS = -I../src
 AM_CXXFLAGS = -I../src
-bin_PROGRAMS = dcoptester
+bin_PROGRAMS = dcoptester uitester
 dcoptester_LDFLAGS = $(all_libraries) $(KDE_RPATH) -lkandau \
 	-L/usr/local/kde/lib
 dcoptester_LDADD = $(LIB_KDECORE) $(LIB_KDEUI)
 dcoptester_SOURCES = dcoptester.cpp objectaccess.cpp dcopiface.skel article.cpp \
 	customer.cpp customerorder.cpp
+uitester_LDFLAGS = $(all_libraries) $(KDE_RPATH) -lkandau -lkandauui -L/usr/local/kde/lib
+uitester_LDADD = $(LIB_KDECORE) $(LIB_KDEUI)
+uitester_SOURCES = article.cpp customer.cpp customerorder.cpp uitester.cpp

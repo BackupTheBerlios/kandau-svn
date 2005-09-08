@@ -17,82 +17,64 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#include <assert.h>
+#include <qsqldatabase.h>
 
-#include <qstring.h>
+#include <kapplication.h>
+#include <kcmdlineargs.h>
+#include <kaboutdata.h>
+#include <kdialog.h>
 
-#include <klocale.h>
+#include <classes.h>
+#include <sqldbbackend.h>
+#include <manager.h>
 
-#include <labelsmetainfo.h>
-#include <defaultpropertymetainfo.h>
+#include <dialoggenerator.h>
+#include <classmainwindow.h>
 
 #include "article.h"
+#include "customer.h"
 #include "customerorder.h"
 
-ICLASS( Article );
-
-static const LabelDescription articleLabels[] = { 
-	{ "Article", I18N_NOOP("Product")},
-	{ "code", I18N_NOOP("Code")},
-	{ "label", I18N_NOOP("Label") },
-	{ "description", I18N_NOOP("Description") },
-	LabelDescriptionLast
+static const KCmdLineOptions options[] =
+{
+  {"verbose", "Verbose output", 0},
+  KCmdLineLastOption
 };
 
-void Article::createRelations()
-{
-	OBJECT( Article );
-	COLLECTION( CustomerOrder );
-	ADDMETAINFO( "labels", new LabelsMetaInfo( articleLabels ) );
-	ADDMETAINFO( "defaultProperty", new DefaultPropertyMetaInfo( "label" ) );
-}
 
-const QString& Article::code() const
+int main( int argc, char** argv )
 {
-	return m_code;
-}
+	QString dbname = "test";
+	Classes::setup();
+	
+	KAboutData aboutData( "tests","Test","0.1" );
+	KCmdLineArgs::init( argc, argv, &aboutData );
+	KCmdLineArgs::addCmdLineOptions( options );
+	
+	KApplication app;
 
-void Article::setCode( const QString& code )
-{
-	MODIFIED;
-	m_code = code;
+	QSqlDatabase *db = QSqlDatabase::addDatabase( "QPSQL7" );
+	db->setDatabaseName( dbname );
+	db->setUserName( "albert" );
+	db->setPassword( "" );
+	db->setHostName( "localhost" );
+	if ( ! db->open() ) {
+		kdDebug() << "Failed to open database: " << db->lastError().text() << endl;
+		return 0;
+	}
+	DbBackendIface *backend = new SqlDbBackend( db );
+	Manager *manager = new Manager( backend );
+	
+	Collection col( "CustomerOrder" );
+	CollectionIterator it( col.begin() );
+	CollectionIterator end( col.end() );
+	if ( it != end ) {
+//		KDialog *dialog = DialogGenerator::generateDialog( 0, *it );
+		ClassMainWindow *window = new ClassMainWindow();
+		window->show();
+		app.setMainWidget( window );
+		//dialog->show();
+		//app.setMainWidget( dialog );
+	}
+	return app.exec();
 }
-
-const QString& Article::label() const
-{
-	return m_label;
-}
-
-void Article::setLabel( const QString& label )
-{
-	MODIFIED;
-	m_label = label;
-}
-
-const QString& Article::description() const
-{
-	return m_description;
-}
-
-void Article::setDescription( const QString& description )
-{
-	MODIFIED;
-	m_description = description;
-}
-
-Article* Article::article()
-{
-	return GETOBJECT( Article );
-}
-
-void Article::setArticle( Article* article )
-{
-	SETOBJECT( Article, article );
-}
-
-Collection* Article::orders()
-{
-	return GETCOLLECTION( CustomerOrder );
-}
-
-#include "article.moc"
