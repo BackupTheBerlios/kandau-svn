@@ -237,7 +237,7 @@ void ClassDialog::slotChangeClicked()
 	if ( w ) {
 		RelatedObject *rel = m_mapChangeButtons[ w ];
 		Collection col( rel->relatedClassInfo()->name() );
-		ChooseObjectDialog *c = new ChooseObjectDialog( &col, this );
+		ChooseObjectDialog *c = new ChooseObjectDialog( &col, 0, this );
 		if ( c->exec() == QDialog::Accepted ) {
 			m_object->setObject( rel->relatedClassInfo()->name(), c->selectedObject() );
 		}

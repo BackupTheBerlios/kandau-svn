@@ -50,7 +50,7 @@ void CustomerOrder::createRelations()
 	OBJECT( CustomerOrder ); // For test purposes only, see if the other order is updated
 	COLLECTION( Article );
 	ADDMETAINFO( "labels", new LabelsMetaInfo( customerOrderLabels ) );
-	ADDMETAINFO( "defaultProperty", new DefaultPropertyMetaInfo( "number" ) );
+	ADDMETAINFO( "defaultProperty", new DefaultPropertyMetaInfo( "{number} - {date}" ) );
 }
 
 Q_ULLONG CustomerOrder::number() const

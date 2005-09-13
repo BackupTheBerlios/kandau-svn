@@ -27,9 +27,10 @@
 #include "collectionlistview.h"
 #include "chooseobjectdialog.h"
 
-ChooseObjectDialog::ChooseObjectDialog( Collection *collection, QWidget *parent ) :
+ChooseObjectDialog::ChooseObjectDialog( Collection *collection, Object *currentObject, QWidget *parent ) :
 	KDialogBase(parent)
 {
+	m_currentObject = currentObject;
 	m_collection = collection;
 	QWidget *dummy = new QWidget( this );
 	setMainWidget( dummy );
@@ -44,6 +45,11 @@ ChooseObjectDialog::ChooseObjectDialog( Collection *collection, QWidget *parent 
 	vlayout->addWidget( m_searchLine );
 	vlayout->addWidget( m_listView );
 	m_listView->fill();
+	if ( currentObject ) {
+		QListViewItem *item = m_listView->findItem( oidToString( currentObject->oid() ), 0 );
+		if ( item )
+			m_listView->setSelected( item, true );
+	}
 }
 
 Object* ChooseObjectDialog::selectedObject() const

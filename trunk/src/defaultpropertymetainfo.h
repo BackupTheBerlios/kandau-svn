@@ -17,33 +17,24 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#ifndef CHOOSEOBJECTDIALOG_H
-#define CHOOSEOBJECTDIALOG_H
+#ifndef DEFAULTPROPERTYMETAINFO_H
+#define DEFAULTPROPERTYMETAINFO_H
 
-#include <kdialogbase.h>
+#include <qobject.h>
 
-class Collection;
 class Object;
-class KListViewSearchLine;
-class CollectionListView;
 
 /**
 	@author Albert Cervera Areny <albertca@hotpop.com>
 */
-class ChooseObjectDialog : public KDialogBase
+class DefaultPropertyMetaInfo : public QObject
 {
 Q_OBJECT
 public:
-	ChooseObjectDialog( Collection *collection, Object *currentObject, QWidget *parent = 0 );
-	Object* selectedObject() const;
-	void setCollection( Collection *collection );
-	Collection *collection() const;
-
+	DefaultPropertyMetaInfo( const QString& defaultProperty );
+	QString defaultPropertyValue( const Object* object );
 private:
-	Object *m_currentObject;
-	Collection *m_collection;
-	KListViewSearchLine *m_searchLine;
-	CollectionListView *m_listView;
+	QString m_defaultProperty;
 };
 
 #endif

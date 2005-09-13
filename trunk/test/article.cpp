@@ -44,7 +44,7 @@ void Article::createRelations()
 	OBJECT( Article );
 	COLLECTION( CustomerOrder );
 	ADDMETAINFO( "labels", new LabelsMetaInfo( articleLabels ) );
-	ADDMETAINFO( "defaultProperty", new DefaultPropertyMetaInfo( "label" ) );
+	ADDMETAINFO( "defaultProperty", new DefaultPropertyMetaInfo( "{label} - {description}" ) );
 }
 
 const QString& Article::code() const

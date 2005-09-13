@@ -47,7 +47,7 @@ void Customer::createRelations()
 	COLLECTIONR( Article, "adapted_articles" );
 	COLLECTION( CustomerOrder );
 	ADDMETAINFO( "labels", new LabelsMetaInfo( customerLabels ) );
-	ADDMETAINFO( "defaultProperty", new DefaultPropertyMetaInfo( "customerName" ) );
+	ADDMETAINFO( "defaultProperty", new DefaultPropertyMetaInfo( "{customerName} ({code})" ) );
 }
 
 const QString& Customer::code() const
