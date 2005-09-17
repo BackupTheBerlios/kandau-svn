@@ -25,20 +25,27 @@
 #include <kdialog.h>
 #include <kdialogbase.h>
 #include <knuminput.h>
-#include <knuminput.h>
 #include <klineedit.h>
 #include <ktimewidget.h>
 #include <kdatewidget.h>
 #include <kdatetimewidget.h>
 #include <klocale.h>
 #include <kurllabel.h>
+//#include <kmessagebox.h>
 
 #include <object.h>
 #include <labelsmetainfo.h>
 #include <defaultpropertymetainfo.h>
+#include <notifier.h>
 
 #include "classdialog.h"
 #include "chooseobjectdialog.h"
+/**
+ * 
+ * @param object 
+ * @param parent 
+ * @return 
+ */
 ClassDialog::ClassDialog( Object *object, QWidget *parent) :
 	KDialogBase(parent)
 {
@@ -99,20 +106,9 @@ ClassDialog::ClassDialog( Object *object, QWidget *parent) :
 		QHBoxLayout *lay = new QHBoxLayout();
 		gridLayout->addLayout( lay, row, 1 );
 		KURLLabel *objLabel = new KURLLabel(widget);
-		
-		Object* obj = object->object( relObj->name() );
-		if ( obj != 0 ) {
-			DefaultPropertyMetaInfo *defaultProperty = dynamic_cast<DefaultPropertyMetaInfo*>( obj->classInfo()->metaInfo( "defaultProperty" ) );
-			if ( defaultProperty )
-				objLabel->setText( defaultProperty->defaultPropertyValue( obj ) );
-			else
-				objLabel->setText( oidToString( obj->oid() ) );
-			objLabel->setURL( oidToString( obj->oid() ) );
-		} else {
-			objLabel->setText( i18n( "(not assigned)" ) );
-			objLabel->setEnabled( false );
-		}
 		objLabel->setAlignment( Qt::AlignCenter );
+		Object* obj = object->object( relObj->name() );
+		updateObjectLabel( objLabel, obj );
 		connect( objLabel, SIGNAL(leftClickedURL(const QString&)), SLOT(slotObjectSelected(const QString&)) );
 		m_mapObjects.insert( relObj->name(), objLabel );
 		QPushButton *but = new QPushButton( widget );
@@ -121,6 +117,10 @@ ClassDialog::ClassDialog( Object *object, QWidget *parent) :
 		m_mapChangeButtons.insert( but, relObj );
 		lay->addWidget( objLabel );
 		lay->addWidget( but );
+
+		Notifier *notifier = dynamic_cast<Notifier*>( Manager::self()->notificationHandler() );
+		if ( notifier && obj )
+			notifier->registerSlot( this, SLOT( slotObjectModified(const ClassInfo*,const OidType&,const PropertyInfo*,const QVariant&) ), 0, obj->oid() );
 	}
 }
 
@@ -176,6 +176,22 @@ QWidget* ClassDialog::createInput( QWidget* parent, const Property& property )
 		}
 	}
 	return widget;
+}
+
+void ClassDialog::updateObjectLabel( KURLLabel *objLabel, const Object *obj )
+{
+	if ( obj != 0 ) {
+		DefaultPropertyMetaInfo *defaultProperty = dynamic_cast<DefaultPropertyMetaInfo*>( obj->classInfo()->metaInfo( "defaultProperty" ) );
+		if ( defaultProperty )
+			objLabel->setText( defaultProperty->defaultPropertyValue( obj ) );
+		else
+			objLabel->setText( oidToString( obj->oid() ) );
+		objLabel->setURL( oidToString( obj->oid() ) );
+	} else {
+		objLabel->setText( i18n( "(not assigned)" ) );
+		objLabel->setEnabled( false );
+	}
+
 }
 
 QVariant ClassDialog::readInput( QWidget* widget )
@@ -245,5 +261,16 @@ void ClassDialog::slotChangeClicked()
 	}
 }
 
+void ClassDialog::slotObjectModified( const ClassInfo* /*classInfo*/, const OidType& object, const PropertyInfo */*property*/, const QVariant& /*newValue*/ )
+{
+//	KMessageBox::information( this, "Class: " + classInfo->name() + ", Oid: " + oidToString( object ) + ", Property: " + property->name() + ", NewValue: " + newValue.toString(), "Object Modified" );
+	ObjectsIterator it( m_object->objectsBegin() );
+	ObjectsIterator end( m_object->objectsEnd() );
+	for ( ; it != end; ++it ) {
+		Object *obj = (*it);
+		if ( obj && obj->oid() == object )
+			updateObjectLabel( m_mapObjects[ it.relatedObject()->name() ], obj );
+	}
+}
 
 #include "classdialog.moc"

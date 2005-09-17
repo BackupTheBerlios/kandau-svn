@@ -54,7 +54,7 @@ const QString& Article::code() const
 
 void Article::setCode( const QString& code )
 {
-	MODIFIED;
+	MODIFIED( code );
 	m_code = code;
 }
 
@@ -65,7 +65,7 @@ const QString& Article::label() const
 
 void Article::setLabel( const QString& label )
 {
-	MODIFIED;
+	MODIFIED( label );
 	m_label = label;
 }
 
@@ -76,7 +76,7 @@ const QString& Article::description() const
 
 void Article::setDescription( const QString& description )
 {
-	MODIFIED;
+	MODIFIED( description );
 	m_description = description;
 }
 

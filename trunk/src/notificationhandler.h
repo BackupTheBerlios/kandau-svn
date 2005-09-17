@@ -17,63 +17,22 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#include <qsqldatabase.h>
+#ifndef NOTIFICATIONHANDLER_H
+#define NOTIFICATIONHANDLER_H
 
-#include <kapplication.h>
-#include <kcmdlineargs.h>
-#include <kaboutdata.h>
-#include <kdialog.h>
+#include "oidtype.h"
 
-#include <classes.h>
-#include <sqldbbackend.h>
-#include <manager.h>
-#include <notifier.h>
+class Object;
+class QString;
+class QVariant;
+class ClassInfo;
 
-#include <dialoggenerator.h>
-#include <classmainwindow.h>
-
-#include "article.h"
-#include "customer.h"
-#include "customerorder.h"
-
-static const KCmdLineOptions options[] =
-{
-  {"verbose", "Verbose output", 0},
-  KCmdLineLastOption
+/**
+	@author Albert Cervera Areny <albertca@hotpop.com>
+*/
+class NotificationHandler{
+public:
+	virtual bool propertyModified( const ClassInfo* classInfo, const OidType& object, const QString& property, const QVariant& newValue ) = 0;
 };
 
-
-int main( int argc, char** argv )
-{
-	QString dbname = "test";
-	Classes::setup();
-	
-	KAboutData aboutData( "tests","Test","0.1" );
-	KCmdLineArgs::init( argc, argv, &aboutData );
-	KCmdLineArgs::addCmdLineOptions( options );
-	
-	KApplication app;
-
-	QSqlDatabase *db = QSqlDatabase::addDatabase( "QPSQL7" );
-	db->setDatabaseName( dbname );
-	db->setUserName( "albert" );
-	db->setPassword( "" );
-	db->setHostName( "localhost" );
-	if ( ! db->open() ) {
-		kdDebug() << "Failed to open database: " << db->lastError().text() << endl;
-		return 0;
-	}
-	Notifier *notifier = new Notifier();
-	DbBackendIface *backend = new SqlDbBackend( db );
-	Manager *manager = new Manager( backend, notifier );
-	
-	Collection col( "CustomerOrder" );
-	CollectionIterator it( col.begin() );
-	CollectionIterator end( col.end() );
-	if ( it != end ) {
-		ClassMainWindow *window = new ClassMainWindow();
-		window->show();
-		app.setMainWidget( window );
-	}
-	return app.exec();
-}
+#endif

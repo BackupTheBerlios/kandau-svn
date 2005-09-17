@@ -21,6 +21,7 @@
 
 #include <qsqldatabase.h>
 #include <qvaluevector.h>
+#include <qregexp.h>
 
 #include <kdebug.h>
 
@@ -28,18 +29,19 @@
 #include "manager.h"
 #include "dbbackendiface.h"
 #include "testbackend.h"
+#include "notificationhandler.h"
 
 Manager* Manager::m_self = 0;
 
 
-Manager::Manager( DbBackendIface *backend )
+Manager::Manager( DbBackendIface *backend, NotificationHandler *handler )
 {
 	assert( backend );
 	//assert( m_self == 0 );
 	m_dbBackend = backend;
+	m_notificationHandler = handler;
 	m_self = this;
 	m_maxObjects = MaxObjects;
-
 	// Initialize the backend (maybe it needs to initialize some
 	// values of the manager such as maxObjects or fill the map of objects in a
 	// memory only backend).
@@ -837,3 +839,30 @@ QMap<OidType, QMap<QString, Collection*> >& Manager::collections()
 	return m_collections;
 }
 
+bool Manager::notifyPropertyModified( const Object* object, const QString& function, const QVariant& value )
+{
+	if ( ! m_notificationHandler )
+		return true;
+
+	QString property;
+	// Remove the 'set' prefix
+	property = function.right( function.length() - 3 );
+	// Substitute capital letters with underscore + lowercase
+	property.replace( QRegExp( "([A-Z])" ), "_\\1" );
+	property = property.lower();
+	if ( property.left( 1 ) == "_" )
+		property = property.right( property.length() -1 );
+	kdDebug() << k_funcinfo << property << endl;
+	
+	return m_notificationHandler->propertyModified( object->classInfo(), object->oid(), property, value );
+}
+
+void Manager::setNotificationHandler( NotificationHandler* handler )
+{
+	m_notificationHandler = handler;
+}
+
+NotificationHandler* Manager::notificationHandler() const
+{
+	return m_notificationHandler;
+}

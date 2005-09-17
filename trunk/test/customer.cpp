@@ -57,7 +57,7 @@ const QString& Customer::code() const
 
 void Customer::setCode( const QString& code )
 {
-	MODIFIED;
+	MODIFIED( code );
 	m_code = code;
 }
 
@@ -68,7 +68,7 @@ const QString& Customer::customerName() const
 
 void Customer::setCustomerName( const QString& name )
 {
-	MODIFIED;
+	MODIFIED( name );
 	m_customerName = name;
 }
 
@@ -79,7 +79,7 @@ const QString& Customer::address() const
 
 void Customer::setAddress( const QString& address )
 {
-	MODIFIED;
+	MODIFIED( address );
 	m_address = address;
 }
 
@@ -90,7 +90,7 @@ const QString& Customer::city() const
 
 void Customer::setCity( const QString& city )
 {
-	MODIFIED;
+	MODIFIED( city );
 	m_city = city;
 }
 
@@ -101,7 +101,7 @@ const QString& Customer::zipCode() const
 
 void Customer::setZipCode( const QString& zipCode )
 {
-	MODIFIED;
+	MODIFIED( zipCode );
 	m_zipCode = zipCode;
 }
 
@@ -112,7 +112,7 @@ const QString& Customer::country() const
 
 void Customer::setCountry( const QString& country )
 {
-	MODIFIED;
+	MODIFIED( country );
 	m_country = country;
 }
 

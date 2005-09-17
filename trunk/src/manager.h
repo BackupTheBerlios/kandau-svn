@@ -34,6 +34,7 @@ class Collection;
 class DbBackendIface;
 class RelatedCollection;
 class ClassInfo;
+class NotificationHandler;
 
 typedef QMap<OidType, Object*> ManagerObjectMap;
 typedef QMapIterator<OidType, Object*> ManagerObjectIterator;
@@ -52,7 +53,7 @@ typedef QMapConstIterator<OidType, QMap<QString, Collection*> > ManagerRelatedCo
 class Manager
 {
 public:
-	Manager( DbBackendIface *backend );
+	Manager( DbBackendIface *backend, NotificationHandler *handler = 0 );
 	~Manager();
 
 	static Manager* self();
@@ -112,6 +113,11 @@ public:
 
 	Collection* collection( const Object* object, const QString& relation );
 	Collection* collection( const OidType& oid, RelatedCollection* collection );
+
+	bool notifyPropertyModified( const Object* object, const QString& function, const QVariant& value );
+	void setNotificationHandler( NotificationHandler* handler );
+	NotificationHandler* notificationHandler() const;
+	
 
 	/*!
 	Commits the current transaction
@@ -219,6 +225,11 @@ private:
 	Mantains the collections of objects
 	*/
 	ManagerRelatedCollectionMap m_collections;
+	
+	/*!
+	The object that is called when an event occurrs
+	*/
+	NotificationHandler *m_notificationHandler;
 };
 
 

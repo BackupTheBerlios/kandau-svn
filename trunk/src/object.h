@@ -103,7 +103,11 @@ class Object;
 	}\
 	DeclareClass declareClass##class( #class, &class::createInstance, &class::createRelations );
 
+#ifdef WITHOUT_MODIFIED_CALLBACKS
 #define MODIFIED m_modified = true;
+#else
+#define MODIFIED(value) if ( ! m_manager->notifyPropertyModified( this, __FUNCTION__, value ) ) return; m_modified = true;
+#endif
 
 
 //TODO: Make versions of these macros for debug mode.

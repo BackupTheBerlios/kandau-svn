@@ -60,7 +60,7 @@ Q_ULLONG CustomerOrder::number() const
 
 void CustomerOrder::setNumber( Q_ULLONG num )
 {
-	MODIFIED;
+	MODIFIED( num );
 	m_number = num;
 }
 
@@ -71,7 +71,7 @@ const QDate& CustomerOrder::date() const
 
 void CustomerOrder::setDate( const QDate& date )
 {
-	MODIFIED;
+	MODIFIED( date );
 	m_date = date;
 }
 

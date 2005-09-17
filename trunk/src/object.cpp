@@ -547,7 +547,11 @@ void Object::setObject( const QString& name, Object* object )
 
 void Object::setObject( const QString& name, const OidType& oid )
 {
+#ifdef WITHOUT_MODIFIED_CALLBACKS
 	MODIFIED;
+#else
+	MODIFIED( oid );
+#endif
 	m_manager->setRelation( m_oid, classInfo(), name, oid );
 }
 

@@ -40,15 +40,17 @@ signals:
 protected:
 	static QWidget* createInput( QWidget* parent, const Property& property );
 	static QVariant readInput( QWidget* widget );
+	static void updateObjectLabel( KURLLabel *objLabel, const Object *obj );
 
 private slots:
 	void slotObjectSelected( const QString& oid );
 	void slotOkClicked();
 	void slotChangeClicked();
+	void slotObjectModified( const ClassInfo* classInfo, const OidType& object, const PropertyInfo *property, const QVariant& newValue );
 
 private:
 	QMap<QString,QWidget*> m_mapProperties;
-	QMap<QString,QWidget*> m_mapObjects;
+	QMap<QString,KURLLabel*> m_mapObjects;
 	QMap<const QWidget*,RelatedObject*> m_mapChangeButtons;
 	ObjectRef<Object> m_object;
 };
