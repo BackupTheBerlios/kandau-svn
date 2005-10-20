@@ -3,16 +3,16 @@
  *   albertca@hotpop.com                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
+ *   it under the terms of the GNU Library General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
  *   (at your option) any later version.                                   *
  *                                                                         *
  *   This program is distributed in the hope that it will be useful,       *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
- *   GNU General Public License for more details.                          *
+ *   GNU Library General Public License for more details.                          *
  *                                                                         *
- *   You should have received a copy of the GNU General Public License     *
+ *   You should have received a copy of the GNU Library General Public License     *
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
@@ -28,10 +28,11 @@ TmpClassMap* Classes::m_tmpClasses = 0;
 
 /* PropertyInfo */
 
-PropertyInfo::PropertyInfo( const QString& name, QVariant::Type type )
+PropertyInfo::PropertyInfo( const QString& name, QVariant::Type type, bool readOnly )
 {
 	m_name = name;
 	m_type = type;
+	m_readOnly = readOnly;
 }
 
 QVariant::Type PropertyInfo::type() const
@@ -42,6 +43,11 @@ QVariant::Type PropertyInfo::type() const
 const QString& PropertyInfo::name() const
 {
 	return m_name;
+}
+
+bool PropertyInfo::readOnly() const
+{
+	return m_readOnly;
 }
 
 /* RelatedObject */
@@ -178,7 +184,7 @@ ClassInfo::ClassInfo( const QString& name, CreateObjectFunction function )
 	Object* obj = createInstance();
 	for ( int i = 0; i < obj->metaObject()->numProperties(); ++i ) {
 		const QMetaProperty *meta = obj->metaObject()->property( i );
-		PropertyInfo *p = new PropertyInfo( meta->name(),  QVariant::nameToType( meta->type() ) );
+		PropertyInfo *p = new PropertyInfo( meta->name(),  QVariant::nameToType( meta->type() ), ! meta->writable() );
 		m_properties.insert( meta->name(), p );
 	}
 }
@@ -197,27 +203,26 @@ Object* ClassInfo::create( Manager* manager ) const
 	return object;
 }
 
-Object* ClassInfo::create( const OidType& oid, Manager* manager ) const
+Object* ClassInfo::create( const OidType& oid, Manager* manager, bool create ) const
 {
-/*
-	Object *object = m_function();
-	assert( object );
-	// This has been introduced for DynamicObject to let them know which 
-	// ClassInfo they should use.
-	object->setClassInfo( this );
-	// ^^^
-	object->setOid( oid );
-	object->setModified( true );
-	object->setManager( manager );
-	object->manager()->add( object );
-*/	
-	if ( manager )
-		return manager->load( oid, m_function );
-	else
-		return Manager::self()->load( oid, m_function );
-
-	//return manager->load( oid, &m_function );
-	//return object;
+	if ( create ) {
+		Object *object = m_function();
+		assert( object );
+		// This has been introduced for DynamicObject to let them know which 
+		// ClassInfo they should use.
+		object->setClassInfo( this );
+		// ^^^
+		object->setOid( oid );
+		object->setModified( true );
+		object->setManager( manager );
+		object->manager()->add( object );
+		return object;
+	} else {
+		if ( manager )
+			return manager->load( oid, m_function );
+		else
+			return Manager::self()->load( oid, m_function );
+	}
 }
 
 Object* ClassInfo::createInstance() const
@@ -262,9 +267,9 @@ void ClassInfo::addCollection( const QString& className, const QString& relation
 	m_collections.insert( name, new RelatedCollection( this, name, Classes::classInfo( className ), nToOne ) );
 }
 
-void ClassInfo::addProperty( const QString& name, QVariant::Type type )
+void ClassInfo::addProperty( const QString& name, QVariant::Type type, bool readOnly )
 {
-	m_properties.insert( name, new PropertyInfo( name, type ) );
+	m_properties.insert( name, new PropertyInfo( name, type, readOnly ) );
 }
 
 RelatedObjectsConstIterator ClassInfo::objectsBegin() const

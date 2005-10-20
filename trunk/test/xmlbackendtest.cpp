@@ -3,16 +3,16 @@
  *   albertca@hotpop.com                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
+ *   it under the terms of the GNU Library General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
  *   (at your option) any later version.                                   *
  *                                                                         *
  *   This program is distributed in the hope that it will be useful,       *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
- *   GNU General Public License for more details.                          *
+ *   GNU Library General Public License for more details.                          *
  *                                                                         *
- *   You should have received a copy of the GNU General Public License     *
+ *   You should have received a copy of the GNU Library General Public License     *
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
@@ -67,24 +67,24 @@ void XmlBackendTest::transactions()
 	c2->setCountry( "Country" );
 	order->setCustomer( c2 );
 	CHECK( Manager::self()->commit(), true );
-
+	
 	order->articles()->add( a2 );
 	CHECK( Manager::self()->commit(), true );
-
+	
 	order->articles()->remove( a1 );
 	CHECK( Manager::self()->commit(), true );
-
+	
 	order->articles()->add( a1 );
 	CHECK( Manager::self()->rollback(), true );
-
+	
 	order->setCustomer( c );
 	CHECK( Manager::self()->commit(), true );
-
+	
 	order->setCustomer( c2 );
 	CHECK( Manager::self()->rollback(), true );
-
+	
 	CHECK( Manager::self()->commit(), true );
-
+	
 	Manager::self()->remove( c2 );
 	CHECK( Manager::self()->commit(), true );
 }
@@ -108,7 +108,7 @@ void XmlBackendTest::collections()
 void XmlBackendTest::allTests()
 {
 	Classes::setup();
-	DbBackendIface *backend = new XmlDbBackend( "database.xml" );
+	DbBackendIface *backend = new XmlDbBackend( "database.xml", true );
 	m_manager = new Manager( backend );
 	m_manager->createSchema();
 

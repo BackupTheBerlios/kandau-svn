@@ -3,51 +3,63 @@
  *   albertca@hotpop.com                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Library General Public License as published by  *
+ *   it under the terms of the GNU General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
  *   (at your option) any later version.                                   *
  *                                                                         *
  *   This program is distributed in the hope that it will be useful,       *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
- *   GNU Library General Public License for more details.                          *
+ *   GNU General Public License for more details.                          *
  *                                                                         *
- *   You should have received a copy of the GNU Library General Public License     *
+ *   You should have received a copy of the GNU General Public License     *
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#ifndef TESTBACKEND_H
-#define TESTBACKEND_H
+#ifndef AUTHOR_H
+#define AUTHOR_H
 
-#include "dbbackendiface.h"
+#include <object.h>
+
+class Collection;
 
 /**
-@author Albert Cervera Areny
+	@author Albert Cervera Areny <albertca@hotpop.com>
 */
-class TestBackend : public DbBackendIface
+
+class Author : public Object
 {
+	Q_OBJECT
+	Q_PROPERTY( QString firstName READ firstName WRITE setFirstName );
+	Q_PROPERTY( QString lastName READ lastName WRITE setLastName );
+	Q_PROPERTY( QString fullName READ fullName );
+	Q_PROPERTY( QString biography READ biography WRITE setBiography );
+	Q_PROPERTY( uint birthYear READ birthYear WRITE setBirthYear );
 public:
-	TestBackend();
-	virtual ~TestBackend();
+	DCLASS( Author );
 
-	void setup( Manager *manager );
-	void shutdown();
-	bool load( const OidType& oid, Object *object );
-	bool load( Collection *collection );
-	bool load( Collection *collection, const QString& query );
-	bool createSchema();
-	bool hasChanged( Object * object );
-	bool commit();
-	OidType newOid();
-	void reset();
+	void setFirstName( const QString& name );
+	const QString& firstName() const;
 
-	/* Callbacks */
-	void beforeRemove( Object* /*object*/ ) {};
-	void afterRollback() {};
+	void setLastName( const QString& name );
+	const QString& lastName() const;
+
+	QString fullName() const;
+
+	void setBiography( const QString& biography );
+	const QString& biography() const;
+
+	void setBirthYear( uint year );
+	uint birthYear() const;
+
+	Collection* bibliography();
+
 private:
-	OidType m_lastOid;
-	Manager *m_manager;
+	QString m_firstName;
+	QString m_lastName;
+	QString m_biography;
+	uint m_birthYear;
 };
 
 #endif

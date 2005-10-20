@@ -3,16 +3,16 @@
  *   albertca@hotpop.com                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
+ *   it under the terms of the GNU Library General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
  *   (at your option) any later version.                                   *
  *                                                                         *
  *   This program is distributed in the hope that it will be useful,       *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
- *   GNU General Public License for more details.                          *
+ *   GNU Library General Public License for more details.                          *
  *                                                                         *
- *   You should have received a copy of the GNU General Public License     *
+ *   You should have received a copy of the GNU Library General Public License     *
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
@@ -83,7 +83,7 @@ bool SqlDbBackend::load( const QSqlCursor &cursor, Object *object )
 	for ( ; pIt != pEnd; ++pIt ) {
 		prop = pIt.data();
 
-		if ( ! cursor.contains( prop.name() ) )
+		if ( prop.readOnly() || ! cursor.contains( prop.name() ) )
 			continue;
 
 		switch ( pIt.data().type() ) {
@@ -174,7 +174,7 @@ bool SqlDbBackend::save( Object *object )
 	Property prop;
 	for ( ; pIt != pEnd; ++pIt ) {
 		prop = pIt.data();
-		if ( ! record->contains( prop.name() ) )
+		if ( prop.readOnly() || ! record->contains( prop.name() ) )
 			continue;
 
 		if ( prop.type() == QVariant::Pixmap ) {
@@ -193,17 +193,6 @@ bool SqlDbBackend::save( Object *object )
 		}
 	}
 
-	// Fill the fields for relations with other objects
-/*
-	bool analyzeRelations = true;
-	ManagerRelatedObjectMap &map = m_manager->relations();
-	if ( ! map.contains( object->oid() ) ) {
-		analyzeRelations = false;
-	}
-	QMap<QString, QPair<OidType, bool> > &omap = map[ object->oid() ];
-	if ( ! analyzeRelations  )
-		map.remove( object->oid() );
-*/
 	ObjectsIterator oIt( object->objectsBegin() );
 	ObjectsIterator oEnd( object->objectsEnd() );
 	Object *obj;
@@ -216,15 +205,6 @@ bool SqlDbBackend::save( Object *object )
 		else
 			record->setNull( oIt.key() );
 	}
-/*
-	if ( analyzeRelations ) {
-		QMapIterator<QString, QPair<OidType, bool> > it( omap.begin() );
-		QMapIterator<QString, QPair<OidType, bool> > end( omap.end() );
-		for ( ; it != end; ++it ) {
-			assert( (*it).second == false );
-		}
-	}
-*/	
 	
 	for ( uint i = 0; i < record->count(); ++i ) {
 		if ( record->fieldName( i ).right( 1 ) == "_" && variantToOid( record->value( i ) ) == 0 ) {
@@ -423,9 +403,10 @@ bool SqlDbBackend::createSchema()
 		PropertiesInfoConstIterator pEnd( currentClass->propertiesEnd() );
 		for ( ; pIt != pEnd; ++pIt ) {
 			prop = *pIt;
-			exec += prop->name() + " " + sqlType( prop->type() ) + ", ";
+			if ( prop->readOnly() == false )
+				exec += prop->name() + " " + sqlType( prop->type() ) + ", ";
 		}
-		
+	
 		// Create related objects fields
 		RelatedObjectsConstIterator oIt( currentClass->objectsBegin() );
 		RelatedObjectsConstIterator oEnd( currentClass->objectsEnd() );

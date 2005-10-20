@@ -3,16 +3,16 @@
  *   albertca@hotpop.com                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
+ *   it under the terms of the GNU Library General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
  *   (at your option) any later version.                                   *
  *                                                                         *
  *   This program is distributed in the hope that it will be useful,       *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
- *   GNU General Public License for more details.                          *
+ *   GNU Library General Public License for more details.                          *
  *                                                                         *
- *   You should have received a copy of the GNU General Public License     *
+ *   You should have received a copy of the GNU Library General Public License     *
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
@@ -68,7 +68,7 @@ void InMemorySqlDbBackend::init()
 		while ( cursor.next() ) {
 			oid = variantToOid( cursor.value( "dboid" ) );
 
-			Object* object = Classes::classInfo( info->name() )->create( m_manager );
+			Object* object = Classes::classInfo( info->name() )->create( oid, m_manager, true );
 			assert( object );
 			loadObject( cursor, object );
 			if ( oid > maxOid )
@@ -84,10 +84,12 @@ void InMemorySqlDbBackend::loadObject( const QSqlCursor& cursor, Object* object 
 	PropertiesIterator pIt( object->propertiesBegin() );
 	PropertiesIterator pEnd( object->propertiesEnd() );
 
-	object->setOid( variantToOid( cursor.value( "dboid" ) ) );
+//	object->setOid( variantToOid( cursor.value( "dboid" ) ) );
 	// Load all properties
-	for ( ; pIt != pEnd; ++pIt )
-		(*pIt).setValue( cursor.value( (*pIt).name() ) );
+	for ( ; pIt != pEnd; ++pIt ) {
+		if ( (*pIt).readOnly() == false )
+			(*pIt).setValue( cursor.value( (*pIt).name() ) );
+	}
 	// Load all object relations
 	RelatedObjectsConstIterator oIt( object->classInfo()->objectsBegin() );
 	RelatedObjectsConstIterator oEnd( object->classInfo()->objectsEnd() );
@@ -130,9 +132,10 @@ void InMemorySqlDbBackend::saveObject( Object* object )
 
 	PropertiesIterator pIt( object->propertiesBegin() );
 	PropertiesIterator pEnd( object->propertiesEnd() );
-	for ( ; pIt != pEnd; ++pIt )
-		buffer->setValue( (*pIt).name(), (*pIt).value() );
-
+	for ( ; pIt != pEnd; ++pIt ) {
+		if ( (*pIt).readOnly() == false )
+			buffer->setValue( (*pIt).name(), (*pIt).value() );
+	}
 	RelatedObjectsConstIterator oIt( object->classInfo()->objectsBegin() );
 	RelatedObjectsConstIterator oEnd( object->classInfo()->objectsEnd() );
 	for ( ; oIt != oEnd; ++oIt ) {
@@ -221,7 +224,8 @@ bool InMemorySqlDbBackend::createSchema()
 		PropertiesInfoConstIterator pEnd( currentClass->propertiesEnd() );
 		for ( ; pIt != pEnd; ++pIt ) {
 			prop = *pIt;
-			exec += prop->name() + " " + sqlType( prop->type() ) + ", ";
+			if ( prop->readOnly() == false )
+				exec += prop->name() + " " + sqlType( prop->type() ) + ", ";
 		}
 
 		// Create related objects fields

@@ -3,16 +3,16 @@
  *   albertca@hotpop.com                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
+ *   it under the terms of the GNU Library General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
  *   (at your option) any later version.                                   *
  *                                                                         *
  *   This program is distributed in the hope that it will be useful,       *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
- *   GNU General Public License for more details.                          *
+ *   GNU Library General Public License for more details.                          *
  *                                                                         *
- *   You should have received a copy of the GNU General Public License     *
+ *   You should have received a copy of the GNU Library General Public License     *
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
@@ -54,8 +54,8 @@ const QString& Article::code() const
 
 void Article::setCode( const QString& code )
 {
-	MODIFIED( code );
 	m_code = code;
+	MODIFIED( code );
 }
 
 const QString& Article::label() const
@@ -65,8 +65,8 @@ const QString& Article::label() const
 
 void Article::setLabel( const QString& label )
 {
-	MODIFIED( label );
 	m_label = label;
+	MODIFIED( label );
 }
 
 const QString& Article::description() const
@@ -76,11 +76,11 @@ const QString& Article::description() const
 
 void Article::setDescription( const QString& description )
 {
-	MODIFIED( description );
 	m_description = description;
+	MODIFIED( description );
 }
 
-Article* Article::article()
+Article* Article::article() const
 {
 	return GETOBJECT( Article );
 }

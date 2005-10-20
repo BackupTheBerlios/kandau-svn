@@ -119,12 +119,15 @@
       <autocompile>true</autocompile>
       <envvars/>
       <runarguments>
-        <dcoptester/>
+        <dcoptester></dcoptester>
+        <books></books>
+        <uitester></uitester>
+        <kunittest></kunittest>
       </runarguments>
     </run>
     <general>
       <useconfiguration>default</useconfiguration>
-      <activetarget>test/kunittest</activetarget>
+      <activetarget>examples/books/books</activetarget>
     </general>
     <configurations>
       <default>

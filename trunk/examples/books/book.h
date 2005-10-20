@@ -3,51 +3,57 @@
  *   albertca@hotpop.com                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Library General Public License as published by  *
+ *   it under the terms of the GNU General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
  *   (at your option) any later version.                                   *
  *                                                                         *
  *   This program is distributed in the hope that it will be useful,       *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
- *   GNU Library General Public License for more details.                          *
+ *   GNU General Public License for more details.                          *
  *                                                                         *
- *   You should have received a copy of the GNU Library General Public License     *
+ *   You should have received a copy of the GNU General Public License     *
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#ifndef TESTBACKEND_H
-#define TESTBACKEND_H
+#ifndef BOOK_H
+#define BOOK_H
 
-#include "dbbackendiface.h"
+#include <object.h>
+
+class Author;
 
 /**
-@author Albert Cervera Areny
+	@author Albert Cervera Areny <albertca@hotpop.com>
 */
-class TestBackend : public DbBackendIface
+
+class Book : public Object
 {
+	Q_OBJECT
+	Q_PROPERTY( QString title READ title WRITE setTitle )
+	Q_PROPERTY( QString isbn READ isbn WRITE setIsbn )
+	Q_PROPERTY( uint year READ year WRITE setYear )
 public:
-	TestBackend();
-	virtual ~TestBackend();
+	DCLASS( Book );
 
-	void setup( Manager *manager );
-	void shutdown();
-	bool load( const OidType& oid, Object *object );
-	bool load( Collection *collection );
-	bool load( Collection *collection, const QString& query );
-	bool createSchema();
-	bool hasChanged( Object * object );
-	bool commit();
-	OidType newOid();
-	void reset();
+	void setTitle( const QString& title );
+	const QString& title() const;
 
-	/* Callbacks */
-	void beforeRemove( Object* /*object*/ ) {};
-	void afterRollback() {};
+	void setIsbn( const QString& isbn );
+	const QString& isbn() const;
+
+	void setYear( uint year );
+	const uint year() const;
+
+	void setAuthor( Author *author );
+	Author* author() const;
+
 private:
-	OidType m_lastOid;
-	Manager *m_manager;
+	QString m_title;
+	QString m_isbn;
+	uint m_year;
 };
+
 
 #endif

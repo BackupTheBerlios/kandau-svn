@@ -80,7 +80,8 @@ void TestBackendTest::browseObjectProperties()
 	PropertiesIterator end( article->propertiesEnd() );
 	for ( ; it != end; ++it ) {
 //		kdDebug() << "Property: name = " << it.data().name() << ", value = " << it.data().value().toString() << ", type = " << QVariant::typeToName( it.data().type() ) << endl;
-
+		if ( it.data().readOnly() )
+			continue;
 		it.data().setValue( it.data().name() );
 	}
 
@@ -215,6 +216,8 @@ void TestBackendTest::modified()
 
 		pit = object->propertiesBegin();
 		for ( ; pit != pend; ++pit ) {
+			if ( (*pit).readOnly() )
+				continue;
 			(*pit).setValue( value );
 			if ( ! object->isModified() )
 				kdDebug() << "Class: '" << cit.key() << "', Property: '" << (*pit).name() << "' misses the MODIFIED macro." << endl;
@@ -255,8 +258,8 @@ void TestBackendTest::general()
 		a->setLabel( "Article " + QString::number( i ).rightJustify( 5 ) );
 		a->setDescription( "Well, this is the long description" );
 		order->articles()->add( a );
-		kdDebug() << "Count: " << QString::number( Manager::self()->count() ) << endl;
-		kdDebug() << "Oid: " << oidToString( a->oid() ) << endl;
+		//kdDebug() << "Count: " << QString::number( Manager::self()->count() ) << endl;
+		//kdDebug() << "Oid: " << oidToString( a->oid() ) << endl;
 	}
 	kdDebug() << "Temps bucle: " << QString::number( time.elapsed() ) << endl;
 
@@ -266,7 +269,7 @@ void TestBackendTest::general()
 	ObjectRef<Article> first;
 	for ( ; it != end; ++it ) {
 		Article *o = (Article*)*it;
-		kdDebug() << "(" << oidToString( o->oid() ) << "," << o->code() << "," << o->label() << "," << o->description() << ")" << endl;
+		//kdDebug() << "(" << oidToString( o->oid() ) << "," << o->code() << "," << o->label() << "," << o->description() << ")" << endl;
 		list.append( o->oid() );
 		if ( ! first )
 			first = o;
@@ -289,7 +292,7 @@ void TestBackendTest::general()
 	CollectionIterator end2( order->articles()->end() );
 	for ( ; it2 != end2; ++it2 ) {
 		Article *o = (Article*)*it2;
-		kdDebug() << "(" << oidToString( o->oid() ) << "," << o->code() << "," << o->label() << "," << o->description() << ")" << endl;
+		//kdDebug() << "(" << oidToString( o->oid() ) << "," << o->code() << "," << o->label() << "," << o->description() << ")" << endl;
 		list.append( o->oid() );
 	}
 	CHECK( order->articles()->count(), 45 );

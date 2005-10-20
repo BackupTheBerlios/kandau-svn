@@ -3,16 +3,16 @@
  *   albertca@hotpop.com                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
+ *   it under the terms of the GNU Library General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
  *   (at your option) any later version.                                   *
  *                                                                         *
  *   This program is distributed in the hope that it will be useful,       *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
- *   GNU General Public License for more details.                          *
+ *   GNU Library General Public License for more details.                          *
  *                                                                         *
- *   You should have received a copy of the GNU General Public License     *
+ *   You should have received a copy of the GNU Library General Public License     *
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
@@ -32,10 +32,12 @@ static const LabelDescription customerOrderLabels[] = {
 	{ "CustomerOrder", I18N_NOOP( "Customer Order" ) },
 	{ "number", I18N_NOOP( "Number" ) },
 	{ "date", I18N_NOOP( "Date" ) },
+	{ "numberOfArticles", I18N_NOOP( "Number of Articles" ) },
 	{ "Customer_CustomerOrder", I18N_NOOP( "Customer" ) },
 	{ "CustomerOrder_CustomerOrder", I18N_NOOP( "Customer Order" ) },
 	{ "one_to_one", I18N_NOOP( "One To One" ) },
-	{ "Article_CustomerOrder", I18N_NOOP( "Article" ) }
+	{ "Article_CustomerOrder", I18N_NOOP( "Article" ) },
+	LabelDescriptionLast
 };
 
 CustomerOrder::CustomerOrder()
@@ -60,8 +62,8 @@ Q_ULLONG CustomerOrder::number() const
 
 void CustomerOrder::setNumber( Q_ULLONG num )
 {
-	MODIFIED( num );
 	m_number = num;
+	MODIFIED( num );
 }
 
 const QDate& CustomerOrder::date() const
@@ -71,11 +73,11 @@ const QDate& CustomerOrder::date() const
 
 void CustomerOrder::setDate( const QDate& date )
 {
-	MODIFIED( date );
 	m_date = date;
+	MODIFIED( date );
 }
 
-Collection* CustomerOrder::articles()
+Collection* CustomerOrder::articles() const
 {
 	return GETCOLLECTION( Article );
 }
@@ -98,6 +100,11 @@ CustomerOrder* CustomerOrder::order()
 void CustomerOrder::setOrder( CustomerOrder* order )
 {
 	SETOBJECT( CustomerOrder, order );
+}
+
+Q_ULLONG CustomerOrder::numberOfArticles() const
+{
+	return articles()->count();
 }
 
 #include "customerorder.moc"

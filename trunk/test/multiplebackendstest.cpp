@@ -3,16 +3,16 @@
  *   albertca@hotpop.com                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
+ *   it under the terms of the GNU Library General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
  *   (at your option) any later version.                                   *
  *                                                                         *
  *   This program is distributed in the hope that it will be useful,       *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
- *   GNU General Public License for more details.                          *
+ *   GNU Library General Public License for more details.                          *
  *                                                                         *
- *   You should have received a copy of the GNU General Public License     *
+ *   You should have received a copy of the GNU Library General Public License     *
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
@@ -42,7 +42,7 @@ void MultipleBackendsTest::xml2xml()
 	Manager *manager1 = new Manager( backend1 );
 	manager1->createSchema();
 	
-	DbBackendIface *backend2 = new XmlDbBackend( "database2.xml" );
+	DbBackendIface *backend2 = new XmlDbBackend( "database2.xml", true );
 	Manager *manager2 = new Manager( backend2 );
 	manager2->createSchema();
 	manager1->copy( manager2 );
@@ -126,7 +126,7 @@ void MultipleBackendsTest::sql2xml()
 	DbBackendIface *backend1 = new InMemorySqlDbBackend( db );
 	Manager *manager1 = new Manager( backend1 );
 
-	DbBackendIface *backend2 = new XmlDbBackend( "database3.xml" );
+	DbBackendIface *backend2 = new XmlDbBackend( "database3.xml", true );
 	Manager *manager2 = new Manager( backend2 );
 	
 	manager1->copy( manager2 );

@@ -3,16 +3,16 @@
  *   albertca.com                                                   *
  *                                                                         *
  *   This program is free software{} you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
+ *   it under the terms of the GNU Library General Public License as published by  *
  *   the Free Software Foundation{} either version 2 of the License, or     *
  *   (at your option) any later version.                                   *
  *                                                                         *
  *   This program is distributed in the hope that it will be useful,       *
  *   but WITHOUT ANY WARRANTY{} without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
- *   GNU General Public License for more details.                          *
+ *   GNU Library General Public License for more details.                          *
  *                                                                         *
- *   You should have received a copy of the GNU General Public License     *
+ *   You should have received a copy of the GNU Library General Public License     *
  *   along with this program{} if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
@@ -35,7 +35,8 @@ static const LabelDescription customerLabels[] = {
 	{ "address", I18N_NOOP( "Address" ) },
 	{ "city", I18N_NOOP( "City" ) },
 	{ "zipCode", I18N_NOOP( "Zip Code" ) },
-	{ "coutry", I18N_NOOP( "Coutry" ) }
+	{ "country", I18N_NOOP( "Coutry" ) },
+	LabelDescriptionLast
 };
 
 void Customer::createRelations()
@@ -57,8 +58,8 @@ const QString& Customer::code() const
 
 void Customer::setCode( const QString& code )
 {
-	MODIFIED( code );
 	m_code = code;
+	MODIFIED( code );
 }
 
 const QString& Customer::customerName() const
@@ -68,8 +69,8 @@ const QString& Customer::customerName() const
 
 void Customer::setCustomerName( const QString& name )
 {
-	MODIFIED( name );
 	m_customerName = name;
+	MODIFIED( name );
 }
 
 const QString& Customer::address() const
@@ -79,8 +80,8 @@ const QString& Customer::address() const
 
 void Customer::setAddress( const QString& address )
 {
-	MODIFIED( address );
 	m_address = address;
+	MODIFIED( address );
 }
 
 const QString& Customer::city() const
@@ -90,8 +91,8 @@ const QString& Customer::city() const
 
 void Customer::setCity( const QString& city )
 {
-	MODIFIED( city );
 	m_city = city;
+	MODIFIED( city );
 }
 
 const QString& Customer::zipCode() const
@@ -101,8 +102,8 @@ const QString& Customer::zipCode() const
 
 void Customer::setZipCode( const QString& zipCode )
 {
-	MODIFIED( zipCode );
 	m_zipCode = zipCode;
+	MODIFIED( zipCode );
 }
 
 const QString& Customer::country() const
@@ -112,8 +113,8 @@ const QString& Customer::country() const
 
 void Customer::setCountry( const QString& country )
 {
-	MODIFIED( country );
 	m_country = country;
+	MODIFIED( country );
 }
 
 Article* Customer::defaultArticle() const

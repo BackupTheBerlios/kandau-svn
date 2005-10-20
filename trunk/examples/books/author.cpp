@@ -3,68 +3,85 @@
  *   albertca@hotpop.com                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Library General Public License as published by  *
+ *   it under the terms of the GNU General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
  *   (at your option) any later version.                                   *
  *                                                                         *
  *   This program is distributed in the hope that it will be useful,       *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
- *   GNU Library General Public License for more details.                          *
+ *   GNU General Public License for more details.                          *
  *                                                                         *
- *   You should have received a copy of the GNU Library General Public License     *
+ *   You should have received a copy of the GNU General Public License     *
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#ifndef XMLDBBACKEND_H
-#define XMLDBBACKEND_H
+#include <qstring.h>
+#include <classes.h>
 
-#include <dbbackendiface.h>
+#include "author.h"
 
-class QDomDocument;
-class QDomElement;
+ICLASS(Author);
 
-/**
-@author Albert Cervera Areny
-*/
-class XmlDbBackend : public DbBackendIface
+void Author::createRelations()
 {
-public:
-	XmlDbBackend( const QString& fileName, bool truncate = false );
-	virtual ~XmlDbBackend();
+	COLLECTION( Book );
+}
 
-	void setup( Manager* manager );
-	void shutdown();
-	void init();
+void Author::setFirstName( const QString & name )
+{
+	m_firstName = name;
+}
 
-	bool load( const OidType& oid, Object *object );
-	
-	bool load( Collection *collection );
-	bool load( Collection *collection, const QString& query );
-	bool remove( Collection* collection, const OidType& oid );
+const QString & Author::firstName( ) const
+{
+	return m_firstName;
+}
 
-	bool createSchema();
+void Author::setLastName( const QString & name )
+{
+	m_lastName = name;
+}
 
-	bool hasChanged( Object * object );
+const QString & Author::lastName( ) const
+{
+	return m_lastName;
+}
 
-	OidType newOid();
+QString Author::fullName( ) const
+{
+	QString sfirst = m_firstName.stripWhiteSpace();
+	QString slast = m_lastName.stripWhiteSpace();
+	if ( sfirst != "" && slast != "" )
+		return slast + ", " + sfirst;
+	else
+		return sfirst + slast;
+}
 
-	bool commit();
+void Author::setBiography( const QString & biography )
+{
+	m_biography = biography;
+}
 
-	void reset() {};
+const QString & Author::biography( ) const
+{
+	return m_biography;
+}
 
-	void afterRollback();
-	void beforeRemove( Object* /*object*/ ) {};
+void Author::setBirthYear( uint year )
+{
+	m_birthYear = year;
+}
 
-protected:
-	OidType elementToObject( const QDomElement& e );
-	void objectToElement( Object* object, QDomDocument *doc, QDomElement *parent );
+uint Author::birthYear( ) const
+{
+	return m_birthYear;
+}
 
-private:
-	QString m_fileName;
-	OidType m_currentOid;
-	Manager *m_manager;
-};
+Collection* Author::bibliography()
+{
+	return GETCOLLECTION( Book );
+}
 
-#endif
+#include "author.moc"
