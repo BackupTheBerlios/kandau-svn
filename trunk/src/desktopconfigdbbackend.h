@@ -3,37 +3,75 @@
  *   albertca@hotpop.com                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Library General Public License as published by  *
+ *   it under the terms of the GNU General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
  *   (at your option) any later version.                                   *
  *                                                                         *
  *   This program is distributed in the hope that it will be useful,       *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
- *   GNU Library General Public License for more details.                          *
+ *   GNU General Public License for more details.                          *
  *                                                                         *
- *   You should have received a copy of the GNU Library General Public License     *
+ *   You should have received a copy of the GNU General Public License     *
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#ifndef NOTIFICATIONHANDLER_H
-#define NOTIFICATIONHANDLER_H
+#ifndef DESKTOPCONFIGDBBACKEND_H
+#define DESKTOPCONFIGDBBACKEND_H
 
-#include "oidtype.h"
+#include <dbbackendiface.h>
 
+#include <oidtype.h>
+
+class KSimpleConfig;
+class Manager;
 class Object;
-class QString;
-class QVariant;
-class ClassInfo;
+class Collection;
+class KConfig;
 
 /**
 	@author Albert Cervera Areny <albertca@hotpop.com>
 */
-class NotificationHandler{
+class DesktopConfigDbBackend : public DbBackendIface
+{
 public:
-	virtual bool propertyModified( const ClassInfo* classInfo, const OidType& object, const QString& property, const QVariant& newValue ) = 0;
-	virtual ~NotificationHandler() {};
+	DesktopConfigDbBackend( const QString& fileName );
+	virtual ~DesktopConfigDbBackend();
+	
+	void setup( Manager* manager );
+
+	void shutdown();
+	bool load( const OidType& oid, Object *object );
+
+	bool load( Collection *collection );
+
+	bool load( Collection *collection, const QString& query );
+
+
+	bool createSchema();
+
+	bool hasChanged( Object * object );
+
+	bool commit();
+
+	OidType newOid();
+
+	void reset();
+
+	/* Callbacks */
+
+	void beforeRemove( Object *object );
+
+	void afterRollback();
+	
+	//
+	void init();
+	void objectToElement( const Object *object, KConfig *config );
+private:
+	Manager *m_manager;
+	QString m_fileName;
+	OidType m_currentOid;
 };
 
 #endif

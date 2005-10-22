@@ -202,10 +202,10 @@ bool Manager::commit()
 
 void Manager::setEverythingUnmodified()
 {
-	ManagerObjectIterator it( begin() );
-	ManagerObjectIterator end( end() );
-	for ( ; it != end; ++it )
-		(*it)->setModified( false );
+	ManagerObjectIterator mit( begin() );
+	ManagerObjectIterator mend( end() );
+	for ( ; mit != mend; ++mit )
+		(*mit)->setModified( false );
 
 	ManagerRelatedObjectIterator oit( m_relations.begin() );
 	ManagerRelatedObjectIterator oend( m_relations.end() );

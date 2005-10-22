@@ -688,25 +688,76 @@ Class: Book
 <sect1 id="metainfo">
 <title>Adding meta information to your classes</title>
 <para>
+&kandau; offers you the possibility to add meta data to your classes. Similar in concept to the possibilities offered by the Qt framework, but this one allows you to relate a string to any object you want. The main difference, you don't declare meta information in the header but in the .cpp file. In the createRelations() function we've seen, so it's not very mysterious.
 </para>
+
+<para>
+Following our books example, let's see how to add meta data:
+</para>
+
+
+<programlisting>
+<![CDATA[
+static const LabelDescription authorLabels[] = {
+	{ "firstName", I18N_NOOP("First Name")},
+	{ "lastName", I18N_NOOP("Last Name")},
+	{ "fullName", I18N_NOOP("Full Name") },
+	{ "biography", I18N_NOOP("Biography") },
+	{ "birthYear", I18N_NOOP("Birth Year") },
+	{ "bibliography", I18N_NOOP("Bibliography") },
+	LabelDescriptionLast
+};
+
+void Author::createRelations()
+{
+	COLLECTION( Book );
+	ADDMETAINFO( "labels", new LabelsMetaInfo( articleLabels ) );
+}
+]]>
+</programlisting>
+
+<para>
+As you can see it's very simple. LabelsMetaInfo is a standard class that comes with Kandau and provides an easy way to relate the property name with an internationalizable string. Currently the only requirement for an object to be set as a metainfo value is that it must inherit QObject. That's all.
+</para>
+
+<para>
+Now, you just need an easy way to acces meta data:
+</para>
+
+<programlisting>
+<![CDATA[
+
+]]>
+</programlisting>
+
 </sect1>
 
 <sect1 id="dynamic">
 <title>Dynamic Classes</title>
 <para>
+Dynamic classes are those who's structure can be configured at runtime and don't have a <emphasis>real</emphasis> C++ declaration. That is you just create an structure which you want to be browseable just like any other class you have created, you want to be able to make it persistent with the same engine. But you can do more, you can relate these dynamic objects with the others and relations will be stored transparently for you.
+</para>
+
+<para>
+As an example we will create
 </para>
 </sect1>
 
 <sect1 id="notifications">
 <title>Using the notification mechanism</title>
 <para>
+Another facility provided by &kandau; is a notification system. It allows you to register a slot to a concrete or general event. An event can be as concrete as <emphasis>property X has ben modified in object Y</emphasis> or as general as <emphasis>something has been modified in class Z</emphasis> or even <emphasis>something has been modified</emphasis>.
 </para>
+
+<para>
+This gives applications a powerful mechanism to update data in their GUI's without other explicit methods. See how you can register to a notification in the following example:
+</para>
+
 </sect1>
 
 <sect1 id="dcop">
 <title>Accessing your objects with Kandau &amp; DCOP</title>
 <para>
-
 <screenshot>
 	<screeninfo>Here's a screenshot of &kandau;</screeninfo>
 	<mediaobject>

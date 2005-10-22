@@ -18,15 +18,30 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 #include <qstring.h>
+
+#include <klocale.h>
+
 #include <classes.h>
+#include <labelsmetainfo.h>
 
 #include "author.h"
 
 ICLASS(Author);
 
+static const LabelDescription authorLabels[] = { 
+	{ "firstName", I18N_NOOP("First Name")},
+	{ "lastName", I18N_NOOP("Last Name")},
+	{ "fullName", I18N_NOOP("Full Name") },
+	{ "biography", I18N_NOOP("Biography") },
+	{ "birthYear", I18N_NOOP("Birth Year") },
+	{ "bibliography", I18N_NOOP("Bibliography") },
+	LabelDescriptionLast
+};
+
 void Author::createRelations()
 {
 	COLLECTION( Book );
+	ADDMETAINFO( "labels", new LabelsMetaInfo( authorLabels ) );
 }
 
 void Author::setFirstName( const QString & name )

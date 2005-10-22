@@ -20,13 +20,13 @@ messages: rc.cpp
 lib_LTLIBRARIES = libkandau.la
 libkandau_la_LDFLAGS = $(all_libraries)
 libkandau_la_SOURCES = collection.cpp dbbackendiface.cpp manager.cpp object.cpp \
-				oidtype.cpp sqldbbackend.cpp seqtype.cpp xmldbbackend.cpp classes.cpp \
-				inmemorysqldbbackend.cpp testbackend.cpp dynamicobject.cpp labelsmetainfo.cpp tokenizer.cpp \
-		defaultpropertymetainfo.cpp notificationhandler.cpp notifier.cpp
+	oidtype.cpp sqldbbackend.cpp seqtype.cpp xmldbbackend.cpp classes.cpp \
+	inmemorysqldbbackend.cpp testbackend.cpp dynamicobject.cpp labelsmetainfo.cpp tokenizer.cpp \
+	defaultpropertymetainfo.cpp notificationhandler.cpp notifier.cpp desktopconfigdbbackend.cpp
 include_HEADERS = collection.h dbbackendiface.h defs.h manager.h object.h \
-		oidtype.h testbackend.h xmldbbackend.h classes.h seqtype.h sqldbbackend.h \
-		inmemorysqldbbackend.h dynamicobject.h labelsmetainfo.h defaultpropertymetainfo.h \
-	notificationhandler.h notifier.h
+			oidtype.h testbackend.h xmldbbackend.h classes.h seqtype.h sqldbbackend.h \
+			inmemorysqldbbackend.h dynamicobject.h labelsmetainfo.h defaultpropertymetainfo.h \
+		notificationhandler.h notifier.h desktopconfigdbbackend.h
 
 
 

@@ -26,6 +26,7 @@
 #include <classes.h>
 #include <manager.h>
 #include <sqldbbackend.h>
+#include <labelsmetainfo.h>
 
 #include "author.h"
 #include "book.h"
@@ -64,7 +65,7 @@ int main( int cargs, char **args )
 	monzo->bibliography()->add( benzina );
 	
 	kdDebug() << "The author of the book 'Benzina' is " << benzina->author()->fullName() << endl;
-	
+
 	// Browsing classes
 	ClassInfoIterator it( Classes::begin() );
 	ClassInfoIterator end( Classes::end() );
@@ -82,5 +83,17 @@ int main( int cargs, char **args )
 		}
 	}
 	
+	// Accessing meta information
+	QObject *meta = Classes::classInfo( "Author" )->metaInfo( "labels" );
+	if ( meta && meta->inherits( "LabelsMetaInfo" ) ) {
+		LabelsMetaInfo *labels = static_cast<LabelsMetaInfo*>( meta );
+		PropertiesInfoConstIterator pit( Classes::classInfo( "Author" )->propertiesBegin() );
+		PropertiesInfoConstIterator pend( Classes::classInfo( "Author" )->propertiesEnd() );
+		PropertyInfo *pinfo;
+		for ( ; pit != pend; ++pit ) {
+			pinfo = *pit;
+			kdDebug() << "Property: " << pinfo->name() << ", Label: " << labels->label( pinfo->name() ) << endl;
+		}
+	}
 	delete manager;
 }

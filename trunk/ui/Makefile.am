@@ -11,3 +11,4 @@ include_HEADERS = dialoggenerator.h classdialog.h classmainwindow.h \
 
 
 libkandauui_la_LIBADD = $(top_builddir)/src/libkandau.la
+libkandauui_la_DEPENDENCIES = ../src
