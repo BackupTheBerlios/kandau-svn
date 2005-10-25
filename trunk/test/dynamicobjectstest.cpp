@@ -31,6 +31,8 @@
 void DynamicObjectsTest::allTests()
 {
 	QString dbname = "testdynamic";
+	
+	Classes::setup();
 
 	Classes::addClass( "Test", DynamicObject::createInstance, 0 );
 	ClassInfo *ci = Classes::classInfo( "Test" );

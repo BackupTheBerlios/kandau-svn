@@ -99,50 +99,45 @@ const QString& ObjectAndSlot::slot() const
 
 void Notifier::registerSlot( const QObject *dstObject, const char* slot, const ClassInfo* classInfo, const OidType& object, const QString& property )
 {
-	m_slotEvents.insert( ObjectAndSlot( dstObject, slot ), PossibleEvents( classInfo, object, property ) );
+	m_slotEvents[ ObjectAndSlot( dstObject, slot ) ].append( PossibleEvents( classInfo, object, property ) );
 	m_eventSlots[ classInfo ][ object ][ property ].append( ObjectAndSlot( dstObject, slot ) );
 }
 
 void Notifier::unregisterSlot( const QObject *object, const char* slot )
 {
-	PossibleEvents e( m_slotEvents[ ObjectAndSlot( object, slot ) ] );
-	m_eventSlots[ e.classInfo() ][ e.object() ][ e.property() ].remove( ObjectAndSlot( object, slot ) );
+	QValueList<PossibleEvents> list = m_slotEvents[ ObjectAndSlot( object, slot ) ];
+	QValueListIterator<PossibleEvents> it( list.begin() );
+	QValueListIterator<PossibleEvents> end( list.end() );
+	for ( ; it != end; ++it ) {
+		PossibleEvents e( *it );
+		m_eventSlots[ e.classInfo() ][ e.object() ][ e.property() ].remove( ObjectAndSlot( object, slot ) );
+	}
+	m_slotEvents.remove( ObjectAndSlot( object, slot ) );
 }
 
 bool Notifier::propertyModified( const ClassInfo* classInfo, const OidType& object, const QString& property, const QVariant& newValue )
 {
 	MapSlotEventsConstIterator it( m_slotEvents.constBegin() );
 	MapSlotEventsConstIterator end( m_slotEvents.constEnd() );
+	QValueList<PossibleEvents> list;
 	for ( ; it != end; ++it ) {
-		const PossibleEvents &e = (*it);
-		if ( e.classInfo() != 0 && e.classInfo() != classInfo )
-			continue;
-		if ( e.object() != 0 && e.object() != object )
-			continue;
-		if ( ! e.property().isNull() && e.property() != property )
-			continue;
-		const ObjectAndSlot &s = it.key();
-		connect( this, SIGNAL(modified(const ClassInfo*,const OidType&,const PropertyInfo*,const QVariant&)), s.object(), s.slot() );
+		list = *it;
+		QValueListIterator<PossibleEvents> lit( list.begin() );
+		QValueListIterator<PossibleEvents> lend( list.end() );
+		for ( ; lit != lend; ++lit ) {
+			const PossibleEvents &e = (*lit);
+			if ( e.classInfo() != 0 && e.classInfo() != classInfo )
+				continue;
+			if ( e.object() != 0 && e.object() != object )
+				continue;
+			if ( ! e.property().isNull() && e.property() != property )
+				continue;
+			const ObjectAndSlot &s = it.key();
+			connect( this, SIGNAL(modified(const ClassInfo*,const OidType&,const PropertyInfo*,const QVariant&)), s.object(), s.slot() );
+		}
 	}
 	emit modified( classInfo, object, classInfo->property( property ), newValue );
 	disconnect( SIGNAL( modified(const ClassInfo*,const OidType&,const PropertyInfo*,const QVariant&)) );
-/*
-	if ( m_eventSlots.contains( classInfo ) &&
-	m_eventSlots[ classInfo ].contains( object ) &&
-	m_eventSlots[ classInfo ][ object ].contains( classInfo->property( property ) ) ) {
-		
-		QValueList<ObjectAndSlot> s = m_eventSlots[ classInfo ][ object ][ classInfo->property( property ) ];
-		QValueListConstIterator<ObjectAndSlot> it( s.constBegin() );
-		QValueListConstIterator<ObjectAndSlot> end( s.constEnd() );
-		for ( ; it != end; ++it ) {
-			connect( this, SIGNAL( modified(const ClassInfo*,const Object*,const PropertyInfo*,const QVariant&)), (*it).object(), (*it).slot() );
-		}
-		emit modified( classInfo, object, classInfo->property( property ), newValue );
-		disconnect( SIGNAL( modified(const ClassInfo*,const Object*,const PropertyInfo*,const QVariant&)) );
-	}
-	if ( m_eventSlots.contains( 0 ) &&
-	m_eventSlots[ 0 ].contains
-*/
 	return true;
 }
 

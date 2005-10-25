@@ -130,10 +130,10 @@ Here is a list of &kandau; features:
 	<listitem><para><emphasis>Notification system.</emphasis>A notification system is provided so a slot can be registered to be notified each time an object, any object in a class or a particular property is modified.</para></listitem>
 	<listitem><para><emphasis>Caching system.</emphasis> In some backends, you can configure the maximum number of objects that are kept in memory by the manager, so they don't have to be loaded from the database/backend.</para></listitem>
 	<listitem><para><emphasis>Transaction based.</emphasis>All modifications should be commited or rolledback. No saving is done until the <function>commit()</function> function is called.</para></listitem>
-	<listitem><para><emphasis>Backend independent.</emphasis>You can make your program without worrying where your data will be saved. Currently, SQL and XML backends are implemented, but you can create your own. .desktop or plain text files could be easily created.</para></listitem>
+	<listitem><para><emphasis>Backend independent.</emphasis>You can make your program without worrying where your data will be saved. Currently, SQL, XML and .desktop backends are implemented, but you can create your own.</para></listitem>
 	<listitem><para><emphasis>DCOP interface.</emphasis> &kandau; comes with some tests and demo applications. A nice one is a DCOP Server. Use this application with a library which has implemented all your persistent classes and you immediately have a simple way to save and load data using shell scripts and without the need to treat xml files or know the structure of your sql database.</para></listitem>
 	<listitem><para><emphasis>Automatic relationship updates.</emphasis>Say you have object A, and object B. Say you set the relation <emphasis>brother</emphasis> of object A to <emphasis>B</emphasis>. Then you query B to know who is <emphasis>brother</emphasis> and it will tell you it is <emphasis>A</emphasis></para></listitem>
-	<listitem><para><emphasis>Multiple backends simultaneously.</emphasis>You can have objects pertaining to different backends and at the same time, two configuration files, for example.</para></listitem>
+	<listitem><para><emphasis>Multiple backends simultaneously.</emphasis>You can have objects pertaining to different backends at the same time, two configuration files, for example.</para></listitem>
 </itemizedlist>
 
 <para>Another good way to know what is the status of an application is to know what's missing or not working. So here is a list of TODOs:</para>
@@ -145,7 +145,7 @@ Here is a list of &kandau; features:
 	</para></listitem>
 	<listitem><para><emphasis>General testing and bugfixing.</emphasis> The most applications use the better tested. At the moment there are unit tests only, which test specific parts of the library, but probably some cases are left without testing.</para></listitem>
 	<listitem><para>Some class names are too general and would need some prefix or be included inside a namespace.</para></listitem>
-	<listitem><para>Add support for extra checks on commit. For example, don't allow null values, ensure unique values, etc. Everything specified in the class' declaration or implementation.</para></listitem>
+	<listitem><para><emphasis>Add support for extra checks on commit.</emphasis> For example, don't allow null values, ensure unique values, etc. Everything should be specified in the class' declaration or implementation.</para></listitem>
 </itemizedlist>
 
 </chapter>
@@ -160,7 +160,7 @@ In this chapter you'll have detailed information on how you can use the kandau f
 
 
 <sect1 id="prepare_class">
-<title>Prepare your class for persistency</title>
+<title>Prepare a class for persistency</title>
 
 <para>The first thing we will have to do is let the persistency manager know that one of your classes can be persistent. That's what we'll do in this section.</para>
 
@@ -726,34 +726,85 @@ Now, you just need an easy way to acces meta data:
 
 <programlisting>
 <![CDATA[
-
+QObject *meta = Classes::classInfo( "Author" )->metaInfo( "labels" );
+if ( meta && meta->inherits( "LabelsMetaInfo" ) ) {
+	LabelsMetaInfo *labels = static_cast<LabelsMetaInfo*>( meta );
+	PropertiesInfoConstIterator pit( Classes::classInfo( "Author" )->propertiesBegin() );
+	PropertiesInfoConstIterator pend( Classes::classInfo( "Author" )->propertiesEnd() );
+	PropertyInfo *pinfo;
+	for ( ; pit != pend; ++pit ) {
+		pinfo = *pit;
+		kdDebug() << "Property: " << pinfo->name() << ", Label: " << labels->label( pinfo->name() ) << endl;
+	}
+}
 ]]>
 </programlisting>
+
+<para>So the example, gets the QObject contained in the meta property "labels". Checks that the object exists and that it inherits "LabelsMetaInfo", and finally iterate through all the properties of the object and print their name and their i18n label.</para>
 
 </sect1>
 
 <sect1 id="dynamic">
 <title>Dynamic Classes</title>
 <para>
-Dynamic classes are those who's structure can be configured at runtime and don't have a <emphasis>real</emphasis> C++ declaration. That is you just create an structure which you want to be browseable just like any other class you have created, you want to be able to make it persistent with the same engine. But you can do more, you can relate these dynamic objects with the others and relations will be stored transparently for you.
+Dynamic classes are those who's structure can be configured at runtime and don't have a <emphasis>real</emphasis> C++ declaration. That is, you just create an structure which you want to be browseable just like any other class you have created, you want to be able to make it persistent with the same engine. But you can do more, you can relate these dynamic objects with your C++ ones and relations will be stored transparently for you.
 </para>
 
 <para>
-As an example we will create
+As an example we will create a new class in our test application:
 </para>
+
+<programlisting>
+<![CDATA[
+Classes::addClass( "BookExtraInfo", DynamicObject::createInstance, 0 );
+ClassInfo *ci = Classes::classInfo( "BookExtraInfo" );
+ci->addProperty( "notes", QVariant::String );
+ci->addProperty( "numberOfCopies", QVariant::ULongLong );
+ci->addProperty( "dateOfAcquisition", QVariant::Date );
+ci->addObject( "Book", "book" );
+ci->addCollection( "Book", "similarBooks" );
+]]>
+</programlisting>
+
+<para>
+After the code is executed each time you browse your available classes you will have a new one called BookExtraInfo, which will contain three properties: notes, numberOfCopies and dateOfAcquisition, the book the information it relates to and a list of similar books. So if you are using the SQL backend and call the createSchema() function, you'll get two new tables (BookExtraInfo and similarBooks) with the necessary fields to store this information.
+</para>
+
+<para>Of course, you can create an instance of BookExtraInfo and set the dateOfAcquisition and a similar book with:</para>
+
+<programlisting>
+<![CDATA[
+ObjectRef<Object> *obj = Classes::classInfo( "BookExtraInfo" )->create();
+obj->setObject( "book", benzina );
+obj->setProperty( "dateOfAcquisition", QDate::currentDate() );
+obj->collection( "similarBooks" )->add( sentimental );
+Manager::self()->commit();
+]]>
+</programlisting>
+
 </sect1>
 
 <sect1 id="notifications">
 <title>Using the notification mechanism</title>
 <para>
-Another facility provided by &kandau; is a notification system. It allows you to register a slot to a concrete or general event. An event can be as concrete as <emphasis>property X has ben modified in object Y</emphasis> or as general as <emphasis>something has been modified in class Z</emphasis> or even <emphasis>something has been modified</emphasis>.
+Another facility provided by &kandau; is a notification system. It allows you to register a slot to a concrete or general event. An event can be as concrete as <emphasis>property X has been modified in object Y</emphasis> or as general as <emphasis>something has been modified in class Z</emphasis> or even <emphasis>something has been modified</emphasis>.
 </para>
 
 <para>
 This gives applications a powerful mechanism to update data in their GUI's without other explicit methods. See how you can register to a notification in the following example:
 </para>
 
+<programlisting>
+<![CDATA[
+
+]]>
+</programlisting>
+
+
+
 </sect1>
+
+
 
 <sect1 id="dcop">
 <title>Accessing your objects with Kandau &amp; DCOP</title>
@@ -772,7 +823,25 @@ This gives applications a powerful mechanism to update data in their GUI's witho
 
 </para>
 </sect1>
+
+<sect1 id="performance">
+<title>Performance Tips</title>
+
+<para>
+Kandau hasn't been tested for performance at the moment, and some of the mechanisms it uses would probably require that. However, the first thing to achieve is stability and features and performance enhancements will com later.
+</para>
+
+<para>
+That said, I'd like to share some of the internal mechanisms that even before analyzing I think can cause performance problems to the users. So if you're worried about performance or your application suffers some of these problems I hope these notes will help you:
+</para>
+
+<sect2>
+</sect2>
+
+</sect1>
+
 </chapter>
+
 
 <chapter id="development">
 	<title>Kandau development</title>

@@ -65,20 +65,14 @@ private:
 typedef QMap<QString,QValueList<ObjectAndSlot> > MapPropertySlots;
 typedef QMapConstIterator<QString,QValueList<ObjectAndSlot> > MapConstIteratorPropertySlots;
 
-//typedef QMap<PropertyInfo*,QStringList> MapPropertySlots;
-//typedef QMapConstIterator<PropertyInfo*,QStringList> MapConstIteratorPropertySlots;
-
 typedef QMap<OidType,MapPropertySlots> MapObjectProperty;
 typedef QMapConstIterator<OidType,MapPropertySlots> MapConstIteratorObjectProperty;
 
 typedef QMap<const ClassInfo*,MapObjectProperty> MapClassInfoObject;
 typedef QMapConstIterator<const ClassInfo*,MapObjectProperty> MapConstIteratorClassInfoObject;
 
-//typedef QMap<QString,PossibleEvents> MapSlotEvents;
-//typedef QMapConstIterator<QString,PossibleEvents> MapConstIteratorSlotEvents;
-
-typedef QMap<ObjectAndSlot,PossibleEvents> MapSlotEvents;
-typedef QMapConstIterator<ObjectAndSlot,PossibleEvents> MapSlotEventsConstIterator;
+typedef QMap<ObjectAndSlot,QValueList<PossibleEvents> > MapSlotEvents;
+typedef QMapConstIterator<ObjectAndSlot, QValueList<PossibleEvents> > MapSlotEventsConstIterator;
 
 /**
 	@author Albert Cervera Areny <albertca@hotpop.com>
@@ -97,9 +91,6 @@ signals:
 private:
 	MapSlotEvents m_slotEvents;
 	MapClassInfoObject m_eventSlots;
-//	MapClassInfoObject m_classInfoObject;
-//	MapObjectProperty m_objectProperty;
-//	MapPropertySlots m_propertySlot;
 };
 
 #endif

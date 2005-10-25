@@ -26,7 +26,10 @@
 #include <classes.h>
 #include <manager.h>
 #include <sqldbbackend.h>
+#include <xmldbbackend.h>
 #include <labelsmetainfo.h>
+#include <dynamicobject.h>
+#include <notifier.h>
 
 #include "author.h"
 #include "book.h"
@@ -37,6 +40,7 @@ int main( int cargs, char **args )
 	
 	QApplication app( cargs, args );
 	
+/*
 	QSqlDatabase *db = QSqlDatabase::addDatabase( "QPSQL7" );
 	db->setDatabaseName( "bookshelf" );
 	db->setUserName( "albert" );
@@ -46,11 +50,15 @@ int main( int cargs, char **args )
 		kdDebug() << "Failed to open database: " << db->lastError().text() << endl;
 		return 1;
 	}
-	
-	
-	DbBackendIface *backend = new SqlDbBackend( db );
+*/	
+//	DbBackendIface *backend = new SqlDbBackend( db );
+
+	DbBackendIface *backend = new XmlDbBackend( "books.xml", true );
 	Manager *manager = new Manager( backend );
+	
 	//manager->createSchema();
+	
+	
 	// Your stuff here
 	ObjectRef<Author> monzo = Author::create();
 	monzo->setFirstName( "Quim" );
@@ -65,6 +73,16 @@ int main( int cargs, char **args )
 	monzo->bibliography()->add( benzina );
 	
 	kdDebug() << "The author of the book 'Benzina' is " << benzina->author()->fullName() << endl;
+
+	// If you use the SQL backend you should declare this class before
+	// creating the schema
+	Classes::addClass( "BookExtraInfo", DynamicObject::createInstance, 0 );
+	ClassInfo *ci = Classes::classInfo( "BookExtraInfo" );
+	ci->addProperty( "notes", QVariant::String );
+	ci->addProperty( "numberOfCopies", QVariant::ULongLong );
+	ci->addProperty( "dateOfAcquisition", QVariant::Date );
+	ci->addObject( "Book", "book", &Book::createInstance );
+	ci->addCollection( "Book", "similarBooks" );
 
 	// Browsing classes
 	ClassInfoIterator it( Classes::begin() );
@@ -95,5 +113,10 @@ int main( int cargs, char **args )
 			kdDebug() << "Property: " << pinfo->name() << ", Label: " << labels->label( pinfo->name() ) << endl;
 		}
 	}
+	
+	Notifier *notifier = dynamic_cast<Notifier*>( Manager::self()->notificationHandler() );
+/*	if ( notifier && obj )
+		notifier->registerSlot( this, SLOT( slotObjectModified(const ClassInfo*,const OidType&,const PropertyInfo*,const QVariant&) ), 0, obj->oid() );
+*/
 	delete manager;
 }

@@ -71,3 +71,12 @@ There are lots of things to think about. Here are some of them:
 	- Changes to allow the correct generation of N-To-1 relations browseable from both sides needs to be updated to InMemorySqlBackend. (Just add a grep)
 
 	- Update Manager QMap when the setOid function is called in an object.
+	
+	- Allow to change the behaviour of the MODIFIED macro using the appropiate compile flag. Some possibilities are: 
+		* Don't event mark the object as modified
+		* Only mark the object as modified
+		* Enable the notification mechanism
+	
+	- Allow different behaviours for transactions. Maybe the start() function should be added.
+		* The default behaviour (without using start()) should the already implemented optimistic offline locking.
+		* If start() is called a SERIALIZABLE transaction should be started on the database until commit. This, however, means that after the start() function, the modified and unmodified objects that are kept in memory need to be reloaded (or at least selected) from the backend so that the underlying database knows the items have been read an can provide the necessary transaction protection.

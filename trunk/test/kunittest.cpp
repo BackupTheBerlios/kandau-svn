@@ -34,6 +34,7 @@
 #include "dynamicobjectstest.h"
 #include "metainfotest.h" 
 #include "desktopconfigbackendtest.h"
+#include "notificationstest.h"
 #include "qtester.h"
 #include "tester.h"
 
@@ -50,6 +51,7 @@ void KUnitTest::registerTests()
 	ADD_TEST( DynamicObjectsTest );
 	ADD_TEST( MetaInfoTest );
 	ADD_TEST( DesktopConfigBackendTest );
+	ADD_TEST( NotificationsTest );
 }
 
 KUnitTest::KUnitTest()
