@@ -28,6 +28,11 @@
 #include "tokenizer.h"
 
 // CollectionIterator
+CollectionIterator::CollectionIterator()
+{
+	m_classInfo = 0;
+	m_manager = 0;
+}
 
 CollectionIterator::CollectionIterator( QMapIterator<OidType,bool> it, const ClassInfo *classInfo, Manager* manager )
 {
@@ -115,11 +120,140 @@ CollectionIterator& CollectionIterator::operator=(const CollectionIterator& it)
 	return *this;
 }
 
+// CollectionIterator
+
+CollectionConstIterator::CollectionConstIterator()
+{
+	m_classInfo = 0;
+	m_manager = 0;
+}
+
+CollectionConstIterator::CollectionConstIterator( QMapConstIterator<OidType,bool> it, const ClassInfo *classInfo, Manager* manager )
+{
+	assert( classInfo );
+	m_it = it;
+	m_classInfo = classInfo;
+	m_manager = manager;
+}
+
+Object* CollectionConstIterator::data()
+{
+	assert( m_classInfo );
+	return m_manager->load( m_it.key(), m_classInfo );
+}
+
+const Object* CollectionConstIterator::data() const
+{
+	assert( m_classInfo );
+	return m_manager->load( m_it.key(), m_classInfo );
+}
+
+OidType CollectionConstIterator::key()
+{
+	return m_it.key();
+}
+
+const OidType& CollectionConstIterator::key() const
+{
+	return m_it.key();
+}
+
+CollectionConstIterator& CollectionConstIterator::operator++()
+{
+	m_it++;
+	return *this;
+}
+
+CollectionConstIterator& CollectionConstIterator::operator--()
+{
+	m_it--;
+	return *this;
+}
+
+CollectionConstIterator CollectionConstIterator::operator++(int)
+{
+	CollectionConstIterator tmp = *this;
+	m_it++;
+	return tmp;
+}
+
+CollectionConstIterator CollectionConstIterator::operator--(int)
+{
+	CollectionConstIterator tmp = *this;
+	m_it--;
+	return tmp;
+}
+
+bool CollectionConstIterator::operator==( const CollectionConstIterator& it ) const
+{
+	return m_it == it.m_it;
+}
+
+bool CollectionConstIterator::operator!=( const CollectionConstIterator& it ) const
+{
+	return m_it != it.m_it;
+}
+
+Object* CollectionConstIterator::operator*()
+{
+	assert( m_classInfo );
+	return m_manager->load( m_it.key(), m_classInfo );
+}
+
+const Object* CollectionConstIterator::operator*() const
+{
+	assert( m_classInfo );
+	return m_manager->load( m_it.key(), m_classInfo );
+}
+
+CollectionConstIterator& CollectionConstIterator::operator=(const CollectionConstIterator& it)
+{
+	m_it = it.m_it;
+	m_classInfo = it.m_classInfo;
+	m_manager = it.m_manager;
+	return *this;
+}
 
 // Collection
 
+Collection::Collection()
+{
+	m_collectionInfo = 0;
+	m_parent = 0;
+	m_modified = false;
+	m_classInfo = 0;
+	m_manager = 0;
+}
+
 Collection::Collection( const QString& query, Manager* manager )
 {
+	m_collectionInfo = 0;
+	m_parent = 0;
+	m_modified = false;
+	m_classInfo = 0;
+	m_manager = 0;
+	setQuery( query, manager );
+}
+
+Collection::Collection( const RelatedCollection *rel, const OidType& parent, Manager* manager )
+{
+	assert( rel );
+	m_collectionInfo = rel;
+	m_parent = parent;
+	m_modified = false;
+	m_classInfo = m_collectionInfo->childrenClassInfo();
+	m_manager = manager;
+	m_manager->load( this );
+	assert( m_collectionInfo );
+}
+
+Collection::~Collection()
+{
+}
+
+void Collection::setQuery( const QString& query, Manager* manager )
+{
+	m_collection.clear();
 	if ( manager )
 		m_manager = manager;
 	else
@@ -140,21 +274,6 @@ Collection::Collection( const QString& query, Manager* manager )
 		m_classInfo = Classes::classInfo( c );
 	}
 	m_collectionInfo = 0;
-}
-
-Collection::Collection( RelatedCollection *rel, const OidType& parent, Manager* manager )
-{
-	assert( rel );
-	m_collectionInfo = rel;
-	m_parent = parent;
-	m_modified = false;
-	m_classInfo = m_collectionInfo->childrenClassInfo();
-	m_manager = manager;
-	assert( m_collectionInfo );
-}
-
-Collection::~Collection()
-{
 }
 
 Collection& Collection::operator=( const Collection& col )
@@ -291,6 +410,38 @@ CollectionIterator Collection::end()
 }
 
 /*!
+Returns an iterator pointing the first object of the collection
+*/
+CollectionConstIterator Collection::begin() const
+{
+	return CollectionConstIterator( m_collection.begin(), m_classInfo, m_manager );
+}
+
+/*!
+Returns an iterator pointing past the last object of the collection.
+*/
+CollectionConstIterator Collection::end() const
+{
+	return CollectionConstIterator( m_collection.end(), m_classInfo, m_manager );
+}
+
+/*!
+Returns an iterator pointing the first object of the collection
+*/
+CollectionConstIterator Collection::constBegin() const
+{
+	return CollectionConstIterator( m_collection.begin(), m_classInfo, m_manager );
+}
+
+/*!
+Returns an iterator pointing past the last object of the collection.
+*/
+CollectionConstIterator Collection::constEnd() const
+{
+	return CollectionConstIterator( m_collection.end(), m_classInfo, m_manager );
+}
+
+/*!
 Returns the number of objects in the collection (same as numObjects())
 */
 int Collection::count() const
@@ -336,13 +487,20 @@ OidType Collection::parentOid() const
 /*!
 Returns a pointer to a RelatedCollection which contains the information for the current collection.
 */
-RelatedCollection* Collection::collectionInfo() const
+const RelatedCollection* Collection::collectionInfo() const
 {
-	assert( m_collectionInfo );
 	return m_collectionInfo;
 }
 
 const ClassInfo* Collection::childrenClassInfo() const
 {
 	return m_classInfo;
+}
+
+/*!
+Returns a pointer to the manager that handles te collection
+*/
+Manager* Collection::manager() const
+{
+	return m_manager;
 }

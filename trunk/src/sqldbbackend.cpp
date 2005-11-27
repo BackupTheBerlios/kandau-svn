@@ -115,7 +115,7 @@ bool SqlDbBackend::load( const QSqlCursor &cursor, Object *object )
 			continue;
 		object->setObject( oIt.key(), variantToOid( cursor.value( oIt.key() ) ) );
 	}
-
+	object->setModified( false );
 	return true;
 }
 
@@ -183,11 +183,11 @@ bool SqlDbBackend::save( Object *object )
 			buffer.open( IO_WriteOnly );
 			prop.value().toPixmap().save( &buffer, "PNG" );
 			record->setValue( prop.name(), img );
-		} else if( prop.type() == QVariant::List ){
-			QByteArray pin;
-			QDataStream stream( pin,IO_WriteOnly  );
-			stream << prop.value();
-			record->setValue( prop.name(), stream );
+//		} else if( prop.type() == QVariant::List ){
+//			QByteArray pin;
+//			QDataStream stream( pin, IO_ReadWrite );
+//			stream << prop.value();
+//			record->setValue( prop.name(), stream );
 		} else {
 			record->setValue( prop.name(), prop.value() );
 		}
@@ -304,6 +304,7 @@ bool SqlDbBackend::load( Collection *collection )
 	}
 	// TODO: Look if it is necessary a function like this:
 	//collection->setLoaded( true );
+	collection->setModified( false );
 	return true;
 }
 
@@ -323,13 +324,13 @@ bool SqlDbBackend::load( Collection *collection )
 // */
 // }
 
-QString SqlDbBackend::filterFieldName( RelatedCollection *collection ) const
+QString SqlDbBackend::filterFieldName( const RelatedCollection *collection ) const
 {
 	assert( collection );
 	return collection->parentClassInfo()->name();
 }
 
-OidType SqlDbBackend::filterValue( Collection *collection ) const
+OidType SqlDbBackend::filterValue( const Collection *collection ) const
 {
 	assert( collection );
 	if ( ! collection->parent() ) {
@@ -343,7 +344,7 @@ OidType SqlDbBackend::filterValue( Collection *collection ) const
 	return static_cast<Object*>(collection->parent())->oid();
 }
 
-QString SqlDbBackend::idFieldName( RelatedCollection *collection ) const
+QString SqlDbBackend::idFieldName( const RelatedCollection *collection ) const
 {
 	assert( collection );
 	if ( collection->isNToOne() )
@@ -546,8 +547,8 @@ bool SqlDbBackend::commit()
 
 	commitCollections();
 	
-	QMapIterator<OidType, Object*> it( m_manager->begin() );
-	QMapIterator<OidType, Object*> end( m_manager->end() );
+	ManagerObjectIterator it( m_manager->begin() );
+	ManagerObjectIterator end( m_manager->end() );
 	Object *obj;
 	for ( ; it != end; ++it ) {
 		obj = (*it);

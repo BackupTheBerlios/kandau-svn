@@ -32,3 +32,4 @@ include_HEADERS = collection.h dbbackendiface.h defs.h manager.h object.h \
 
 
 noinst_HEADERS = tokenizer.h
+libkandau_la_LIBADD = -lkdecore -lqt-mt

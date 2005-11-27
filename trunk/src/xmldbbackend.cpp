@@ -147,6 +147,7 @@ OidType XmlDbBackend::elementToObject( const QDomElement& e )
 								nc = nc.nextSibling();
 							}
 						}
+						collection->setModified( false );
 					}
 					nx = nx.nextSibling();
 				}

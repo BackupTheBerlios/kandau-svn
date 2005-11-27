@@ -140,7 +140,7 @@ public:
 	@param function The function which creates an object of the type of the related one
 	@param nToOne Specifies if the relation is N to One, or N to N. This is a hint only and only needed if in the related class there is no declaration.
 	*/
-	RelatedCollection( ClassInfo *parent, const QString& name, ClassInfo *children, bool nToOne );
+	RelatedCollection( const ClassInfo *parent, const QString& name, const ClassInfo *children, bool nToOne );
 
 	/*!
 	Get the name of the relation
@@ -149,27 +149,21 @@ public:
 	const QString& name() const;
 	
 	/*!
-	Get the function pointer to create a new object
-	@return The function pointer
-	*/
-	//CreateObjectFunction createObjectFunction() const;
-
-	/*!
 	Get whether the relation is N to One or N to N.
 	@return True if the relation is N to One, false if it's N to N.
 	*/
-	bool isNToOne();
+	bool isNToOne() const;
 
 	/*!
 	Gets the ClassInfo of the class of the objects related.
 	@return The name of the class.
 	*/
-	ClassInfo* childrenClassInfo();
+	const ClassInfo* childrenClassInfo() const;
 
 	/*!
 	Gets the ClassInfo of the class of the parent
 	*/
-	ClassInfo* parentClassInfo();
+	const ClassInfo* parentClassInfo() const;
 	
 private:
 	/*!
@@ -178,23 +172,16 @@ private:
 	void cacheData();
 
 	QString m_name;
-//	CreateObjectFunction m_function;
-	bool m_nToOne;
 
 	/*! 
 	Pointer to the parent ClassInfo
 	*/
-	ClassInfo *m_parentClassInfo;
+	const ClassInfo *m_parentClassInfo;
 
 	/*!
 	Contains the cached ClassInfo of the related class
 	*/
-	ClassInfo *m_childrenClassInfo;
-
-	/*!
-	If the needed data is already in the caches
-	*/
-	bool m_cached;
+	const ClassInfo *m_childrenClassInfo;
 };
 
 
@@ -264,6 +251,11 @@ public:
 
 	void addProperty( const QString& name, QVariant::Type type, bool readOnly = false );
 
+	/*!
+	Used internally. This function fills in the classInfo properties structure from the QObject information. The function is called from Classes::setup() as if it is called from the ClassInfo::addClass() function and a property is of type QPixmap, Qt will abort because a QPaintDevice is created before a QApplication. That's why Classes::setup() sould be called after creating a QApplication object.
+	*/
+	void createProperties();
+	
 	/*!
 	Gets the name of the class.
 	@return The name of the class

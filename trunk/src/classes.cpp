@@ -112,18 +112,14 @@ void RelatedObject::cacheData()
 
 RelatedCollection::RelatedCollection()
 {
-	m_cached = false;
-	m_nToOne = true;
 }
 
-RelatedCollection::RelatedCollection( ClassInfo* parent, const QString& name, ClassInfo* children, bool nToOne )
+RelatedCollection::RelatedCollection( const ClassInfo* parent, const QString& name, const ClassInfo* children, bool nToOne )
 {
 	m_parentClassInfo = parent;
 	m_name = name;
 	//m_function = function;
 	m_childrenClassInfo = children;
-	m_nToOne = nToOne;
-	m_cached = false;
 }
 
 const QString& RelatedCollection::name() const
@@ -131,47 +127,20 @@ const QString& RelatedCollection::name() const
 	return m_name;
 }
 
-bool RelatedCollection::isNToOne()
+bool RelatedCollection::isNToOne() const
 {
-	if ( ! m_cached )
-		cacheData();
-	return m_nToOne;
+	return m_childrenClassInfo->containsObject( m_name );
 }
 
-ClassInfo* RelatedCollection::childrenClassInfo()
+const ClassInfo* RelatedCollection::childrenClassInfo() const
 {
-	//if ( ! m_cached )
-	//	cacheData();
-	//return m_relatedClassInfo;
 	return m_childrenClassInfo;
 }
 
-ClassInfo* RelatedCollection::parentClassInfo()
+const ClassInfo* RelatedCollection::parentClassInfo() const
 {
 	return m_parentClassInfo;
 }
-
-void RelatedCollection::cacheData()
-{
-	//assert( m_function );
-	//Object *obj = m_function();
-
-	//m_relatedClassInfo = obj->classInfo();
-	// TODO: We don't check if the type of the collection is of the same type of our class. Maybe this check could be added when compiled with the DEBUG flag.
-
-	// Only if we haven't been explicitly told that it is N-to-N we will
-	// search in the related class
-	if ( m_nToOne ) {
-		if ( m_childrenClassInfo->containsObject( m_name ) ) {
-			m_nToOne = true;
-		} else {
-			m_nToOne = false;
-		}
-	}
-	m_cached = true;
-//	delete obj;
-}
-
 
 /* ClassInfo */
 
@@ -179,14 +148,6 @@ ClassInfo::ClassInfo( const QString& name, CreateObjectFunction function )
 {
 	m_name = name;
 	m_function = function;
-	// Fill in the Properties Map
-	
-	Object* obj = createInstance();
-	for ( int i = 0; i < obj->metaObject()->numProperties(); ++i ) {
-		const QMetaProperty *meta = obj->metaObject()->property( i );
-		PropertyInfo *p = new PropertyInfo( meta->name(),  QVariant::nameToType( meta->type() ), ! meta->writable() );
-		m_properties.insert( meta->name(), p );
-	}
 }
 
 Object* ClassInfo::create( Manager* manager ) const
@@ -270,6 +231,17 @@ void ClassInfo::addCollection( const QString& className, const QString& relation
 void ClassInfo::addProperty( const QString& name, QVariant::Type type, bool readOnly )
 {
 	m_properties.insert( name, new PropertyInfo( name, type, readOnly ) );
+}
+
+void ClassInfo::createProperties()
+{
+	// Fill in the Properties Map
+	Object* obj = createInstance();
+	for ( int i = 0; i < obj->metaObject()->numProperties(); ++i ) {
+		const QMetaProperty *meta = obj->metaObject()->property( i );
+		PropertyInfo *p = new PropertyInfo( meta->name(),  QVariant::nameToType( meta->type() ), ! meta->writable() );
+		m_properties.insert( meta->name(), p );
+	}
 }
 
 RelatedObjectsConstIterator ClassInfo::objectsBegin() const
@@ -436,6 +408,7 @@ void Classes::setup()
 	for ( ; it != end; ++it ) {
 		tmp = (*it);
 		m_currentClass = Classes::classInfo( tmp->name() );
+		m_currentClass->createProperties();
 		tmp->createRelations()();
 		delete tmp;
 		tmp = 0;

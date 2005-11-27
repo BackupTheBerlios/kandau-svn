@@ -28,6 +28,8 @@
 #include "defs.h"
 #include "oidtype.h"
 
+#define LOCK_ME m_manager->lockObject( this );
+#define UNLOCK_ME m_manager->unlockObject( this );
 
 class Object;
 class Collection;
@@ -47,6 +49,8 @@ typedef QMapConstIterator<OidType, QMap<QString, QPair<OidType, bool> > > Manage
 typedef QMap<OidType, QMap<QString, Collection*> > ManagerRelatedCollectionMap;
 typedef QMapIterator<OidType, QMap<QString, Collection*> > ManagerRelatedCollectionIterator;
 typedef QMapConstIterator<OidType, QMap<QString, Collection*> > ManagerRelatedCollectionConstIterator;
+
+typedef QMap<Object*,bool> LockedObjectsMap;
 
 #define MaxObjects 100
 
@@ -77,8 +81,8 @@ public:
 	/* Functions related to object management */
 	bool add( Object* object );
 	bool remove( Object* object );
-	bool contains( OidType oid );
-	Object* object( OidType oid );
+	bool contains( OidType oid ) const;
+	Object* object( OidType oid ) const;
 
 	/*!
 	Returns a pointer to the requested object.
@@ -101,8 +105,8 @@ public:
 
 	/* Relation management functions */
 	void setRelation( const OidType& oid, const ClassInfo* classInfo, const QString& relation, const OidType& oidRelated, bool recursive = true );
-	void addRelation( const OidType& oid, RelatedCollection* collection, const OidType& oidRelated, bool recursive = true );
-	void removeRelation( const OidType& oid, RelatedCollection* collection, const OidType& oidRelated, bool recursive = true );
+	void addRelation( const OidType& oid, const RelatedCollection* collection, const OidType& oidRelated, bool recursive = true );
+	void removeRelation( const OidType& oid, const RelatedCollection* collection, const OidType& oidRelated, bool recursive = true );
 	
 	void setModifiedRelation( const OidType& oid, const ClassInfo* classInfo, const QString& relationName, bool modified, bool recursive = true );
 	void setModifiedRelation( const OidType& oid, RelatedCollection* collection, const OidType& oidRelated, bool modified, bool recursive = true );
@@ -112,9 +116,9 @@ public:
 	OidType relation( const Object* object, const QString& relation );
 
 	Collection* collection( const Object* object, const QString& relation );
-	Collection* collection( const OidType& oid, RelatedCollection* collection );
+	Collection* collection( const OidType& oid, const RelatedCollection* collection );
 
-	bool notifyPropertyModified( const Object* object, const QString& function, const QVariant& value );
+	bool notifyPropertyModified( const Object* object, const QString& function, const QVariant& value = QVariant() );
 	void setNotificationHandler( NotificationHandler* handler );
 	NotificationHandler* notificationHandler() const;
 	
@@ -143,6 +147,9 @@ public:
 	@param manager The manager to which the contents of the current manager will be copied.
 	*/
 	void copy( Manager* manager );
+	
+	void lockObject( Object *object );
+	void unlockObject( Object *object );
 	
 	static const Q_ULLONG Unlimited = ULONG_MAX;
 protected:
@@ -189,6 +196,7 @@ protected:
 	*/
 	void removeObjectReferences( const OidType& oid, Filter filter );
 
+	void checkObjects();
 public:
 	ManagerRelatedObjectMap& relations();
 	ManagerRelatedCollectionMap& collections();
@@ -226,6 +234,11 @@ private:
 	*/
 	ManagerRelatedCollectionMap m_collections;
 	
+	/*!
+	Mantains the list of locked objects (object's that can't be freed even if are unmodified.
+	*/
+	LockedObjectsMap m_lockedObjects;
+
 	/*!
 	The object that is called when an event occurrs
 	*/

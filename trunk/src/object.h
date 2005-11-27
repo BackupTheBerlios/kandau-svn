@@ -103,12 +103,25 @@ class Object;
 	}\
 	DeclareClass declareClass##class( #class, &class::createInstance, &class::createRelations );
 
+
+#ifdef MODIFIED_NONE
+#elif MODIFIED_EMPTY
+#define MODIFIED
+#elif MODIFIED_SIMPLE
+#define MODIFIED m_modified = true;
+#elif MODIFIED_FULL
+#define MODIFIED(value) if ( ! m_manager->notifyPropertyModified( this, __FUNCTION__, value ) ) return; m_modified = true;
+#else
+#define MODIFIED if ( ! m_manager->notifyPropertyModified( this, __FUNCTION__ ) ) return; m_modified = true;
+#endif
+
+/*
 #ifdef WITHOUT_MODIFIED_CALLBACKS
 #define MODIFIED m_modified = true;
 #else
 #define MODIFIED(value) if ( ! m_manager->notifyPropertyModified( this, __FUNCTION__, value ) ) return; m_modified = true;
 #endif
-
+*/
 
 //TODO: Make versions of these macros for debug mode.
 //	For example, use dynamic_cast, and check the pointer
@@ -354,8 +367,11 @@ public:
 	Functions for managing the properties
 	*/
 	PropertiesIterator propertiesBegin();
+	PropertiesConstIterator propertiesBegin() const;
 	PropertiesConstIterator propertiesConstBegin() const;
+	
 	PropertiesIterator propertiesEnd();
+	PropertiesConstIterator propertiesEnd() const;
 	PropertiesConstIterator propertiesConstEnd() const;
 	int numProperties() const;
 	//Property property( const char* name ) const;
@@ -414,28 +430,29 @@ public:
 		m_manager = 0;
 		m_classInfo = 0;
 	}
-
+	
 	ObjectRef( T* object )
 	{
-		Object* obj = static_cast<Object*>( object );
-		m_oid = obj->oid();
-		m_manager = obj->manager();
-		m_classInfo = obj->classInfo();
+		if ( object ) {
+			Object* obj = static_cast<Object*>( object );
+			m_oid = obj->oid();
+			m_manager = obj->manager();
+			m_classInfo = obj->classInfo();
+		} else {
+			m_oid = 0;
+		}
 	}
-/*
-	ObjectRef( const OidType& oid, Manager* manager = 0, ClassInfo* info = 0 )
-	{
-		m_oid = oid;
-		m_manager = manager;
-		m_classInfo = info;
-	}
-*/
+	
 	ObjectRef<T>& operator=( T* object )
 	{
-		Object* obj = static_cast<Object*>( object );
-		m_oid = obj->oid();
-		m_manager = obj->manager();
-		m_classInfo = obj->classInfo();
+		if ( object ) {
+			Object* obj = static_cast<Object*>( object );
+			m_oid = obj->oid();
+			m_manager = obj->manager();
+			m_classInfo = obj->classInfo();
+		} else {
+			m_oid = 0;
+		}
 		return *this;
 	}
 
@@ -447,12 +464,84 @@ public:
 		return *this;
 	}
 
-	T* operator->()
+	T* operator->() const
+	{
+		return static_cast<T*>( m_manager->load( m_oid, m_classInfo ) );
+	}
+	
+	T& operator*()
+	{
+		return &(static_cast<T*>( m_manager->load( m_oid, m_classInfo ) ));
+	}
+
+	operator T*() const
 	{
 		return static_cast<T*>( m_manager->load( m_oid, m_classInfo ) );
 	}
 
-	T& operator*()
+	OidType oid() const
+	{
+		return m_oid;
+	}
+
+	bool isNull() const
+	{
+		return m_oid == 0;
+	}
+
+	void setNull()
+	{
+		m_oid = 0;
+	}
+
+private:
+	OidType m_oid;
+	Manager* m_manager;
+	const ClassInfo *m_classInfo;
+};
+
+template <class T>
+class ConstObjectRef
+{
+public:
+	ConstObjectRef()
+	{
+		m_oid = 0;
+		m_manager = 0;
+		m_classInfo = 0;
+	}
+
+	ConstObjectRef( const T* object )
+	{
+		const Object* obj = static_cast<const Object*>( object );
+		m_oid = obj->oid();
+		m_manager = obj->manager();
+		m_classInfo = obj->classInfo();
+	}
+	
+	ConstObjectRef<T>& operator=( const T* object )
+	{
+		const Object* obj = static_cast<const Object*>( object );
+		m_oid = obj->oid();
+		m_manager = obj->manager();
+		m_classInfo = obj->classInfo();
+		return *this;
+	}
+
+	ConstObjectRef<T>& operator=( ConstObjectRef<T> ref )
+	{
+		m_oid = ref.m_oid;
+		m_manager = ref.m_manager;
+		m_classInfo = ref.m_classInfo;
+		return *this;
+	}
+
+	const T* operator->()
+	{
+		return static_cast<T*>( m_manager->load( m_oid, m_classInfo ) );
+	}
+	
+	const T& operator*()
 	{
 		return &(static_cast<T*>( m_manager->load( m_oid, m_classInfo ) ));
 	}
@@ -477,5 +566,6 @@ private:
 	Manager* m_manager;
 	const ClassInfo *m_classInfo;
 };
+
 
 #endif // _OBJECT_H_

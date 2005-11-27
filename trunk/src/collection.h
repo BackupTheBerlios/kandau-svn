@@ -26,12 +26,12 @@
 #include "object.h"
 #include "oidtype.h"
 #include "classes.h"
-
-class Object;
+#include "manager.h"
 
 class CollectionIterator
 {
 public:
+	CollectionIterator();
 	CollectionIterator( QMapIterator<OidType,bool> it, const ClassInfo* classInfo, Manager* manager );
 	Object* data();
 	const Object* data() const;
@@ -53,6 +53,30 @@ private:
 	Manager* m_manager;
 };
 
+class CollectionConstIterator
+{
+public:
+	CollectionConstIterator();
+	CollectionConstIterator( QMapConstIterator<OidType,bool> it, const ClassInfo* classInfo, Manager* manager );
+	Object* data();
+	const Object* data() const;
+	OidType key();
+	const OidType& key() const;
+	CollectionConstIterator& operator++();
+	CollectionConstIterator& operator--();
+	CollectionConstIterator operator++(int);
+	CollectionConstIterator operator--(int);
+	bool operator==( const CollectionConstIterator& it ) const;
+	bool operator!=( const CollectionConstIterator& it ) const;
+	Object* operator*();
+	const Object* operator*() const;
+	CollectionConstIterator& operator=(const CollectionConstIterator& it);
+
+private:
+	QMapConstIterator<OidType,bool> m_it;
+	const ClassInfo* m_classInfo;
+	Manager* m_manager;
+};
 
 /**
 @author Albert Cervera Areny
@@ -60,12 +84,15 @@ private:
 class Collection
 {
 public:
+	Collection();
 	Collection( const QString& query, Manager* manager = 0 );
-	Collection( RelatedCollection *rel, const OidType& parent, Manager* manager );
+	Collection( const RelatedCollection *rel, const OidType& parent, Manager* manager );
 	virtual ~Collection();
 	Collection& operator=( const Collection& col );
 
-	RelatedCollection* collectionInfo() const;
+	const RelatedCollection* collectionInfo() const;
+
+	void setQuery( const QString& query, Manager* manager = 0 );
 
 	Object* addNew();
 	bool add( Object *object );
@@ -82,6 +109,11 @@ public:
 	CollectionIterator begin();
 	CollectionIterator end();
 
+	CollectionConstIterator begin() const;
+	CollectionConstIterator end() const;
+	CollectionConstIterator constBegin() const;
+	CollectionConstIterator constEnd() const;
+
 	int count() const;
 
 	void clear();
@@ -92,6 +124,8 @@ public:
 	Object* parent() const;
 	OidType parentOid() const;
 	const ClassInfo *childrenClassInfo() const;
+	
+	Manager* manager() const;
 
 	bool simpleAdd( const OidType& oid );
 	void simpleRemove( const OidType& oid );
@@ -108,7 +142,7 @@ private:
 	QMap<OidType,bool> m_collection;
 	//CreateObjectFunction m_createObjectFunction;
 
-	RelatedCollection *m_collectionInfo;
+	const RelatedCollection *m_collectionInfo;
 	OidType m_parent;
 
 	// If the nToOne variable is set
@@ -125,5 +159,115 @@ private:
 	
 	Manager* m_manager;
 };
+
+template <class T>
+class CollectionRef
+{
+public:
+	CollectionRef()
+	{
+		m_oid = 0;
+		m_manager = 0;
+		m_collectionInfo = 0;
+	}
+	
+	CollectionRef( T* collection )
+	{
+		if ( collection ) {
+			Collection* col = static_cast<Collection*>( collection );
+			m_oid = col->parentOid();
+			m_manager = col->manager();
+			if ( m_oid ) {
+				m_collectionInfo = col->collectionInfo();
+				m_collection = 0;
+			} else {
+				m_collectionInfo = 0;
+				m_collection = collection;
+			}
+		} else {
+			m_oid = 0;
+			m_manager = 0;
+			m_collectionInfo = 0;
+			m_collection = 0;
+		}
+	}
+	
+	CollectionRef<T>& operator=( T* collection )
+	{
+		if ( collection ) {
+			Collection* col = static_cast<Collection*>( collection );
+			m_oid = col->parentOid();
+			m_manager = col->manager();
+			if ( m_oid ) {
+				m_collectionInfo = col->collectionInfo();
+				m_collection = 0;
+			} else {
+				m_collectionInfo = 0;
+				m_collection = collection;
+			}
+		} else {
+			m_oid = 0;
+			m_manager = 0;
+			m_collectionInfo = 0;
+			m_collection = 0;
+		}
+		return *this;
+	}
+
+	CollectionRef<T>& operator=( CollectionRef<T> ref )
+	{
+		m_oid = ref.m_oid;
+		m_manager = ref.m_manager;
+		m_collectionInfo = ref.m_collectionInfo;
+		m_collection = ref.m_collection;
+		return *this;
+	}
+
+	T* operator->() const
+	{
+		if ( m_oid )
+			return static_cast<T*>( m_manager->collection( m_oid, m_collectionInfo ) );
+		else
+			return m_collection;
+	}
+	
+	T& operator*()
+	{
+		if ( m_oid )
+			return &(static_cast<T*>( m_manager->collection( m_oid, m_collectionInfo ) ));
+		else
+			return *m_collection;
+	}
+
+	operator T*() const
+	{
+		if ( m_oid )
+			return static_cast<T*>( m_manager->collection( m_oid, m_collectionInfo ) );
+		else
+			return m_collection;
+	}
+
+	OidType oid() const
+	{
+		return m_oid;
+	}
+
+	bool isNull() const
+	{
+		return m_oid == 0;
+	}
+
+	void setNull()
+	{
+		m_oid = 0;
+	}
+
+private:
+	OidType m_oid;
+	Manager* m_manager;
+	const RelatedCollection *m_collectionInfo;
+	Collection *m_collection;
+};
+
 
 #endif

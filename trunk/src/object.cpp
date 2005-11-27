@@ -471,6 +471,11 @@ PropertiesIterator Object::propertiesBegin()
 	return PropertiesIterator( this, classInfo()->propertiesBegin() );
 }
 
+PropertiesConstIterator Object::propertiesBegin() const
+{
+	return PropertiesConstIterator( this, classInfo()->propertiesBegin() );
+}
+
 PropertiesConstIterator Object::propertiesConstBegin() const
 {
 	return PropertiesConstIterator( this, classInfo()->propertiesBegin() );
@@ -479,6 +484,11 @@ PropertiesConstIterator Object::propertiesConstBegin() const
 PropertiesIterator Object::propertiesEnd()
 {
 	return PropertiesIterator( this, classInfo()->propertiesEnd() );
+}
+
+PropertiesConstIterator Object::propertiesEnd() const
+{
+	return PropertiesConstIterator( this, classInfo()->propertiesEnd() );
 }
 
 PropertiesConstIterator Object::propertiesConstEnd() const

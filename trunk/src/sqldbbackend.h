@@ -73,9 +73,9 @@ protected:
 
 	SeqType newSeq();
 
-	QString filterFieldName( RelatedCollection *collection ) const;
-	OidType filterValue( Collection *collection ) const;
-	QString idFieldName( RelatedCollection *collection ) const;
+	QString filterFieldName( const RelatedCollection *collection ) const;
+	OidType filterValue( const Collection *collection ) const;
+	QString idFieldName( const RelatedCollection *collection ) const;
 	QString sqlType( QVariant::Type type );
 	QSqlDatabase *m_db;
 
