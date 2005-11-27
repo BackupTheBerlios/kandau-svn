@@ -82,7 +82,7 @@ Do NOT change these in the translation. -->
 
 <abstract>
 <para>
-&kandau; is transaction based backend independent object persistency framework for applications using the KDE libraries.
+&kandau; is a transaction based backend independent object persistency framework for applications using the KDE libraries.
 </para>
 </abstract>
 
@@ -91,10 +91,12 @@ Please at least include KDE, the KDE package it is in, the name
  of your application, and a few relevant keywords. -->
 
 <keywordset>
+<keyword>Qt</keyword>
 <keyword>KDE</keyword>
 <keyword>kandau</keyword>
 <keyword>persistency</keyword>
 <keyword>object</keyword>
+<keyword>C++</keyword>
 </keywordset>
 
 </bookinfo>
@@ -112,7 +114,7 @@ consistent documentation style across all KDE apps. -->
 <title>Introduction</title>
 
 <para>
-&kandau; is a library which offers an easy way to save C++ objects into whatever backend you can imagine. Currently implemented are the SQL and XML backends.
+&kandau; is a library which offers an easy way to save C++ objects into whatever backend you can imagine. Currently implemented are the SQL, XML and .desktop backends.
 
 You can find up to date information at <ulink url="http://developer.berlios.de/projects/kandau"/>
 </para>
@@ -146,6 +148,7 @@ Here is a list of &kandau; features:
 	<listitem><para><emphasis>General testing and bugfixing.</emphasis> The most applications use the better tested. At the moment there are unit tests only, which test specific parts of the library, but probably some cases are left without testing.</para></listitem>
 	<listitem><para>Some class names are too general and would need some prefix or be included inside a namespace.</para></listitem>
 	<listitem><para><emphasis>Add support for extra checks on commit.</emphasis> For example, don't allow null values, ensure unique values, etc. Everything should be specified in the class' declaration or implementation.</para></listitem>
+	<listitem><para><emphasis>Fully support inheritance.</emphasis> It must be tested how inheriting from persitent objects works. In theory it should work in the implemented backends but there is at least a drawback in the SQL one. PostgreSQL should properly support foreign keys for inherited tables.</para></listitem>
 </itemizedlist>
 
 </chapter>
@@ -261,6 +264,7 @@ void Book::createRelations()
 
 void Book::setTitle( const QString& title )
 {
+	MODIFIED;
 	m_title = title;
 }
 const QString& Book::title() const
@@ -270,6 +274,7 @@ const QString& Book::title() const
 
 void Book::setAuthor( const QString& author )
 {
+	MODIFIED;
 	m_author = author;
 }
 const QString& Book::author() const
@@ -279,6 +284,7 @@ const QString& Book::author() const
 
 void Book::setIsbn( const QString& isbn )
 {
+	MODIFIED;
 	m_isbn = isbn;
 }
 const QString& Book::isbn() const
@@ -288,6 +294,7 @@ const QString& Book::isbn() const
 
 void Book::setYear( uint year )
 {
+	MODIFIED;
 	m_year = year;
 }
 uint Book::year() const
@@ -304,6 +311,7 @@ And that's all. Now we're able to store any book object into a PostgreSQL databa
 	<listitem><para>Add a call to the DCLASS( your_class ) macro in the header file.</para></listitem>
 	<listitem><para>Add a call to the ICLASS( your_class ) macro in the implementation file.</para></listitem>
 	<listitem><para>Add the implementation of the createRelations function (which is empty in this example).</para></listitem>
+	<listitem><para>Add the MODIFIED macro call to each set function. This allows the system to know whether the object has been modified or not, so the manager knows if it can free the object from cache (which is only possible if the object hasn't been modified).</para></listitem>
 </itemizedlist>
 
 </para>
@@ -787,11 +795,15 @@ Manager::self()->commit();
 <sect1 id="notifications">
 <title>Using the notification mechanism</title>
 <para>
-Another facility provided by &kandau; is a notification system. It allows you to register a slot to a concrete or general event. An event can be as concrete as <emphasis>property X has been modified in object Y</emphasis> or as general as <emphasis>something has been modified in class Z</emphasis> or even <emphasis>something has been modified</emphasis>.
+Another facility provided by &kandau; is a notification system. It allows you to register a slot to a concrete or general event. An event can be as concrete as <emphasis>property X has been modified in object Y</emphasis> or as general as <emphasis>something has been modified in class Z</emphasis> or even <emphasis>something has been modified</emphasis>. This gives applications a powerful mechanism to update data in their GUI's without other explicit methods.
 </para>
 
 <para>
-This gives applications a powerful mechanism to update data in their GUI's without other explicit methods. See how you can register to a notification in the following example:
+The notification mechanism makes use of the MODIFIED macro in your set functions. The mechanism, suposes that the functiona name matches the property name, adds the 'set' prefix, and changes the capital letters by lowercase with a preceded by an underscore. That is 'setParentName' to 'parent_name'
+</para>
+
+<para>
+ See how you can register to a notification in the following example:
 </para>
 
 <programlisting>
@@ -824,6 +836,12 @@ This gives applications a powerful mechanism to update data in their GUI's witho
 </para>
 </sect1>
 
+<sect1 id="locking">
+<title>Avoid segfaults by locking your object</title>
+
+<para>An object can be freed by the manager any time a new object is loaded in memory. That's why we use the ObjectRef template and that solves the problem for most cases. However, it could happen that you load new objects inside a function of an object that is being handled by the manager. This can cause the manager to free your object while still executing one of its functions (it will only happen if the object is unmodified).</para>
+</sect1>
+
 <sect1 id="performance">
 <title>Performance Tips</title>
 
@@ -836,11 +854,96 @@ That said, I'd like to share some of the internal mechanisms that even before an
 </para>
 
 <sect2>
+<title>The MODIFIED macro</title>
+<para>
+This macro is used in the set function of a property in order to mark the object as modified so the Manager knows whether it can remove that object from cache or not. It isn't very nice but it's the fastest way to know that. Otherwise the object should be compared with the information in the backend which would be worse, or another copy of the object should be kept in memory and would mean a waste of resources.
+</para>
+
+<para>However, for some backends there is no need for that flag to be set to the object as all objects are always kept in memory.</para>
+
+<para>
+The MODIFIED macro can also offer the possibility of emiting a signal whenever the property has been modified and that, of course, adds an important overhead every time a set function is called.
+</para>
+
+<para>That's why at compile time you can choose what you want the MODIFIED macro to do:</para>
+
+<itemizedlist>
+	<listitem><para><command>-DMODIFIED_NONE</command> With this flag the MODIFIED macro won't be defined at all. That means you can define it (take a look at the object.h file for examples) or simply not use it. I wouldn't recommend the latter, better use the -DMODIFIED_EMPTY, so you don't have to add the macro everywhere if you ever change your mind or your needs.</para></listitem>
+	<listitem><para><command>-DMODIFIED_EMPTY</command> With this flag the MODIFIED macro will exist but it will be empty. This allows you to create all your code with the MODIFIED macro but optimize it in the case you eventually decide you don't need it.</para></listitem>
+	<listitem><para><command>-DMODIFIED_SIMPLE</command> This is declared as "m_modified=true". This means that the object is set as modified and that's all. Ideal if you don't use the notification mechanisme. Note that the object is set modified using a variable directly (which is protected instead of private and then accessed by a method) for performance reasons.</para></listitem>
+	<listitem><para><emphasis>Default behaviour.</emphasis> If you don't set any flags at compile time this will be the declaration used. This will set your object modified and will enable the notification mechanism which will allow you to be notified every time a property is modified.</para></listitem>
+	<listitem><para><command>-DMODIFIED_FULL</command> This is the most featurefull and will define the MODIFIED macro expecting a parameter to it. The parameter should be the new value that will be set to the property. That means you won't be able to reuse your normal MODIFIED calls.</para></listitem>
+</itemizedlist>
+
+</sect2>
+
+<sect2>
+<title>The ObjectRef template</title>
+<para>The caching system used by Kandau make it possible for an object to be freed from memory without the user (programmer) requesting it, and the object can be loaded again into memory whenever is needed. That's why you should use <classname>ObjectRef&lt;YourPersistentObject&gt;</classname> instead of the pointer directly.</para>
+
+<para>This can add a significant overhead which could be critical in some cases. Fortunately, the manager doesn't remove objects in the background but only in some cases:</para>
+
+<itemizedlist>
+	<listitem><para>Whenever a new object is loaded because it might cause the cache to grow beyond the maximum number of objects allowed.</para></listitem>
+	<listitem><para>After commiting, because many objects could be modified in memory that have been stored. Note that the maximum number of cached objects can be exceeded if the objects are marked as modified.</para></listitem>
+</itemizedlist>
+
+<para>This means that if you can guarantee this two things won't happen, you can be pretty sure the object won't be freed and you can take advantage of that in big loops or in some cases in which you can detect performance degradation.</para>
+
+<para>Consider the following example:</para>
+
+<programlisting>
+<![CDATA[
+Object *obj = Object::create();
+//We can use the pointer here
+obj->setPropertyA( "bla" );
+obj->setPropertyB( "bla" );
+Manager::self()->commit();
+//We can no longer guarantee that the pointer is available here
+//If we need to access to it beyond the commit statement we should
+//have used ObjectRef<Object> instead of Object*
+]]>
+</programlisting>
+
 </sect2>
 
 </sect1>
 
+
+<sect1>
+<title>Available backends</title>
+<para>In this section we will analyze the behaviour of each of the backends you have available with the standard Kandau distribution.</para>
+
+<sect2>
+<title>TestDbBackend</title>
+<para></para>
+</sect2>
+
+<sect2>
+<title>XmlDbBackend</title>
+<para></para>
+</sect2>
+
+<sect2>
+<title>SqlDbBackend</title>
+<para></para>
+</sect2>
+
+<sect2>
+<title>InMemorySqlDbBackend</title>
+<para></para>
+</sect2>
+
+<sect2>
+<title>DesktopConfigDbBackend</title>
+<para></para>
+</sect2>
+
+</sect1>
+
+
 </chapter>
+
 
 
 <chapter id="development">

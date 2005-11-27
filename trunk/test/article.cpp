@@ -90,7 +90,7 @@ void Article::setArticle( Article* article )
 	SETOBJECT( Article, article );
 }
 
-Collection* Article::orders()
+Collection* Article::orders() const
 {
 	return GETCOLLECTION( CustomerOrder );
 }

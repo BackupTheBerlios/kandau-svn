@@ -40,7 +40,7 @@ There are lots of things to think about. Here are some of them:
 	query is executed to the database so you need to commit to see the latest
 	objects added. Nothing extremely useful but a proof of concept.
 
-	- Implement a SortedCollection
+	- Implement a SortedCollection or at least that preserves the order of insertion of objects.
 
 	- Implement Collection as a template so it is possible to retrieve objects without casting.
 	
@@ -72,7 +72,7 @@ There are lots of things to think about. Here are some of them:
 
 	- Update Manager QMap when the setOid function is called in an object.
 	
-	- Allow to change the behaviour of the MODIFIED macro using the appropiate compile flag. Some possibilities are: 
+(DONE)	- Allow to change the behaviour of the MODIFIED macro using the appropiate compile flag. Some possibilities are: 
 		* Don't event mark the object as modified
 		* Only mark the object as modified
 		* Enable the notification mechanism
@@ -80,3 +80,11 @@ There are lots of things to think about. Here are some of them:
 	- Allow different behaviours for transactions. Maybe the start() function should be added.
 		* The default behaviour (without using start()) should the already implemented optimistic offline locking.
 		* If start() is called a SERIALIZABLE transaction should be started on the database until commit. This, however, means that after the start() function, the modified and unmodified objects that are kept in memory need to be reloaded (or at least selected) from the backend so that the underlying database knows the items have been read an can provide the necessary transaction protection.
+
+	- Change the nofification mechanism in the function Manager::notifyPropertyModified, so that it is easy to redefine the MODIFIED macro to use another naming scheme for matching function name with the property or even send the property name as a parameter to the MODIFIED macro.
+	
+	- Add missing ObjectsConstIterator and CollectionsConstIterator (the const versions for iterate the objects and collections of an object).
+	
+	- Create a ConstObjectRef<> template
+	
+	- EnsureUnderMaxObjects should test related objects too (and viceversa).

@@ -50,7 +50,7 @@ public:
 	Article* article() const;
 	void setArticle( Article* article );
 
-	Collection* orders();
+	Collection* orders() const;
 
 private:
 	QString m_code;
