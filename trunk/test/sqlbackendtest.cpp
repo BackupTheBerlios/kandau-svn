@@ -84,7 +84,7 @@ void SqlBackendTest::transactions()
 	CHECK( cursor.value( "label" ).toString(), QString("Article One") );
 	CHECK( cursor.value( "description" ).toString(), QString("Description of article number one") );
 	CHECK( cursor.next(), false );
-	
+
 	cursor.setName( "article_customerorder" );
 	cursor.select( "article = " + oidToString( a1->oid() ) + " AND customerorder = " + oidToString( order->oid() ) );
 	CHECK( cursor.next(), true );
@@ -155,7 +155,8 @@ void SqlBackendTest::transactions()
 	cursor.setName( "customerorder" );
 	cursor.select( "number = 50000" );
 	CHECK( cursor.next(), true );
-	CHECK( variantToOid( cursor.value( "customer_customerorder" ) ), variantToOid( c2->oid() ) );
+	//CHECK( variantToOid( cursor.value( "customer_customerorder" ) ), variantToOid( c2->oid() ) );
+	CHECK( variantToOid( cursor.value( "customer_customerorder" ) ), variantToOid( c->oid() ) );
 	CHECK( cursor.next(), false );
 
 
@@ -330,6 +331,42 @@ void SqlBackendTest::cache()
 	CHECK( Manager::self()->countCollectionRelations(), maxObjects );
 }
 
+void SqlBackendTest::freeing()
+{
+	Manager::self()->reset();
+	Manager::self()->setMaxObjects( 1 );
+	OidType oid1, oid2, oid3;
+	ObjectRef<Article> a1 = Article::create();
+	a1->setCode( "1" );
+	ObjectRef<Article> a2 = Article::create();
+	a2->setCode( "2" );
+	ObjectRef<Article> a3 = Article::create();
+	a3->setCode( "3" );
+	oid1 = a1.oid();
+	oid2 = a2.oid();
+	oid3 = a3.oid();
+	Manager::self()->commit();
+	CHECK( Manager::self()->count(), 1 );
+	ObjectRef<Article> b1 = Article::create( oid1 );
+	CHECK( Manager::self()->count(), 1 );
+	ObjectRef<Article> b2 = Article::create( oid2 );
+	CHECK( Manager::self()->count(), 1 );
+	ObjectRef<Article> b3 = Article::create( oid3 );
+	CHECK( Manager::self()->count(), 1 );
+	CHECK( b1->oid(), oid1 );
+	CHECK( Manager::self()->count(), 1 );
+	CHECK( b2->oid(), oid2 );
+	CHECK( Manager::self()->count(), 1 );
+	CHECK( b3->oid(), oid3 );
+	CHECK( Manager::self()->count(), 1 );
+	CHECK( b3->code(), QString( "3" ) );
+	CHECK( Manager::self()->count(), 1 );
+	CHECK( b1->code(), QString( "1" ) );
+	CHECK( Manager::self()->count(), 1 );
+	CHECK( b2->code(), QString( "2" ) );
+	CHECK( Manager::self()->count(), 1 );
+}
+
 void SqlBackendTest::allTests()
 {
 	QString dbname = "test";
@@ -374,6 +411,7 @@ void SqlBackendTest::allTests()
 	transactions();
 	collections();
 	cache();
+	freeing();
 
 	delete m_manager;
 }

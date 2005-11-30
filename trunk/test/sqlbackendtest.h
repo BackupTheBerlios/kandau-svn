@@ -34,6 +34,7 @@ public:
 	void transactions();
 	void collections();
 	void cache();
+	void freeing();
 
 	void allTests();
 private:
