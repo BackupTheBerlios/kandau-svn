@@ -440,6 +440,8 @@ public:
 			m_classInfo = obj->classInfo();
 		} else {
 			m_oid = 0;
+			m_manager = 0;
+			m_classInfo = 0;
 		}
 	}
 	
@@ -452,6 +454,8 @@ public:
 			m_classInfo = obj->classInfo();
 		} else {
 			m_oid = 0;
+			m_manager = 0;
+			m_classInfo = 0;
 		}
 		return *this;
 	}
@@ -466,6 +470,9 @@ public:
 
 	T* operator->() const
 	{
+		assert( m_oid );
+		assert( m_manager );
+		assert( m_classInfo );
 		return static_cast<T*>( m_manager->load( m_oid, m_classInfo ) );
 	}
 	

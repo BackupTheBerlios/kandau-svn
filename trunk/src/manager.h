@@ -81,8 +81,6 @@ public:
 	/* Functions related to object management */
 	bool add( Object* object );
 	bool remove( Object* object );
-	bool contains( OidType oid ) const;
-	Object* object( OidType oid ) const;
 
 	/*!
 	Returns a pointer to the requested object.
@@ -196,10 +194,11 @@ protected:
 	*/
 	void removeObjectReferences( const OidType& oid, Filter filter );
 
-	void checkObjects();
+
 public:
 	ManagerRelatedObjectMap& relations();
 	ManagerRelatedCollectionMap& collections();
+	void checkObjects();
 
 private:
 	/*!

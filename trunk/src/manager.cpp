@@ -160,16 +160,6 @@ bool Manager::remove( Object* object )
 	return true;
 }
 
-bool Manager::contains( OidType oid ) const
-{
-	return m_objects.contains( oid );
-}
-
-Object* Manager::object( OidType oid ) const
-{
-	return m_objects[oid];
-}
-
 bool Manager::load( Collection* collection )
 {
 	checkObjects();
@@ -445,6 +435,7 @@ void Manager::ensureUnderMaxObjects( Object *object )
 		assert( m_objects.contains( *vIt ) );
 		delete m_objects[ *vIt ];
 		m_objects.remove( *vIt );
+		kdDebug() << "Freed: " << oidToString( *vIt ) << endl;
 		assert( ! m_objects.contains( *vIt ) );
 		//removeObjectReferences( *vIt, Unmodified );
 	}
@@ -464,7 +455,7 @@ void Manager::checkObjects()
 
 void Manager::ensureUnderMaxRelations()
 {
-/*	if ( m_relations.count() < m_maxObjects )
+	if ( m_relations.count() < m_maxObjects )
 		return;
 	bool modified;
 
@@ -492,11 +483,11 @@ void Manager::ensureUnderMaxRelations()
 	for ( ; vIt != vEnd; ++vIt ) {
 		m_relations.remove( *vIt );
 	}
-*/}
+}
 
 void Manager::ensureUnderMaxCollections()
 {
-/*	if ( m_collections.count() < m_maxObjects )
+	if ( m_collections.count() < m_maxObjects )
 		return;
 	bool modified;
 
@@ -524,7 +515,7 @@ void Manager::ensureUnderMaxCollections()
 	for ( ; vIt != vEnd; ++vIt ) {
 		m_collections.remove( *vIt );
 	}
-*/}
+}
 
 void Manager::removeObjectReferences( QMap<QString, QPair<OidType, bool> > map, Filter filter )
 {
@@ -675,7 +666,8 @@ void Manager::removeRelation( const OidType& oid, const RelatedCollection* colle
 		return;
 
 	m_collections[ oid ][ relation ]->simpleRemove( oidRelated );
-
+/* 
+We shouldn't remove the collection as that will make the system try to reload when accessed again.
 	if ( m_collections[ oid ][ relation ]->count() == 0 ) {
 		delete m_collections[ oid ][ relation ];
 		m_collections[ oid ].remove( relation );
@@ -683,6 +675,7 @@ void Manager::removeRelation( const OidType& oid, const RelatedCollection* colle
 			m_collections.remove( oid );
 		}
 	}
+*/
 	if ( recursive ) {
 		if ( Classes::classInfo( collection->childrenClassInfo()->name() )->containsObject( relation ) ) {
 			setRelation( oidRelated, collection->childrenClassInfo(), 0, false );

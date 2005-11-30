@@ -389,7 +389,7 @@ in the collection a null pointer is returned
 Object* Collection::object( OidType oid )
 {
 	if ( m_collection.contains( oid ) )
-		return m_manager->object( oid );
+		return m_manager->load( oid, childrenClassInfo() );
 	return 0;
 }
 
