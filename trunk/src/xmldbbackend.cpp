@@ -230,12 +230,32 @@ bool XmlDbBackend::load( Collection* /*collection*/ )
 	return true;
 }
 
+bool XmlDbBackend::load( Collection */*collection*/, const QString& /*query*/ )
+{
+	return true;
+}
+
+bool XmlDbBackend::load( OidType* /*relatedOid*/, const OidType& /*oid*/, const RelatedObject* /*related*/ )
+{
+	return true;
+}
+
 bool XmlDbBackend::createSchema()
 {
 	return true;
 }
 
 bool XmlDbBackend::hasChanged( Object* /*object*/ )
+{
+	return false;
+}
+
+bool XmlDbBackend::hasChanged( Collection */*collection*/ )
+{
+	return false;
+}
+
+bool XmlDbBackend::hasChanged( const OidType& /*oid*/, const RelatedObject* /*related*/ )
 {
 	return false;
 }
@@ -254,7 +274,7 @@ bool XmlDbBackend::commit()
 	ManagerObjectIterator it( m_manager->begin() );
 	ManagerObjectIterator end( m_manager->end() );
 	for ( ; it != end; ++it )
-		objectToElement( *it, &doc, &root );
+		objectToElement( it.data().object(), &doc, &root );
 
 	QFile file( m_fileName );
 	if ( ! file.open( IO_WriteOnly ) ) {
@@ -271,9 +291,4 @@ bool XmlDbBackend::commit()
 void XmlDbBackend::afterRollback()
 {
 	init();
-}
-
-bool XmlDbBackend::load( Collection */*collection*/, const QString& /*query*/ )
-{
-	return true;
 }

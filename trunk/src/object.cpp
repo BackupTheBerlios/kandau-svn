@@ -68,9 +68,12 @@ bool Property::readOnly() const
 
 // PropertiesIterator
 
-PropertiesIterator::PropertiesIterator( Object *object, PropertiesInfoConstIterator it ) : m_object( object ), m_it( it )
+PropertiesIterator::PropertiesIterator( Object *object, PropertiesInfoConstIterator it )
 {
+	m_object = object;
+	m_it = it;
 }
+
 Property PropertiesIterator::data()
 {
 	return Property( m_object, (*m_it)->name() );
@@ -107,7 +110,7 @@ bool PropertiesIterator::operator==( const PropertiesIterator& it ) const
 }
 bool PropertiesIterator::operator!=( const PropertiesIterator& it ) const
 {
-	return m_it != it.m_it|| m_object != it.m_object;
+	return m_it != it.m_it || m_object != it.m_object;
 }
 Property PropertiesIterator::operator*()
 {
@@ -128,13 +131,17 @@ PropertiesIterator& PropertiesIterator::operator=(const PropertiesIterator& it)
 
 // PropertiesConstIterator
 
-PropertiesConstIterator::PropertiesConstIterator( const Object *object, PropertiesInfoConstIterator it ) : m_object( object ), m_it( it )
+PropertiesConstIterator::PropertiesConstIterator( const Object *object, PropertiesInfoConstIterator it ) 
 {
+	m_object = object;
+	m_it = it;
 }
+	
 const Property PropertiesConstIterator::data() const
 {
 	return Property( m_object, (*m_it)->name() );
 }
+
 PropertiesConstIterator& PropertiesConstIterator::operator++()
 {
 	m_it++;
@@ -187,12 +194,12 @@ ObjectsIterator::ObjectsIterator( const OidType& oid, RelatedObjectsConstIterato
 
 Object* ObjectsIterator::data()
 {
-	return m_manager->load( m_manager->relation( m_oid, (*m_it)->name() ), (*m_it)->relatedClassInfo() );
+	return m_manager->load( m_manager->relation( m_oid, *m_it ), (*m_it)->relatedClassInfo() );
 }
 
 const Object* ObjectsIterator::data() const
 {
-	return m_manager->load( m_manager->relation( m_oid, (*m_it)->name() ), (*m_it)->relatedClassInfo() );
+	return m_manager->load( m_manager->relation( m_oid, *m_it ), (*m_it)->relatedClassInfo() );
 }
 
 QString ObjectsIterator::key()
@@ -248,12 +255,12 @@ bool ObjectsIterator::operator!=( const ObjectsIterator& it ) const
 
 Object* ObjectsIterator::operator*()
 {
-	return m_manager->load( m_manager->relation( m_oid, (*m_it)->name() ), (*m_it)->relatedClassInfo() );
+	return m_manager->load( m_manager->relation( m_oid, *m_it ), (*m_it)->relatedClassInfo() );
 }
 
 const Object* ObjectsIterator::operator*() const
 {
-	return m_manager->load( m_manager->relation( m_oid, (*m_it)->name() ), (*m_it)->relatedClassInfo() );
+	return m_manager->load( m_manager->relation( m_oid, *m_it ), (*m_it)->relatedClassInfo() );
 }
 
 ObjectsIterator& ObjectsIterator::operator=(const ObjectsIterator& it)
@@ -274,12 +281,12 @@ CollectionsIterator::CollectionsIterator( const OidType& oid, RelatedCollections
 
 Collection* CollectionsIterator::data()
 {
-	return m_manager->collection( m_oid, (*m_it) );
+	return m_manager->collection( m_oid, *m_it );
 }
 
 const Collection* CollectionsIterator::data() const
 {
-	return m_manager->collection( m_oid, (*m_it) );
+	return m_manager->collection( m_oid, *m_it );
 }
 
 CollectionsIterator& CollectionsIterator::operator++()
@@ -463,6 +470,28 @@ void Object::setModified( bool value )
 	m_modified = value;
 }
 
+void Object::reset()
+{
+	PropertiesIterator it( propertiesBegin() );
+	PropertiesIterator end( propertiesEnd() );
+	Property p;
+	for ( ; it != end; ++it ) {
+		p = it.data();
+		switch ( p.type() ) {
+			case QVariant::Int:
+			case QVariant::UInt:
+			case QVariant::LongLong:
+			case QVariant::ULongLong:
+				p.setValue( 0 );
+				break;
+			case QVariant::String:
+				p.setValue( QString::null );
+			default:
+				break;
+		}
+	}
+}
+
 /*
 Functions for managing the properties
 */
@@ -543,7 +572,7 @@ int Object::numObjects() const
 Object* Object::object( const QString& name ) const
 {
 	assert( containsObject( name ) );
-	return m_manager->load( m_manager->relation( m_oid, name ), classInfo()->object( name )->relatedClassInfo() );
+	return m_manager->load( m_manager->relation( m_oid, classInfo()->object( name ) ), classInfo()->object( name )->relatedClassInfo() );
 }
 
 bool Object::containsObject( const QString& name ) const
@@ -553,7 +582,6 @@ bool Object::containsObject( const QString& name ) const
 
 void Object::setObject( const QString& name, Object* object )
 {
-//	assert( object );
 	if ( object )
 		setObject( name, object->oid() );
 	else
@@ -562,11 +590,6 @@ void Object::setObject( const QString& name, Object* object )
 
 void Object::setObject( const QString& name, const OidType& oid )
 {
-#ifdef WITHOUT_MODIFIED_CALLBACKS
-	MODIFIED;
-#else
-	MODIFIED( oid );
-#endif
 	m_manager->setRelation( m_oid, classInfo(), name, oid );
 }
 
@@ -597,7 +620,7 @@ int Object::numCollections() const
 Collection* Object::collection( const QString& name ) const
 {
 	QString relation = ClassInfo::relationName( name, classInfo()->name() );
-	return m_manager->collection( this, relation );
+	return m_manager->collection( m_oid, classInfo()->collection( relation ) );
 }
 
 #include "object.moc"

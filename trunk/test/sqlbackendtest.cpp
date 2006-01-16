@@ -350,21 +350,21 @@ void SqlBackendTest::freeing()
 	ObjectRef<Article> b1 = Article::create( oid1 );
 	CHECK( Manager::self()->count(), 1 );
 	ObjectRef<Article> b2 = Article::create( oid2 );
-	CHECK( Manager::self()->count(), 1 );
+	CHECK( Manager::self()->count(), 2 );
 	ObjectRef<Article> b3 = Article::create( oid3 );
-	CHECK( Manager::self()->count(), 1 );
+	CHECK( Manager::self()->count(), 3 );
 	CHECK( b1->oid(), oid1 );
-	CHECK( Manager::self()->count(), 1 );
+	CHECK( Manager::self()->count(), 3 );
 	CHECK( b2->oid(), oid2 );
-	CHECK( Manager::self()->count(), 1 );
+	CHECK( Manager::self()->count(), 3 );
 	CHECK( b3->oid(), oid3 );
-	CHECK( Manager::self()->count(), 1 );
+	CHECK( Manager::self()->count(), 3 );
 	CHECK( b3->code(), QString( "3" ) );
-	CHECK( Manager::self()->count(), 1 );
+	CHECK( Manager::self()->count(), 3 );
 	CHECK( b1->code(), QString( "1" ) );
-	CHECK( Manager::self()->count(), 1 );
+	CHECK( Manager::self()->count(), 3 );
 	CHECK( b2->code(), QString( "2" ) );
-	CHECK( Manager::self()->count(), 1 );
+	CHECK( Manager::self()->count(), 3 );
 }
 
 void SqlBackendTest::allTests()

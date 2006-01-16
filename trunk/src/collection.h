@@ -100,6 +100,8 @@ public:
 	bool remove( const OidType& oid );
 
 	bool contains( const OidType& oid );
+	
+	Object* find( const QString& property, const QVariant& value );
 
 	bool modified() const;
 	void setModified( bool m );
@@ -230,7 +232,7 @@ public:
 		else
 			return m_collection;
 	}
-	
+
 	T& operator*()
 	{
 		if ( m_oid )

@@ -90,6 +90,10 @@ bool DesktopConfigDbBackend::load( Collection */*collection*/, const QString& /*
 	return true;
 }
 
+bool DesktopConfigDbBackend::load( OidType* /*relatedOid*/, const OidType& /*oid*/, const RelatedObject* /*related*/ )
+{
+	return true;
+}
 
 bool DesktopConfigDbBackend::createSchema()
 {
@@ -97,6 +101,16 @@ bool DesktopConfigDbBackend::createSchema()
 }
 
 bool DesktopConfigDbBackend::hasChanged( Object */*object*/ )
+{
+	return false;
+}
+
+bool DesktopConfigDbBackend::hasChanged( Collection */*collection*/ )
+{
+	return false;
+}
+
+bool DesktopConfigDbBackend::hasChanged( const OidType& /*oid*/, const RelatedObject* /*related*/ )
 {
 	return false;
 }
@@ -123,7 +137,7 @@ bool DesktopConfigDbBackend::commit()
 	ManagerObjectIterator it( m_manager->begin() );
 	ManagerObjectIterator end( m_manager->end() );
 	for ( ; it != end; ++it )
-		objectToElement( *it, &config );
+		objectToElement( it.data().object(), &config );
 
 	config.sync();
 	return true;

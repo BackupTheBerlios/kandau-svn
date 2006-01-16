@@ -108,6 +108,7 @@ bool SqlDbBackend::load( const QSqlCursor &cursor, Object *object )
 	}
 
 	// Prepare for relation loading
+	/*
 	ObjectsIterator oIt( object->objectsBegin() );
 	ObjectsIterator oEnd( object->objectsEnd() );
 	for (; oIt != oEnd; ++oIt ) {
@@ -115,7 +116,59 @@ bool SqlDbBackend::load( const QSqlCursor &cursor, Object *object )
 			continue;
 		object->setObject( oIt.key(), variantToOid( cursor.value( oIt.key() ) ) );
 	}
+	*/
 	object->setModified( false );
+	return true;
+}
+
+bool SqlDbBackend::load( OidType* relatedOid, const OidType& oid, const RelatedObject* related )
+{
+	if ( oid == 0 ) {
+		*relatedOid = 0;
+		return false;
+	}
+	QSqlCursor cursor( related->parentClassInfo()->name() );
+	cursor.select( "to_number( dboid, '9999999999G0') = " + oidToString( oid ) );
+	if ( ! cursor.next() ) {
+		*relatedOid = 0;
+		return false;
+	}
+	if ( ! cursor.contains( related->name() ) ) {
+		*relatedOid = 0;
+		return false;
+	}
+	*relatedOid = variantToOid( cursor.value( related->name() ) );
+	return true;
+}
+
+bool SqlDbBackend::load( Collection *collection )
+{
+	assert( collection );
+
+	collection->clear();
+
+	QSqlCursor cursor( collection->collectionInfo()->name() );
+	cursor.select( filterFieldName( collection->collectionInfo() ) + " = " + QString::number( filterValue( collection ) ) );
+
+	OidType val;
+	while ( cursor.next() ) {
+		if ( collection->collectionInfo()->isNToOne() ) {
+			// Optimització: en cas de tractar-se d'una relació N - 1 com que la taula
+			// que tenim oberta és la dels objectes a carregar podem utilitzar el mateix
+			// cursor i passar-lo com a paràmetre
+			//load( *cursor, obj );
+			val = variantToOid( cursor.value( idFieldName( collection->collectionInfo() ) ) );
+			//load( val, obj );
+			collection->simpleAdd( val );
+		} else {
+			val = variantToOid( cursor.value( idFieldName( collection->collectionInfo() ) ) );
+			//load( val, obj );
+			collection->simpleAdd( val );
+		}
+	}
+	// TODO: Look if it is necessary a function like this:
+	//collection->setLoaded( true );
+	collection->setModified( false );
 	return true;
 }
 
@@ -246,21 +299,6 @@ bool SqlDbBackend::remove( Object *object )
 		return false;
 }
 
-// QString SqlDbBackend::tableName( const QString &name ) const
-// {
-// 	QString tmp = name;
-// 	return tmp.replace( "-", "_" ) + QString( "_" );
-// }
-//
-// QString SqlDbBackend::tableName( const Object *object ) const
-// {
-// 	assert( object );
-// 	return tableName( object->classInfo()->name() );
-// }
-
-/*!
-Generates a new Oid from the database sequence
-*/
 OidType SqlDbBackend::newOid()
 {
 	QSqlQuery query = m_db->exec( "SELECT nextval('seq_dboid');" );
@@ -276,53 +314,6 @@ SeqType SqlDbBackend::newSeq()
 		ERROR( "Could not read next value from the sequence" );
 	return variantToOid( query.value( 0 ) );
 }
-
-bool SqlDbBackend::load( Collection *collection )
-{
-	assert( collection );
-
-	collection->clear();
-
-	QSqlCursor cursor( collection->collectionInfo()->name() );
-	cursor.select( filterFieldName( collection->collectionInfo() ) + " = " + QString::number( filterValue( collection ) ) );
-
-	OidType val;
-	while ( cursor.next() ) {
-		if ( collection->collectionInfo()->isNToOne() ) {
-			// Optimització: en cas de tractar-se d'una relació N - 1 com que la taula
-			// que tenim oberta és la dels objectes a carregar podem utilitzar el mateix
-			// cursor i passar-lo com a paràmetre
-			//load( *cursor, obj );
-			val = variantToOid( cursor.value( idFieldName( collection->collectionInfo() ) ) );
-			//load( val, obj );
-			collection->simpleAdd( val );
-		} else {
-			val = variantToOid( cursor.value( idFieldName( collection->collectionInfo() ) ) );
-			//load( val, obj );
-			collection->simpleAdd( val );
-		}
-	}
-	// TODO: Look if it is necessary a function like this:
-	//collection->setLoaded( true );
-	collection->setModified( false );
-	return true;
-}
-
-// QString SqlDbBackend::tableName( RelatedCollection *collection ) const
-// {
-// 	assert( collection );
-//
-// /*
-// 	assert( collection );
-// 	if ( collection->isNToOne() )
-// 		return tableName( collection->childrenClassInfo()->name() );
-//
-// 	QStringList names ( collection->parentClassInfo()->name() );
-// 	names << collection->childrenClassInfo()->name();
-// 	names.sort();
-// 	return "rel_" + names.join( "_" );
-// */
-// }
 
 QString SqlDbBackend::filterFieldName( const RelatedCollection *collection ) const
 {
@@ -531,6 +522,18 @@ bool SqlDbBackend::hasChanged( Object * object )
 	return variantToSeq( cursor.value( 0 ) ) != object->seq();
 }
 
+bool SqlDbBackend::hasChanged( Collection *collection )
+{
+	/* Right now we always consider we need to reload the collection */
+	return false;
+}
+
+bool SqlDbBackend::hasChanged( const OidType& oid, const RelatedObject* related )
+{
+	/* Right now we always consider we need to reload the oid */
+	return false;
+}
+
 /*!
 Commits the current transaction
 */
@@ -551,7 +554,7 @@ bool SqlDbBackend::commit()
 	ManagerObjectIterator end( m_manager->end() );
 	Object *obj;
 	for ( ; it != end; ++it ) {
-		obj = (*it);
+		obj = it.data().object();
 		if ( obj->isModified() ) {
 			save( obj );
 		}
@@ -588,13 +591,9 @@ void SqlDbBackend::commitCollections()
 	ManagerRelatedCollectionIterator cend( m_manager->collections().end() );
 	Collection *c;
 	for ( ; cit != cend; ++cit ) {
-		QMapIterator<QString, Collection*> it( (*cit).begin() );
-		QMapIterator<QString, Collection*> end( (*cit).end() );
-		for ( ; it != end; ++it ) {
-			c = *it;
-			if ( c->modified() ) {
-				save( c );
-			}
+		c = cit.data().collection();
+		if ( c->modified() ) {
+			save( c );
 		}
 	}
 }

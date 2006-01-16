@@ -15,8 +15,7 @@
     <description>Nom del projecte: Kandau</description>
     <ignoreparts/>
     <secondaryLanguages/>
-<!--    <versioncontrol>kdevsubversion</versioncontrol>-->    <versioncontrol>kdevsubversion</versioncontrol>
-  </general>
+<!--    <versioncontrol>kdevsubversion</versioncontrol> -->  </general>
   <kdevfileview>
     <groups>
       <group pattern="*.cpp;*.cxx;*.h" name="Sources" />

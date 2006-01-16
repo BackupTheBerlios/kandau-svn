@@ -52,8 +52,12 @@ public:
 	bool load( const OidType& oid, Object *object );
 	bool load( Collection *collection );
 	bool load( Collection *collection, const QString& query );
-	bool createSchema();
+	bool load( OidType* relatedOid, const OidType& oid, const RelatedObject* related );
 	bool hasChanged( Object * object );
+	bool hasChanged( Collection *collection );
+	bool hasChanged( const OidType& oid, const RelatedObject* related );
+
+	bool createSchema();
 	bool commit();
 	OidType newOid();
 	void reset() {};

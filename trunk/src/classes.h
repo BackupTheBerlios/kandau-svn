@@ -66,7 +66,7 @@ public:
 	/*!
 	Empty constructor, created for convenience only.
 	*/
-	RelatedObject();
+//	RelatedObject();
 
 	/*!
 	@param classInfo A pointer to the ClassInfo object the collection is in.
@@ -91,20 +91,21 @@ public:
 	Get whether the relation is One to One or One to N.
 	@return True if the relation is One to One, false if it's One to N.
 	*/
-	bool isOneToOne();
+	bool isOneToOne() const;
 
 	/*!
 	Gets the ClassInfo of the class of the objects related.
-	@return The name of the class.
+	@return The ClassInfo pointer of the class.
 	*/
-	const ClassInfo* relatedClassInfo();
+	const ClassInfo* relatedClassInfo() const;
+
+	/*!
+	Gets the ClassInfo of the parent class
+	@return The  ClassInfo pointer of the parent class
+	*/
+	const ClassInfo* parentClassInfo() const;
 
 private:
-	/*!
-	Calculates the isOneToOne() and relatedClassInfo() information and saves it in the cache variables.
-	*/
-	void cacheData();
-
 	CreateObjectFunction m_function;
 	QString m_name;
 	bool m_oneToOne;
@@ -114,9 +115,6 @@ private:
 
 	// Contains the cached ClassInfo of the related class
 	const ClassInfo *m_relatedClassInfo;
-
-	// If the needed data is already in the caches
-	bool m_cached;
 };
 
 

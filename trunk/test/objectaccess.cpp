@@ -114,7 +114,7 @@ QStringList ObjectAccess::objects() const
 	ManagerObjectIterator it( Manager::self()->begin() );
 	ManagerObjectIterator end( Manager::self()->end() );
 	for ( ; it != end; ++it ) {
-		r.append( oidToString( (*it)->oid() ) );
+		r.append( oidToString( it.data().object()->oid() ) );
 	}
 	return r;
 }

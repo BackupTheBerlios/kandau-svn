@@ -53,13 +53,33 @@ bool TestBackend::load( Collection* /*collection*/ )
 	return true;
 }
 
+bool TestBackend::load( Collection* /*collection*/, const QString& /*query*/ )
+{
+	return true;
+}
+
+bool TestBackend::load( OidType* relatedOid, const OidType& /*oid*/, const RelatedObject* /*related*/ )
+{
+	relatedOid = 0;
+	return true;
+}
+
 bool TestBackend::createSchema()
 {
 	return true;
 }
 
-/* Decides whether the object changed in the database since last load */
 bool TestBackend::hasChanged( Object* /*object*/ )
+{
+	return false;
+}
+
+bool TestBackend::hasChanged( Collection */*collection*/ )
+{
+	return false;
+}
+
+bool TestBackend::hasChanged( const OidType& /*oid*/, const RelatedObject* /*related*/ )
 {
 	return false;
 }
@@ -71,19 +91,14 @@ OidType TestBackend::newOid()
 
 bool TestBackend::commit()
 {
-	QMapIterator<OidType, Object*> it( m_manager->begin() );
-	QMapIterator<OidType, Object*> end( m_manager->end() );
+	ManagerObjectIterator it( m_manager->begin() );
+	ManagerObjectIterator end( m_manager->end() );
 	for ( ; it != end; ++it )
-		(*it)->setModified( false );
+		it.data().object()->setModified( false );
 	return true;
 }
 
 void TestBackend::reset()
 {
 	m_lastOid = 0;
-}
-
-bool TestBackend::load( Collection* /*collection*/, const QString& /*query*/ )
-{
-	return true;
 }

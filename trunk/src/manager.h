@@ -35,20 +35,104 @@ class Object;
 class Collection;
 class DbBackendIface;
 class RelatedCollection;
+class RelatedObject;
 class ClassInfo;
 class NotificationHandler;
 
-typedef QMap<OidType, Object*> ManagerObjectMap;
-typedef QMapIterator<OidType, Object*> ManagerObjectIterator;
-typedef QMapConstIterator<OidType, Object*> ManagerObjectConstIterator;
+class ObjectHandler
+{
+public:
+	ObjectHandler();
+	ObjectHandler( Object* object );
+	
+	void setValid( bool valid );
+	bool isValid() const;
+	
+	void setObject( Object* object );
+	Object* object() const;
+private:
+	bool m_valid;
+	Object* m_object;
+};
 
-typedef QMap<OidType, QMap<QString, QPair<OidType, bool> > > ManagerRelatedObjectMap;
-typedef QMapIterator<OidType, QMap<QString, QPair<OidType, bool> > > ManagerRelatedObjectIterator;
-typedef QMapConstIterator<OidType, QMap<QString, QPair<OidType, bool> > > ManagerRelatedObjectConstIterator;
+class RelationHandler
+{
+public:
+	RelationHandler();
+	RelationHandler( const OidType& oid, bool modified );
+	
+	void setValid( bool valid );
+	bool isValid() const;
+	
+	void setOid( const OidType& oid );
+	const OidType& oid() const;
+	
+	void setModified( bool modified );
+	bool isModified() const;
+private:
+	OidType m_oid;
+	bool m_modified;
+	bool m_valid;
+};
 
-typedef QMap<OidType, QMap<QString, Collection*> > ManagerRelatedCollectionMap;
-typedef QMapIterator<OidType, QMap<QString, Collection*> > ManagerRelatedCollectionIterator;
-typedef QMapConstIterator<OidType, QMap<QString, Collection*> > ManagerRelatedCollectionConstIterator;
+class CollectionHandler
+{
+public:
+	CollectionHandler();
+	CollectionHandler( Collection *collection );
+	
+	void setValid( bool valid );
+	bool isValid() const;
+	
+	void setCollection( Collection* collection );
+	Collection* collection() const;
+private:
+	Collection *m_collection;
+	bool m_valid;
+};
+
+class Reference
+{
+public:
+	Reference();
+	Reference( const Reference& reference );
+	Reference( const OidType& oid, const QString& name );
+	
+	bool operator==( const Reference& reference ) const;
+	bool operator<( const Reference& reference ) const;
+
+	void setOid( const OidType& oid );
+	const OidType& oid() const;
+	
+	void setName( const QString& name );
+	const QString& name() const;
+	
+private:
+	OidType m_oid;
+	QString m_name;
+};
+
+typedef QMap<OidType, ObjectHandler> ManagerObjectMap;
+typedef QMapIterator<OidType, ObjectHandler> ManagerObjectIterator;
+typedef QMapConstIterator<OidType, ObjectHandler> ManagerObjectConstIterator;
+
+typedef QMap<Reference, RelationHandler> ManagerRelatedObjectMap;
+typedef QMapIterator<Reference, RelationHandler> ManagerRelatedObjectIterator;
+typedef QMapConstIterator<Reference, RelationHandler> ManagerRelatedObjectConstIterator;
+
+typedef QMap<Reference, CollectionHandler> ManagerRelatedCollectionMap;
+typedef QMapIterator<Reference, CollectionHandler> ManagerRelatedCollectionIterator;
+typedef QMapConstIterator<Reference, CollectionHandler> ManagerRelatedCollectionConstIterator;
+
+/*
+typedef QMap<OidType, QMap<QString, RelationHandler> > ManagerRelatedObjectMap;
+typedef QMapIterator<OidType, QMap<QString, RelationHandler> > ManagerRelatedObjectIterator;
+typedef QMapConstIterator<OidType, QMap<QString, RelationHandler> > ManagerRelatedObjectConstIterator;
+
+typedef QMap<OidType, QMap<QString, CollectionHandler> > ManagerRelatedCollectionMap;
+typedef QMapIterator<OidType, QMap<QString, CollectionHandler> > ManagerRelatedCollectionIterator;
+typedef QMapConstIterator<OidType, QMap<QString, CollectionHandler> > ManagerRelatedCollectionConstIterator;
+*/
 
 typedef QMap<Object*,bool> LockedObjectsMap;
 
@@ -57,6 +141,13 @@ typedef QMap<Object*,bool> LockedObjectsMap;
 class Manager
 {
 public:
+	enum CachePolicy {
+		FreeMaxOnLoad = 1, ///< Default. Frees invalid cache until MaxObjects are kept in memory. Called every time a new object is loaded in memory.
+		FreeMaxOnTransaction, ///< Frees invalid cache until MaxObjects are kept in memory. Called only on commit() and rollback()
+		FreeAllOnLoad, ///< Frees the whole invalid cache every time a new object is loaded in memory.
+		FreeAllOnTransaction ///< Frees the whole invalid cache on commit() and rollback() only.
+	};
+
 	Manager( DbBackendIface *backend, NotificationHandler *handler = 0 );
 	~Manager();
 
@@ -106,15 +197,19 @@ public:
 	void addRelation( const OidType& oid, const RelatedCollection* collection, const OidType& oidRelated, bool recursive = true );
 	void removeRelation( const OidType& oid, const RelatedCollection* collection, const OidType& oidRelated, bool recursive = true );
 	
+/*
 	void setModifiedRelation( const OidType& oid, const ClassInfo* classInfo, const QString& relationName, bool modified, bool recursive = true );
 	void setModifiedRelation( const OidType& oid, RelatedCollection* collection, const OidType& oidRelated, bool modified, bool recursive = true );
+*/
 
-
-	OidType relation( const OidType& oid, const QString& relation );
-	OidType relation( const Object* object, const QString& relation );
-
-	Collection* collection( const Object* object, const QString& relation );
-	Collection* collection( const OidType& oid, const RelatedCollection* collection );
+//	OidType relation( const OidType& oid, const QString& relation );
+//	OidType relation( const Object* object, const QString& relation );
+	OidType relation( const OidType& oid, const RelatedObject* related );
+	// Needed by the GETOBJECT macro in Object derived classes
+	OidType relation( const Object* object, const QString& related );
+	
+//	Collection* collection( const Object* object, const QString& relation );
+	Collection* collection( const OidType& oid, const RelatedCollection* related );
 
 	bool notifyPropertyModified( const Object* object, const QString& function, const QVariant& value = QVariant() );
 	void setNotificationHandler( NotificationHandler* handler );
@@ -146,12 +241,8 @@ public:
 	*/
 	void copy( Manager* manager );
 	
-	void lockObject( Object *object );
-	void unlockObject( Object *object );
-	
 	static const Q_ULLONG Unlimited = ULONG_MAX;
 protected:
-	
 	/*!
 	Ensures the total number of objects stays under maxObjects() as long as there
 	are unmodified objects. Right now the parameter isn't used anywhere as we call this
@@ -172,28 +263,6 @@ protected:
 		Modified,
 		Unmodified,
 	};
-	
-	/*!
-	This function is called inside ensureUnderMaxObjects, whenever an object is decided that is no longer necessary in memory. Then, all references the object has and which have not been modified are freed. It is also used by rollback.
-	@param oid the iterator of the object which references are to be freed
-	@param filter the filter to apply and thus the references that will be removed
-	*/
-	void Manager::removeObjectReferences( QMap<QString, QPair<OidType, bool> > map, Filter filter );
-
-	/*!
-	This function is called inside ensureUnderMaxObjects, whenever an object is decided that is no longer necessary in memory. Then, all references the object has and which have not been modified are freed. It is also used by rollback.
-	@param oid the iterator of the object which references are to be freed
-	@param filter the filter to apply and thus the references that will be removed
-	*/
-	void Manager::removeCollectionReferences( QMap<QString, Collection*> map, Filter filter );
-	
-	/*!
-	This function acts as the previous function but also removes the oid from the map if it is empty when the appropiate references are removed
-	@param oid the oid of the object which references are to be freed
-	@param filter the filter to apply and thus the references that will be removed
-	*/
-	void removeObjectReferences( const OidType& oid, Filter filter );
-
 
 public:
 	ManagerRelatedObjectMap& relations();
@@ -233,11 +302,6 @@ private:
 	*/
 	ManagerRelatedCollectionMap m_collections;
 	
-	/*!
-	Mantains the list of locked objects (object's that can't be freed even if are unmodified.
-	*/
-	LockedObjectsMap m_lockedObjects;
-
 	/*!
 	The object that is called when an event occurrs
 	*/

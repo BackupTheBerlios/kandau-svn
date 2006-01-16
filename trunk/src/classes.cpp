@@ -52,17 +52,30 @@ bool PropertyInfo::readOnly() const
 
 /* RelatedObject */
 
+/*
 RelatedObject::RelatedObject()
 {
-	m_cached = false;
 }
+*/
 
 RelatedObject::RelatedObject( const ClassInfo *classInfo, const QString& name, CreateObjectFunction function )
 {
+	assert( classInfo );
+	assert( function );
 	m_parentClassInfo = classInfo;
 	m_name = name;
 	m_function = function;
-	m_cached = false;
+	
+	Object *obj = m_function();
+	assert( obj );
+	m_relatedClassInfo = obj->classInfo();
+	// TODO: We don't check if the type of the collection is of the same type of our class. Maybe this check could be added when compiled with the DEBUG flag.
+	if ( m_relatedClassInfo->containsObject( m_name ) ) {
+		m_oneToOne = true;
+	} else {
+		m_oneToOne = false;
+	}
+	delete obj;
 }
 
 const QString& RelatedObject::name() const
@@ -75,38 +88,20 @@ CreateObjectFunction RelatedObject::createObjectFunction() const
 	return m_function;
 }
 
-bool RelatedObject::isOneToOne()
+bool RelatedObject::isOneToOne() const
 {
-	if ( ! m_cached )
-		cacheData();
 	return m_oneToOne;
 }
 
-const ClassInfo* RelatedObject::relatedClassInfo()
+const ClassInfo* RelatedObject::relatedClassInfo() const
 {
-	if ( ! m_cached )
-		cacheData();
 	return m_relatedClassInfo;
 }
 
-void RelatedObject::cacheData()
+const ClassInfo* RelatedObject::parentClassInfo() const
 {
-	assert( m_function );
-	Object *obj = m_function();
-	assert( obj );
-	m_relatedClassInfo = obj->classInfo();
-	// TODO: We don't check if the type of the collection is of the same type of our class. Maybe this check could be added when compiled with the DEBUG flag.
-
-	if ( m_relatedClassInfo->containsObject( m_name ) ) {
-		m_oneToOne = true;
-	} else {
-		m_oneToOne = false;
-	}
-
-	m_cached = true;
-	delete obj;
+	return m_parentClassInfo;
 }
-
 
 /* RelatedCollection */
 

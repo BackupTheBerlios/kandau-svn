@@ -194,6 +194,12 @@ bool InMemorySqlDbBackend::load( Collection* /*collection*/ )
 	return true;
 }
 
+bool InMemorySqlDbBackend::load( OidType* /*relatedOid*/, const OidType& /*oid*/, const RelatedObject* /*related*/ )
+{
+	return true;
+}
+
+
 QString InMemorySqlDbBackend::idFieldName( RelatedCollection *collection ) const
 {
 	assert( collection );
@@ -303,11 +309,21 @@ bool InMemorySqlDbBackend::createSchema()
 	return true;
 }
 
-/*! Decides whether the object changed in the database since last load */
 bool InMemorySqlDbBackend::hasChanged( Object* /*object*/ )
 {
 	return false;
 }
+
+bool InMemorySqlDbBackend::hasChanged( Collection */*collection*/ )
+{
+	return false;
+}
+
+bool InMemorySqlDbBackend::hasChanged( const OidType& /*oid*/, const RelatedObject* /*related*/ )
+{
+	return false;
+}
+
 
 /*!
 This function must provide a new unique Oid. Used for newly created
@@ -357,7 +373,7 @@ bool InMemorySqlDbBackend::commit()
 	ManagerObjectIterator it( m_manager->begin() );
 	ManagerObjectIterator end( m_manager->end() );
 	for ( ; it != end; ++it ) {
-		saveObject( *it );
+		saveObject( it.data().object() );
 	}
 	return m_db->commit();
 }

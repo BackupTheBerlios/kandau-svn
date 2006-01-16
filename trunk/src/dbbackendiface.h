@@ -26,6 +26,7 @@ class QString;
 class Object;
 class Collection;
 class Manager;
+class RelatedObject;
 
 /**
 @author Albert Cervera Areny
@@ -40,6 +41,7 @@ class DbBackendIface
 public:
 	/*!
 	Called at the Manager constructor
+	@param manager Pointer to the Manager this backend 
 	*/
 	virtual void setup( Manager* manager ) = 0;
 
@@ -52,12 +54,14 @@ public:
 	Loads the object from the database
 	@param oid Oid of the object to load
 	@param object A pointer to the object where the data has to be loaded to
+	@return true if the object was loaded successfully, false otherwise
 	*/
 	virtual bool load( const OidType& oid, Object *object ) = 0;
 
 	/*!
 	Loads a collection from the database
 	@param collection Pointer to the collection where the data has to be loaded to
+	@return true if the collection was loaded successfully, false otherwise
 	*/
 	virtual bool load( Collection *collection ) = 0;
 
@@ -65,8 +69,18 @@ public:
 	Loads a collection from the database
 	@param collection Pointer to the collection where the data has to be loaded to
 	@param query Name of the class type of the objects you want to load
+	@return true if the collection was loaded successfully, false otherwise
 	*/
 	virtual bool load( Collection *collection, const QString& query ) = 0;
+
+	/*!
+	Loads the oidRelated to an object.
+	@param relatedOid Pointer to the OidType we want the related oid to be loaded in. The value must be 0 if an error occurred loading.
+	@param oid Oid of the object.
+	@param related RelatedObject of the object oid we want to obtain the related object.
+	@return true if the relatedOid was loaded successfully, false otherwise.
+	*/
+	virtual bool load( OidType* relatedOid, const OidType& oid, const RelatedObject* related ) = 0;
 
 	/*!
 	Creates the database schema, such as creating tables and sequences in a SQL backend or a DTD in a XML backend.
@@ -80,6 +94,20 @@ public:
 	@return true if the object has changed (or has been removed), false otherwise
 	*/
 	virtual bool hasChanged( Object * object ) = 0;
+
+	/*!
+	Decides whether the collection changed in the database since last load
+	@param collection Pointer to the collection we want to check
+	@return true if the collection changed (or has been removed), false otherwise
+	*/
+	virtual bool hasChanged( Collection *collection ) = 0;
+
+	/*!
+	Decides whether the relation changed in the database since last load
+	@param oid Oid of the object 
+	@param related Type of relation we want to check if has changed.
+	*/
+	virtual bool hasChanged( const OidType& oid, const RelatedObject* related ) = 0;
 
 	/*!
 	Commits the current transaction

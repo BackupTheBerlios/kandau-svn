@@ -352,6 +352,8 @@ public:
 	const ClassInfo* classInfo() const;
 	Manager* manager() const;
 	void setManager( Manager* m );
+	
+	virtual void reset();
 
 	OidType oid() const;
 	void setOid( const OidType& oid );
@@ -419,7 +421,6 @@ private:
 	SeqType m_seq;
 };
 
-
 template <class T>
 class ObjectRef
 {
@@ -430,7 +431,7 @@ public:
 		m_manager = 0;
 		m_classInfo = 0;
 	}
-	
+
 	ObjectRef( T* object )
 	{
 		if ( object ) {
@@ -444,7 +445,7 @@ public:
 			m_classInfo = 0;
 		}
 	}
-	
+
 	ObjectRef<T>& operator=( T* object )
 	{
 		if ( object ) {
@@ -526,6 +527,14 @@ public:
 		m_classInfo = obj->classInfo();
 	}
 	
+	ConstObjectRef( const ObjectRef<T>& object )
+	{
+		const Object* obj = object;
+		m_oid = obj->oid();
+		m_manager = obj->manager();
+		m_classInfo = obj->classInfo();
+	}
+	
 	ConstObjectRef<T>& operator=( const T* object )
 	{
 		const Object* obj = static_cast<const Object*>( object );
@@ -573,6 +582,5 @@ private:
 	Manager* m_manager;
 	const ClassInfo *m_classInfo;
 };
-
 
 #endif // _OBJECT_H_

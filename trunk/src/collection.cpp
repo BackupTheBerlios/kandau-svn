@@ -354,6 +354,21 @@ bool Collection::contains( const OidType& oid )
 }
 
 /*!
+Returns a pointer to the first object in the collection whose property "property" 
+equals "value".
+*/
+Object* Collection::find( const QString& property, const QVariant& value )
+{
+	CollectionConstIterator it( constBegin() );
+	CollectionConstIterator end( constEnd() );
+	for ( ; it != end; ++it ) {
+		if ( it.data()->property( property ).value() == value )
+			return it.data();
+	}
+	return 0;
+}
+
+/*!
 @return the modified flag of the collection. A collection has been modified if an object has been added or removed.
 */
 bool Collection::modified() const

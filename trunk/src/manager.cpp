@@ -33,6 +33,175 @@
 
 Manager* Manager::m_self = 0;
 
+/* ObjectHandler */
+
+/*!
+Created for convenience only. Needed by QMap.
+*/
+ObjectHandler::ObjectHandler()
+{
+	m_object = 0;
+	m_valid = false;
+}
+
+ObjectHandler::ObjectHandler( Object* object )
+{
+	m_object = object;
+	m_valid = true;
+}
+
+void ObjectHandler::setValid( bool valid )
+{
+	m_valid = valid;
+}
+
+bool ObjectHandler::isValid() const
+{
+	return m_valid;
+}
+
+void ObjectHandler::setObject( Object* object )
+{
+	m_object = object;
+}
+
+Object* ObjectHandler::object() const
+{
+	return m_object;
+}
+
+/* RelationHandler */
+
+RelationHandler::RelationHandler()
+{
+	m_oid = 0;
+	m_modified = false;
+	m_valid = false;
+}
+
+RelationHandler::RelationHandler( const OidType& oid, bool modified )
+{
+	m_oid = oid;
+	m_modified = modified;
+	m_valid = true;
+}
+
+void RelationHandler::setValid( bool valid )
+{
+	m_valid = valid;
+}
+
+bool RelationHandler::isValid() const
+{
+	return m_valid;
+}
+
+void RelationHandler::setOid( const OidType& oid )
+{
+	m_oid = oid;
+}
+
+const OidType& RelationHandler::oid() const
+{
+	return m_oid;
+}
+
+void RelationHandler::setModified( bool modified )
+{
+	m_modified = modified;
+}
+
+bool RelationHandler::isModified() const
+{
+	return m_modified;
+}
+
+/* CollectionHandler */
+
+CollectionHandler::CollectionHandler()
+{
+	m_collection = 0;
+	m_valid = false;
+}
+
+CollectionHandler::CollectionHandler( Collection *collection )
+{
+	m_collection = collection;
+	m_valid = true;
+}
+
+void CollectionHandler::setValid( bool valid )
+{
+	m_valid = valid;
+}
+
+bool CollectionHandler::isValid() const
+{
+	return m_valid;
+}
+
+void CollectionHandler::setCollection( Collection* collection )
+{
+	m_collection = collection;
+}
+
+Collection* CollectionHandler::collection() const
+{
+	return m_collection;
+}
+
+/* Reference */
+
+Reference::Reference()
+{
+	m_oid = 0;
+	m_name = QString::null;
+}
+
+Reference::Reference( const Reference& reference )
+{
+	m_oid = reference.m_oid;
+	m_name = reference.m_name;
+}
+
+Reference::Reference( const OidType& oid, const QString& name )
+{
+	m_oid = oid;
+	m_name = name;
+}
+
+bool Reference::operator==( const Reference& reference ) const
+{
+	return m_oid == reference.m_oid && m_name == reference.m_name;
+}
+
+bool Reference::operator<( const Reference& reference ) const
+{
+	return ( oidToString( m_oid ) + "XX" + m_name ) < 
+		( oidToString( reference.m_oid ) + "XX" + reference.m_name );
+}
+
+void Reference::setOid( const OidType& oid )
+{
+	m_oid = oid;
+}
+
+const OidType& Reference::oid() const
+{
+	return m_oid;
+}
+
+void Reference::setName( const QString& name )
+{
+	m_name = name;
+}
+
+const QString& Reference::name() const
+{
+	return m_name;
+}
+
+/* Manager */
 
 Manager::Manager( DbBackendIface *backend, NotificationHandler *handler )
 {
@@ -55,16 +224,12 @@ Manager::~Manager()
 	ManagerObjectIterator it( m_objects.begin() );
 	ManagerObjectIterator end( m_objects.end() );
 	for ( ; it != end; ++it )
-		delete it.data();
+		delete it.data().object();
 	
 	ManagerRelatedCollectionIterator it2( m_collections.begin() );
 	ManagerRelatedCollectionIterator end2( m_collections.end() );
-	for ( ; it2 != end2; ++it2 ) {
-		QMapIterator<QString, Collection*> it3( (*it2).begin() );
-		QMapIterator<QString, Collection*> end3( (*it2).end() );
-		for ( ; it3 != end3; ++it3 ) 
-			delete (*it3);
-	}
+	for ( ; it2 != end2; ++it2 )
+		delete it2.data().collection();
 	assert( m_dbBackend );
 	delete m_dbBackend;
 	m_self = 0;
@@ -108,7 +273,7 @@ void Manager::status() const
 	ManagerObjectConstIterator oit( m_objects.begin() );
 	ManagerObjectConstIterator oend( m_objects.end() );
 	for ( ; oit!=oend; ++oit ) {
-		info += " " + (*oit)->oid();
+		info += " " + oit.data().object()->oid();
 	}
 	kdDebug() << "Objects: " << info << endl;
 
@@ -117,7 +282,7 @@ void Manager::status() const
 	ManagerRelatedObjectConstIterator rit( m_relations.begin() );
 	ManagerRelatedObjectConstIterator rend( m_relations.end() );
 	for ( ; rit != rend; ++rit ) {
-		info += " " + rit.key();
+		info += " " + oidToString( rit.key().oid() ) + " " + rit.key().name();
 	}
 	kdDebug() << "Objects with relations in memory: " << info << endl;
 
@@ -126,7 +291,7 @@ void Manager::status() const
 	ManagerRelatedCollectionConstIterator cit( m_collections.begin() );
 	ManagerRelatedCollectionConstIterator cend( m_collections.end() );
 	for ( ; cit != cend; ++cit ) {
-		info += " " + cit.key();
+		info += " " + oidToString( cit.key().oid() ) + " " + rit.key().name();
 	}
 	kdDebug() << "Objects with collections in memory: " << info << endl;
 }
@@ -139,7 +304,7 @@ bool Manager::add( Object* object )
 		object->setOid( m_dbBackend->newOid() );
 	// Call before m_objects.insert as it might free the just added object.
 	ensureUnderMaxObjects();
-	m_objects.insert( object->oid(), object );
+	m_objects.insert( object->oid(), ObjectHandler( object ) );
 	checkObjects();
 	return true;
 }
@@ -175,9 +340,11 @@ bool Manager::load( Collection* collection, const QString& query )
 	ManagerObjectIterator end( m_objects.end() );
 	QString className = query.lower();
 	collection->clear();
+	Object *obj;
 	for ( ; it != end; ++it ) {
-		if ( it.data()->classInfo()->name().lower() == className ) {
-			collection->simpleAdd( it.data()->oid() );
+		obj = it.data().object();
+		if ( obj->classInfo()->name().lower() == className ) {
+			collection->simpleAdd( obj->oid() );
 		}
 	}
 	return m_dbBackend->load( collection, query );
@@ -202,25 +369,21 @@ void Manager::setEverythingUnmodified()
 {
 	ManagerObjectIterator mit( begin() );
 	ManagerObjectIterator mend( end() );
-	for ( ; mit != mend; ++mit )
-		(*mit)->setModified( false );
-
+	for ( ; mit != mend; ++mit ) {
+		mit.data().object()->setModified( false );
+		mit.data().setValid( false );
+	}
 	ManagerRelatedObjectIterator oit( m_relations.begin() );
 	ManagerRelatedObjectIterator oend( m_relations.end() );
 	for ( ; oit != oend; ++oit ) {
-		QMapIterator<QString, QPair<OidType, bool> > oit2( (*oit).begin() );
-		QMapIterator<QString, QPair<OidType, bool> > oend2( (*oit).end() );
-		for ( ; oit2 != oend2; ++oit2 )
-			(*oit2).second = false;
+		oit.data().setModified( false );
+		oit.data().setValid( false );
 	}
-
 	ManagerRelatedCollectionIterator cit( m_collections.begin() );
 	ManagerRelatedCollectionIterator cend( m_collections.end() );
 	for ( ; cit != cend; ++cit ) {
-		QMapIterator<QString, Collection*> cit2( (*cit).begin() );
-		QMapIterator<QString, Collection*> cend2( (*cit).end() );
-		for ( ; cit2 != cend2; ++cit2 )
-			(*cit2)->setModified( false );
+		cit.data().collection()->setModified( false );
+		cit.data().setValid( false );
 	}
 }
 
@@ -231,92 +394,50 @@ bool Manager::rollback()
 	ManagerObjectIterator oend( m_objects.end() );
 	QValueList<OidType> olist;
 	for ( ; oit != oend; ++oit ) {
-		if ( (*oit)->isModified() )
+		if ( (*oit).object()->isModified() )
 			olist.append( oit.key() );
 	}
-	QValueListIterator<OidType> lit( olist.begin() );
-	QValueListIterator<OidType> lend( olist.end() );
-	for ( ; lit != lend; ++lit ) {
-		delete m_objects[ *lit ];
-		m_objects.remove( *lit );
+	QValueListIterator<OidType> olit( olist.begin() );
+	QValueListIterator<OidType> olend( olist.end() );
+	for ( ; olit != olend; ++olit ) {
+		delete m_objects[ *olit ].object();
+		m_objects.remove( *olit );
 	}
 	olist.clear();
 
-	// Delete all modified relations
-	//TODO: Is it necessary to delete an object if it has a relation modified
 	ManagerRelatedObjectIterator rit ( m_relations.begin() );
 	ManagerRelatedObjectIterator rend ( m_relations.end() );
+	QValueList<Reference> rlist;
 	for ( ; rit != rend; ++rit ) {
-		removeObjectReferences( *rit, Modified );
-		if ( (*rit).count() == 0 )
-			olist.append( rit.key() );
+		if ( rit.data().isModified() )
+			rlist.append( rit.key() );
 	}
-	lit = olist.begin();
-	lend = olist.end();
-	for ( ; lit != lend; ++lit ) {
-		if ( m_objects.contains( *lit ) ) {
-			kdDebug() << "deleting object due to its modified relations" << endl;
-			delete m_objects[ *lit ];
-			m_objects.remove( *lit );
-		}
-		m_relations.remove( *lit );
+	QValueListIterator<Reference> rlit( rlist.begin() );
+	QValueListIterator<Reference> rlend( rlist.end() );
+	for ( ; rlit != rlend; ++rlit ) {
+		m_relations.remove( *rlit );
 	}
-	olist.clear();
+	rlist.clear();
 
 	// Delete all modified collections
 	ManagerRelatedCollectionIterator cit( m_collections.end() );
 	ManagerRelatedCollectionIterator cend( m_collections.end() );
 	for ( ; cit != cend; ++cit ) {
-		removeCollectionReferences( *cit, Modified );
-		if ( (*cit).count() == 0 )
-			olist.append( cit.key() );
+		if ( cit.data().collection()->modified() )
+			rlist.append( cit.key() );
 	}
-	lit = olist.begin();
-	lend = olist.end();
-	for ( ; lit != lend; ++lit ) {
-		if ( m_objects.contains( *lit ) ) {
-			kdDebug() << "deleting object due to its modified relations" << endl;
-			delete m_objects[ *lit ];
-			m_objects.remove( *lit );
-		}
-		m_collections.remove( *lit );
+	rlit = rlist.begin();
+	rlend = rlist.end();
+	for ( ; rlit != rlend; ++rlit ) {
+		m_collections.remove( *rlit );
 	}
-	olist.clear();
+	rlist.clear();
 
 	// Backend callback
 	m_dbBackend->afterRollback();
 
 	return true;
 }
-
-/*
-
-	// Delete all modified relations
-	QMapIterator <OidType, QMap<QString, QPair<OidType, bool> > > rit ( m_relations.begin() );
-	QMapIterator <OidType, QMap<QString, QPair<OidType, bool> > > rend ( m_relations.end() );
-	for ( ; rit != rend; ++oit ) {
-		QValueListIterator<QString> rlist;
-		/QMapIterator<QString, QPair<OidType, bool> > rrit( (*rit).begin() );
-		QMapIterator<QString, QPair<OidType, bool> > rrend( (*rit).end() );
-		for (; rrit != rrend; ++rrit ) {
-		  if ( (*rrit).second == true )
-		    rlist.append( rrit.key() );
-}
-		QValueListIterator<QString> rlit( rlist.begin() );
-		QValueListIterator<QString> rlend( rlist.end() );
-		for (; rlit != rlend; ++rlit ) {
-		  (*rit).remove( *rlit );
-}
-		if ( *rlit
-
-}
-	QValueListIterator<OidType> lit( olist.begin() );
-	QValueListIterator<OidType> lend( olist.end() );
-	for ( ; lit != lend; ++lit ) {
-	  delete m_objects[ *lit ];
-	  m_objects.remove( *lit );
-}
-*/
 
 Object* Manager::load( OidType oid, const ClassInfo* info )
 {
@@ -330,12 +451,19 @@ Object* Manager::load( OidType oid, const ClassInfo* info )
 		return 0;
 	assert( info );
 	checkObjects();
-
 	Object *object;
 	if ( m_objects.contains( oid ) ) {
-		object = m_objects[ oid ];
-		if ( ! m_dbBackend->hasChanged( object ) )
+		// If object has been loaded in this transaction return it
+		if ( m_objects[ oid ].isValid() ) {
+			return m_objects[ oid ].object();
+		}
+		// Otherwise check if it has changed;
+		object = m_objects[ oid ].object();
+		if ( ! m_dbBackend->hasChanged( object ) ) {
+			// Has it hasn't changed set it as valid for this transaction too
+			m_objects[ oid ].setValid( true );
 			return object;
+		}
 		// The object might have been deleted so we remove
 		// it and we'll see what happens next
 		delete object;
@@ -347,16 +475,13 @@ Object* Manager::load( OidType oid, const ClassInfo* info )
 	object->setManager( this );
 	// IMPORTANT: This will set the ClassInfo for the object!! Necessary for DynamicObjects
 	object->setClassInfo( info );
-
 	if ( ! m_dbBackend->load( oid, object ) ) {
 		delete object;
 		return 0;
 	}
-
 	// Call before m_objects.insert as it might free the just added object.
 	ensureUnderMaxObjects();
-
-	m_objects.insert( oid, object );
+	m_objects.insert( oid, ObjectHandler( object ) );
 	checkObjects();
 	return object;
 }
@@ -376,9 +501,15 @@ Object* Manager::load( OidType oid, CreateObjectFunction f )
 	Object *object;
 	assert( f );
 	if ( m_objects.contains( oid ) ) {
-		object = m_objects[ oid ];
-		if ( ! m_dbBackend->hasChanged( object ) )
+		// If object has been loaded in this transaction return it
+		if ( m_objects[ oid ].isValid() ) {
+			return m_objects[ oid ].object();
+		}
+		object = m_objects[ oid ].object();
+		if ( ! m_dbBackend->hasChanged( object ) ) {
+			m_objects[ oid ].setValid( true );
 			return object;
+		}
 		// The object might have been deleted so we remove
 		// it and we'll see what happens next
 		delete object;
@@ -397,13 +528,23 @@ Object* Manager::load( OidType oid, CreateObjectFunction f )
 	// Call before m_objects.insert as it might free the just added object.
 	ensureUnderMaxObjects();
 
-	m_objects.insert( oid, object );
+	m_objects.insert( oid, ObjectHandler( object ) );
 	return object;
 }
 
 bool Manager::createSchema()
 {
 	return m_dbBackend->createSchema();
+}
+
+void Manager::checkObjects()
+{
+	ManagerObjectConstIterator it( m_objects.begin() );
+	ManagerObjectConstIterator end( m_objects.end() );
+	for ( ; it != end; ++it ) {
+		assert( it.key() );
+		assert( it.data().object() );
+	}
 }
 
 void Manager::ensureUnderMaxObjects( Object *object )
@@ -420,8 +561,12 @@ void Manager::ensureUnderMaxObjects( Object *object )
 	ManagerObjectConstIterator it( m_objects.begin() );
 	ManagerObjectConstIterator end( m_objects.end() );
 	QValueVector<OidType> list;
+	Object *obj;
 	for ( ; it != end; ++it ) {
-		if ( ! it.data()->isModified() && it.key() != oid && m_lockedObjects.contains( it.data() ) == false ) {
+		if ( it.data().isValid() )
+			continue;
+		obj = it.data().object();
+		if ( ! obj->isModified() && it.key() != oid ) {
 			//delete it.data();
 			list.append( it.key() );
 			total--;
@@ -433,53 +578,31 @@ void Manager::ensureUnderMaxObjects( Object *object )
 	QValueVector<OidType>::const_iterator vEnd( list.end() );
 	for ( ; vIt != vEnd; ++vIt ) {
 		assert( m_objects.contains( *vIt ) );
-		delete m_objects[ *vIt ];
+		delete m_objects[ *vIt ].object();
 		m_objects.remove( *vIt );
-		kdDebug() << "Freed: " << oidToString( *vIt ) << endl;
 		assert( ! m_objects.contains( *vIt ) );
-		//removeObjectReferences( *vIt, Unmodified );
 	}
 	checkObjects();
-	//assert( total == m_objects.count() );
-}
-
-void Manager::checkObjects()
-{
-	ManagerObjectConstIterator it( m_objects.begin() );
-	ManagerObjectConstIterator end( m_objects.end() );
-	for ( ; it != end; ++it ) {
-		assert( it.key() );
-		assert( it.data() );
-	}
 }
 
 void Manager::ensureUnderMaxRelations()
 {
 	if ( m_relations.count() < m_maxObjects )
 		return;
-	bool modified;
 
-	QValueVector<OidType> list;
+	QValueVector<Reference> list;
 	ManagerRelatedObjectConstIterator it( m_relations.constBegin() );
 	ManagerRelatedObjectConstIterator end( m_relations.constEnd() );
 	for ( ; it != end; ++it ) {
-		modified = false;
-		QMapConstIterator<QString, QPair<OidType, bool> > it2( (*it).constBegin() );
-		QMapConstIterator<QString, QPair<OidType, bool> > end2( (*it).constEnd() );
-		for ( ; it2 != end2; ++it2 ) {
-			if ( (*it2).second ) {
-				modified = true;
-				break;
-			}
-		}
-		if ( ! modified ) {
+		// If the object is not valid it can't have been modified
+		if ( !it.data().isValid() ) {
 			list.append( it.key() );
 			if ( m_relations.count() - list.count() <= m_maxObjects )
 				break;
 		}
 	}
-	QValueVector<OidType>::const_iterator vIt( list.constBegin() );
-	QValueVector<OidType>::const_iterator vEnd( list.constEnd() );
+	QValueVector<Reference>::const_iterator vIt( list.constBegin() );
+	QValueVector<Reference>::const_iterator vEnd( list.constEnd() );
 	for ( ; vIt != vEnd; ++vIt ) {
 		m_relations.remove( *vIt );
 	}
@@ -489,75 +612,22 @@ void Manager::ensureUnderMaxCollections()
 {
 	if ( m_collections.count() < m_maxObjects )
 		return;
-	bool modified;
 
-	QValueVector<OidType> list;
+	QValueVector<Reference> list;
 	ManagerRelatedCollectionConstIterator it( m_collections.constBegin() );
 	ManagerRelatedCollectionConstIterator end( m_collections.constEnd() );
 	for ( ; it != end; ++it ) {
-		modified = false;
-		QMapConstIterator<QString, Collection*> it2( (*it).constBegin() );
-		QMapConstIterator<QString, Collection*> end2( (*it).constEnd() );
-		for ( ; it2 != end2; ++it2 ) {
-			if ( (*it2)->modified() ) {
-				modified = true;
-				break;
-			}
-		}
-		if ( ! modified ) {
+		// If the object is not valid it can't have been modified
+		if ( !it.data().isValid() ) {
 			list.append( it.key() );
 			if ( m_collections.count() - list.count() <= m_maxObjects )
 				break;
 		}
 	}
-	QValueVector<OidType>::const_iterator vIt( list.constBegin() );
-	QValueVector<OidType>::const_iterator vEnd( list.constEnd() );
+	QValueVector<Reference>::const_iterator vIt( list.constBegin() );
+	QValueVector<Reference>::const_iterator vEnd( list.constEnd() );
 	for ( ; vIt != vEnd; ++vIt ) {
 		m_collections.remove( *vIt );
-	}
-}
-
-void Manager::removeObjectReferences( QMap<QString, QPair<OidType, bool> > map, Filter filter )
-{
-  	bool boolFilter = filter == Modified ? true : false;
-
-	QMapIterator<QString,QPair<OidType,bool> > it( map.begin() );
-	QMapIterator<QString,QPair<OidType,bool> > end( map.end() );
-	QValueList<QString> list;
-	for ( ; it != end; ++it )
-		if ( (*it).second == boolFilter )
-			list.append( it.key() );
-	QValueListIterator<QString> vIt( list.begin() );
-	QValueListIterator<QString> vEnd( list.end() );
-	for ( ; vIt != vEnd; ++vIt )
-		map.remove( *vIt );
-}
-
-void Manager::removeObjectReferences( const OidType& oid, Filter filter )
-{
-        QMapIterator<OidType, QMap<QString, QPair<OidType, bool> > > it = m_relations.find( oid );
-        if ( it == m_relations.end() )
-                        return;
-        removeObjectReferences( *it, filter );
-        if ( (*it).count() == 0 )
-                m_relations.remove( oid );
-}
-
-void Manager::removeCollectionReferences( QMap<QString, Collection*> map, Filter filter )
-{
-  	bool boolFilter = filter == Modified ? true : false;
-
-	QMapIterator<QString, Collection*> it( map.begin() );
-	QMapIterator<QString, Collection*> end( map.end() );
-	QValueList<QString> list;
-	for ( ; it != end; ++it )
-		if ( (*it)->modified() == boolFilter )
-			list.append( it.key() );
-	QValueListIterator<QString> vIt( list.begin() );
-	QValueListIterator<QString> vEnd( list.end() );
-	for ( ; vIt != vEnd; ++vIt ) {
-		delete map[ *vIt ];
-		map.remove( *vIt );
 	}
 }
 
@@ -570,7 +640,6 @@ ManagerObjectIterator Manager::end()
 {
 	return m_objects.end();
 }
-
 
 /*
 	Relation management functions
@@ -604,24 +673,24 @@ void Manager::setRelation( const OidType& oid, const ClassInfo* classInfo, const
 	}
 
 	ensureUnderMaxRelations();
-	if ( m_relations.contains( oid ) ) {
-		OidType old = m_relations[ oid ][ relation ].first;
+	Reference ref( oid, relation );
+	if ( m_relations.contains( ref ) ) {
+		Reference old( m_relations[ ref ].oid(), relation );
+
 		// Avoid removing the previously defined relation (we're probably inside the recursion)
-		if ( old != oidRelated ) {
+		if ( old.oid() != oidRelated ) {
 			if ( ! isCollection ) {
 				if ( m_relations.contains( old ) ) {
-					m_relations[ old ].remove( relation );
+					m_relations.remove( old );
 				}
 			} else {
-				removeRelation( old, classInfo->collection( relation ), oid, false );
+				removeRelation( old.oid(), classInfo->collection( relation ), oid, false );
 			}
 		}
-		m_relations[ oid ][ relation ].first = oidRelated;
-		m_relations[ oid ][ relation ].second = true; //Modified;
+		m_relations[ ref ].setOid( oidRelated );
+		m_relations[ ref ].setModified( true );
 	} else {
-		QMap<QString,QPair<OidType,bool> > map;
-		map.insert( relation, QPair<OidType,bool>(oidRelated,true) ); // Modified
-		m_relations[ oid ] = map;
+		m_relations.insert( ref, RelationHandler( oidRelated, true ) );
 	}
 	if ( recursive && oidRelated != 0 ) {
 		if ( ! isCollection ) {
@@ -635,11 +704,11 @@ void Manager::setRelation( const OidType& oid, const ClassInfo* classInfo, const
 void Manager::addRelation( const OidType& oid, const RelatedCollection* collection, const OidType& oidRelated, bool recursive )
 {
 	QString relation = ClassInfo::relationName( collection->name(), collection->parentClassInfo()->name() );
+	Reference ref( oid, relation );
+	if ( m_collections[ ref ].collection() == 0 )
+		m_collections[ ref ].setCollection( new Collection( collection, oid, this ) );
+	m_collections[ ref ].collection()->simpleAdd( oidRelated );
 
-	if ( m_collections[ oid ][ relation ] == 0 )
-		m_collections[ oid ][ relation ] = new Collection( collection, oid, this );
-	m_collections[ oid ][ relation ]->simpleAdd( oidRelated );
-	
 	// EnsureUnderMaxCollections AFTER modifying it (simpleAdd) we couldn't ensure
 	// the collection was still in memory otherwise.
 	ensureUnderMaxCollections();
@@ -659,23 +728,13 @@ void Manager::addRelation( const OidType& oid, const RelatedCollection* collecti
 void Manager::removeRelation( const OidType& oid, const RelatedCollection* collection, const OidType& oidRelated, bool recursive )
 {
 	QString relation = ClassInfo::relationName( collection->name(), collection->parentClassInfo()->name() );
-
-	if ( ! m_collections.contains( oid ) )
+	Reference ref( oid, relation );
+	
+	if ( ! m_collections.contains( ref ) )
 		return;
-	if ( ! m_collections[ oid ].contains( relation ) )
-		return;
 
-	m_collections[ oid ][ relation ]->simpleRemove( oidRelated );
-/* 
-We shouldn't remove the collection as that will make the system try to reload when accessed again.
-	if ( m_collections[ oid ][ relation ]->count() == 0 ) {
-		delete m_collections[ oid ][ relation ];
-		m_collections[ oid ].remove( relation );
-		if ( m_collections[ oid ].count() == 0 ) {
-			m_collections.remove( oid );
-		}
-	}
-*/
+	m_collections[ ref ].collection()->simpleRemove( oidRelated );
+	
 	if ( recursive ) {
 		if ( Classes::classInfo( collection->childrenClassInfo()->name() )->containsObject( relation ) ) {
 			setRelation( oidRelated, collection->childrenClassInfo(), 0, false );
@@ -688,130 +747,97 @@ We shouldn't remove the collection as that will make the system try to reload wh
 	}
 }
 
-void Manager::setModifiedRelation( const OidType& oid, const ClassInfo* classInfo, const QString& relationName, bool modified, bool recursive )
+OidType Manager::relation( const OidType& oid, const RelatedObject* related )
 {
-	assert( classInfo );
-	QString relation = ClassInfo::relationName( relationName, classInfo->name() );
+	Reference ref( oid, related->name() );
+	// TODO: We are assuming the relation exists!!!
+	if ( m_relations.contains( ref ) ) {
+		RelationHandler r = m_relations[ ref ];
+		if ( r.isValid() )
+			return r.oid();
 
-	bool isCollection = false;
-	QString relatedClassName;
-
-	if ( classInfo->containsCollection( relation ) ) {
-		isCollection = true;
-		RelatedCollection* col = classInfo->collection( relation );
-		relatedClassName = col->childrenClassInfo()->name();
-	} else if ( classInfo->containsObject( relation ) ) {
-		isCollection = false;
-		RelatedObject* obj = classInfo->object( relation );
-		relatedClassName = obj->relatedClassInfo()->name();
-	} else {
-		if ( ! recursive ) {
-			// It is not browseable from this object so we return
-			return;
-		} else {
-			// There is an error !!!
-			kdDebug() << "ClassInfo: " << classInfo->name() << ", Relation: " << relation << endl;
-			assert( false );
+		if ( ! m_dbBackend->hasChanged( oid, related ) ) {
+			// As it hasn't changed set it as valid for this transaction too
+			m_relations[ ref ].setValid( true );
+			return m_relations[ ref ].oid();
 		}
 	}
-	OidType oidRelated = 0;
-	if ( m_relations.contains( oid ) && m_relations[ oid ].contains( relation ) ) {
-		oidRelated = m_relations[ oid ][ relation ].first;
-		m_relations[ oid ][ relation ].second = modified;
-	}
-	if ( recursive && oidRelated != 0 ) {
-		if ( ! isCollection ) {
-			setModifiedRelation( oidRelated, classInfo, relationName, modified, false );
-		} else {
-			setModifiedRelation( oidRelated, classInfo->collection( relationName ), oid, modified, false );
+	OidType relOid = 0;
+	m_dbBackend->load( &relOid, oid, related );
+	m_relations[ ref ].setOid( relOid );
+	m_relations[ ref ].setValid( true );
+	m_relations[ ref ].setModified( false );
+	ensureUnderMaxRelations();
+	return relOid;
+}
+
+OidType Manager::relation( const Object* object, const QString& related )
+{
+	assert( object->classInfo()->object( ClassInfo::relationName( related, object->classInfo()->name() ) ) );
+	return relation( object->oid(), object->classInfo()->object( ClassInfo::relationName( related, object->classInfo()->name() ) ) );
+}
+
+Collection* Manager::collection( const OidType& oid, const RelatedCollection* related )
+{
+	// TODO: We are assuming the relation exists!!!
+	Reference ref( oid, related->name() );
+	if ( m_collections.contains( ref ) ) {
+		if ( m_collections[ ref ].isValid() )
+			return m_collections[ ref ].collection();
+
+		if ( ! m_dbBackend->hasChanged( m_collections[ ref ].collection() ) ) {
+			// As it hasn't changed set it as valid for this transaction too
+			m_collections[ ref ].setValid( true );
+			return m_collections[ ref ].collection();
 		}
 	}
-}
-
-void Manager::setModifiedRelation( const OidType& oid, RelatedCollection* collection, const OidType& oidRelated, bool modified, bool recursive )
-{
-	QString relation = ClassInfo::relationName( collection->name(), collection->parentClassInfo()->name() );
-
-	
-	if ( ! m_collections.contains( oid ) )
-		return;
-	if ( ! m_collections[ oid ].contains( relation ) )
-		return;
-	m_collections[ oid ][ relation ]->setModified( oidRelated, modified );
-	if ( recursive ) {
-		if ( Classes::classInfo( collection->childrenClassInfo()->name() )->containsObject( relation ) ) {
-			setModifiedRelation( oidRelated, collection->childrenClassInfo(), collection->name(), modified, false );
-		} else if ( Classes::classInfo( collection->childrenClassInfo()->name() )->containsCollection( relation ) ) {
-			setModifiedRelation( oidRelated, collection->childrenClassInfo()->collection( relation ), oid, modified, false );
-		} else {
-			// It is not browseable from the other object
-			return;
-		}
-	}
-}
-
-OidType Manager::relation( const OidType& oid, const QString& relation )
-{
-	if ( m_relations.contains( oid ) ) {
-		return m_relations[ oid ][ relation ].first;
-	} else {
-		return 0;
-	}
-}
-
-OidType Manager::relation( const Object* object, const QString& relationName )
-{
+	Collection *col = new Collection( related, oid, this );
+	m_dbBackend->load( col );
+	m_collections[ ref ].setCollection( col );
+	m_collections[ ref ].setValid( true );
+	ensureUnderMaxCollections();
+	return col;
+/*
 	assert( object );
-	OidType oid = object->oid();
-	if ( m_relations.contains( oid ) ) {
-		QString relation = ClassInfo::relationName( relationName, object->classInfo()->name() );
-		return m_relations[ oid ][ relation ].first;
-	} else {
-		return 0;
-	}
-}
-
-Collection* Manager::collection( const Object* object, const QString& relation )
-{
-	assert( object );
-	if ( ! m_collections[ object->oid() ].contains( relation ) ) {
+	Reference ref( object->oid(), relation );
+	if ( ! m_collections.contains( ref ) ) {
 		if ( ! object->classInfo()->containsCollection( relation ) ) {
 			kdDebug() << k_funcinfo << "Collection '" << relation << "' doesn't exist in class '" << object->classInfo()->name() << "'" << endl;
 			return 0;
 		}
 		RelatedCollection* col = object->classInfo()->collection( relation );
 
-		m_collections[ object->oid() ][ relation ] = new Collection( col, object->oid(), this );
-		load( m_collections[ object->oid() ][ relation ] );
+		m_collections[ ref ].setCollection( new Collection( col, object->oid(), this ) );
+		load( m_collections[ ref ].collection() );
 	}
-	assert( m_collections[ object->oid() ][ relation ] );
-	return m_collections[ object->oid() ][ relation ];
+	assert( m_collections[ ref ].collection() );
+	return m_collections[ ref ].collection();
+*/
 }
 
+/*
 Collection* Manager::collection( const OidType& oid, const RelatedCollection* collection )
 {
-	if ( ! m_collections[ oid ].contains( collection->name() ) ) {
-		m_collections[ oid ][ collection->name() ] = new Collection( collection, oid, this );
-		load( m_collections[ oid ][ collection->name() ] );
+	Reference ref( oid, collection->name() );
+	if ( ! m_collections.contains( ref ) ) {
+		m_collections[ ref ].setCollection( new Collection( collection, oid, this ) );
+		load( m_collections[ ref ].collection() );
 	}
-	return m_collections[ oid ][ collection->name() ];
+	return m_collections[ ref ].collection();
 }
+*/
 
 void Manager::reset()
 {
 	ManagerObjectIterator it( m_objects.begin() );
 	ManagerObjectIterator end( m_objects.end() );
 	for ( ; it != end; ++it )
-		delete it.data();
+		delete it.data().object();
 	m_objects.clear();
 	ManagerRelatedCollectionIterator cit( m_collections.begin() );
 	ManagerRelatedCollectionIterator cend( m_collections.end() );
-	for ( ; cit != cend; ++cit ) {
-		QMapIterator <QString, Collection*> sit( (*cit).begin() );
-		QMapIterator <QString, Collection*> send( (*cit).end() );
-		for ( ; sit != send; ++sit )
-			delete (*sit);
-	}
+	for ( ; cit != cend; ++cit )
+		delete cit.data().collection();
 	m_collections.clear();
 
 	m_relations.clear();
@@ -828,7 +854,7 @@ void Manager::copy( Manager* manager )
 	ManagerObjectIterator end( m_objects.end() );
 	Object *srcObj, *dstObj;
 	for ( ; it != end; ++it ) {
-		srcObj = (*it);
+		srcObj = it.data().object();
 		dstObj = srcObj->classInfo()->create( srcObj->oid(), manager, true );
 		*dstObj = *srcObj;
 		dstObj->setModified( true );
@@ -836,26 +862,21 @@ void Manager::copy( Manager* manager )
 
 	ManagerRelatedCollectionIterator cit( m_collections.begin() );
 	ManagerRelatedCollectionIterator cend( m_collections.end() );
+	Collection *col, *srcCol;
 	for ( ; cit != cend; ++cit ) {
-		QMapIterator <QString, Collection*> sit( (*cit).begin() );
-		QMapIterator <QString, Collection*> send( (*cit).end() );
-		QMap<QString,Collection*> newMap;
-		Collection *col;
-		for ( ; sit != send; ++sit ) {
-			col = new Collection( (*sit)->collectionInfo() , (*sit)->parentOid(), manager);
-			*col = *(*sit);
-			newMap.insert( sit.key(), col );
-		}
-		manager->m_collections.insert( cit.key(), newMap );
+		srcCol = cit.data().collection();
+		col = new Collection( srcCol->collectionInfo(), srcCol->parentOid(), manager );
+		*col = *srcCol;
+		manager->m_collections.insert( cit.key(), CollectionHandler( col ) );
 	}
 }
 
-QMap<OidType, QMap<QString, QPair<OidType, bool> > >& Manager::relations()
+ManagerRelatedObjectMap& Manager::relations()
 {
 	return m_relations;
 }
 
-QMap<OidType, QMap<QString, Collection*> >& Manager::collections()
+ManagerRelatedCollectionMap& Manager::collections()
 {
 	return m_collections;
 }
@@ -886,14 +907,4 @@ void Manager::setNotificationHandler( NotificationHandler* handler )
 NotificationHandler* Manager::notificationHandler() const
 {
 	return m_notificationHandler;
-}
-
-void Manager::lockObject( Object *object )
-{
-	m_lockedObjects.insert( object, true );
-}
-
-void Manager::unlockObject( Object *object )
-{
-	m_lockedObjects.remove( object );
 }
