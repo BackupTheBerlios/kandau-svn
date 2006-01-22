@@ -620,6 +620,8 @@ int Object::numCollections() const
 Collection* Object::collection( const QString& name ) const
 {
 	QString relation = ClassInfo::relationName( name, classInfo()->name() );
+	kdDebug() << " name = " << name << ", classInfo = " << classInfo()->name() << ", RELATION: " << relation << endl;
+	assert( classInfo()->collection( relation ) );
 	return m_manager->collection( m_oid, classInfo()->collection( relation ) );
 }
 

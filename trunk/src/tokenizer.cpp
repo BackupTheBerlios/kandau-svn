@@ -20,40 +20,47 @@
 #include <qregexp.h>
 #include <qstringlist.h>
 
+#include <kdebug.h>
+
 #include "tokenizer.h"
 
 
-Tokenizer::Tokenizer( const QString& text, const QStringList& symbols )
+MTokenizer::MTokenizer( const QString& text, const QStringList& symbols )
 {
 	m_text = text;
 	m_symbols = QRegExp::escape( symbols.join( QString::null ) ); //\s=><\(\)
 	m_index = 0;
 }
 
-QString Tokenizer::nextToken()
+QString MTokenizer::nextToken()
 {
 	QString token;
 	int nextIndex;
+	kdDebug() << k_funcinfo << ": m_text = " << m_text << endl;
+	kdDebug() << k_funcinfo << ": m_symbols = " << m_symbols << endl;
 	nextIndex = m_text.find( QRegExp( "[" + m_symbols + "]" ), m_index );
+	kdDebug() << k_funcinfo << ": nextIndex = " << nextIndex << endl;
 	if ( nextIndex == -1 )
 		return QString::null;
 
 	token = m_text.mid( m_index, nextIndex - m_index );
+	kdDebug() << k_funcinfo << ": token = " << token << endl;
 	m_index = nextIndex + 1;
+	kdDebug() << k_funcinfo << ": m_index = " << m_index << endl;
 	return token;
 }
 
-QString Tokenizer::head()
+QString MTokenizer::head()
 {
 	return m_text.left( m_index );
 }
 
-QString Tokenizer::tail()
+QString MTokenizer::tail()
 {
 	return m_text.right( m_text.length() - m_index );
 }
 
-int Tokenizer::currentIndex()
+int MTokenizer::currentIndex()
 {
 	return m_index;
 }

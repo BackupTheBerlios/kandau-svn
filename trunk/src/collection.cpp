@@ -231,7 +231,7 @@ Collection::Collection( const QString& query, Manager* manager )
 	m_parent = 0;
 	m_modified = false;
 	m_classInfo = 0;
-	m_manager = 0;
+	m_manager = manager;
 	setQuery( query, manager );
 }
 
@@ -262,7 +262,7 @@ void Collection::setQuery( const QString& query, Manager* manager )
 	if ( Classes::contains( query ) )
 		m_classInfo = Classes::classInfo( query );
 	else {
-		Tokenizer tokenizer( query, " " );
+		MTokenizer tokenizer( query, " " );
 		tokenizer.nextToken(); // First item should be SELECT
 		QString c = tokenizer.nextToken();
 		c = c.left( c.find( '.' ) );

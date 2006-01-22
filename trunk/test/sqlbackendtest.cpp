@@ -295,8 +295,8 @@ void SqlBackendTest::cache()
 	// Check when commiting object cache is purged to maxObjects
 	CHECK( Manager::self()->commit(), true );
 	CHECK( Manager::self()->count(), maxObjects );
-	CHECK( Manager::self()->countObjectRelations(), maxObjects );
-	CHECK( Manager::self()->countCollectionRelations(), maxObjects );
+	CHECK( Manager::self()->countRelations(), maxObjects );
+	CHECK( Manager::self()->countCollections(), maxObjects );
 
 	// Check data has been saved correctly to DB
 	for ( int i = 0; i < maxObjects * 2; ++i ) {
@@ -327,8 +327,8 @@ void SqlBackendTest::cache()
 	
 	// Ensure we're still under maxObjects
 	CHECK( Manager::self()->count(), maxObjects );
-	CHECK( Manager::self()->countObjectRelations(), maxObjects );
-	CHECK( Manager::self()->countCollectionRelations(), maxObjects );
+	CHECK( Manager::self()->countRelations(), maxObjects );
+	CHECK( Manager::self()->countCollections(), maxObjects );
 }
 
 void SqlBackendTest::freeing()
@@ -365,6 +365,45 @@ void SqlBackendTest::freeing()
 	CHECK( Manager::self()->count(), 3 );
 	CHECK( b2->code(), QString( "2" ) );
 	CHECK( Manager::self()->count(), 3 );
+}
+
+void SqlBackendTest::testRelations()
+{
+	Manager::self()->reset();
+	Manager::self()->setCachePolicy( Manager::FreeAllOnTransaction );
+	ObjectRef<CustomerOrder> order = CustomerOrder::create();
+	ObjectRef<Article> a1 = Article::create();
+	ObjectRef<Article> a2 = Article::create();
+	ObjectRef<Article> a3 = Article::create();
+	
+	order->articles()->add( a1 );
+	order->articles()->add( a2 );
+	order->articles()->add( a3 );
+	Manager::self()->commit();
+	CHECK( Manager::self()->count(), 0 );
+	
+	CHECK( a2->orders()->count(), 1 );
+	CHECK( order->articles()->count(), 3 );
+	order->articles()->remove( a2 );
+	CHECK( a2->orders()->count(), 0 );
+	CHECK( order->articles()->count(), 2 );
+	Manager::self()->rollback();
+	CHECK( Manager::self()->count(), 0 );
+	CHECK( Manager::self()->countRelations(), 0 );
+	CHECK( Manager::self()->countCollections(), 0 );
+
+	CHECK( a2->orders()->count(), 1 );
+	Manager::self()->status();
+	CHECK( order->articles()->count(), 3 );
+	a2->orders()->remove( order );
+	CHECK( a2->orders()->count(), 0 );
+	CHECK( order->articles()->count(), 2 );
+	Manager::self()->commit();
+	CHECK( Manager::self()->count(), 0 );
+	CHECK( a2->orders()->count(), 0 );
+	CHECK( order->articles()->count(), 2 );
+
+	
 }
 
 void SqlBackendTest::allTests()
@@ -412,6 +451,7 @@ void SqlBackendTest::allTests()
 	collections();
 	cache();
 	freeing();
+	testRelations();
 
 	delete m_manager;
 }

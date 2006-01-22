@@ -27,9 +27,9 @@ class QStringList;
 /**
 	@author Albert Cervera Areny <albertca@hotpop.com>
 */
-class Tokenizer{
+class MTokenizer{
 public:
-	Tokenizer( const QString& text, const QStringList& symbols );
+	MTokenizer( const QString& text, const QStringList& symbols );
 	QString nextToken();
 	QString head();
 	QString tail();

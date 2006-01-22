@@ -35,6 +35,7 @@ public:
 	void collections();
 	void cache();
 	void freeing();
+	void testRelations();
 
 	void allTests();
 private:

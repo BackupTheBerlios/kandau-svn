@@ -52,7 +52,7 @@ There are lots of things to think about. Here are some of them:
 	
 	- Create widgets to access Object classes and relations.
 
-	- Implement an SQL backend that can read JDO XML configuration files.
+	- Implement an SQL backend that can read JDO XML mapping files.
 	
 (DONE)	- Allow to browse the properties in ClassInfo (no need to instantiate an object).
 	

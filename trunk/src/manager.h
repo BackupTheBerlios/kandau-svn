@@ -153,12 +153,15 @@ public:
 
 	static Manager* self();
 
+	void setCachePolicy( CachePolicy policy );
+	CachePolicy cachePolicy() const;
+
 	/* Functions related to object cache management */
 	void setMaxObjects( Q_ULLONG max );
 	Q_ULLONG maxObjects() const;
 	uint count() const;
-	uint countObjectRelations() const;
-	uint countCollectionRelations() const;
+	uint countRelations() const;
+	uint countCollections() const;
 
 	/*!
 	This function prints with kdDebug() some information about the current status of the Manager. It is used for debugging purposes.
@@ -306,6 +309,11 @@ private:
 	The object that is called when an event occurrs
 	*/
 	NotificationHandler *m_notificationHandler;
+	
+	/*!
+	The current cache policy
+	*/
+	CachePolicy m_cachePolicy;
 };
 
 

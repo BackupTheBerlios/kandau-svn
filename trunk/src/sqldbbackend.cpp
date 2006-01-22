@@ -647,7 +647,7 @@ QString SqlDbBackend::expandDotsString( const QString& string )
 	
 	assert( string.contains( "." ) );
 	
-	Tokenizer tokenizer( string, "." );
+	MTokenizer tokenizer( string, "." );
 	className = tokenizer.nextToken();
 	relationName = tokenizer.nextToken();
 	do {
@@ -708,16 +708,21 @@ bool SqlDbBackend::load( Collection* collection, const QString& query )
 		seps << "=";
 		seps << ">";
 		seps << "<";
-		Tokenizer tokenizer( query, seps );
+		MTokenizer tokenizer( query, seps );
 		QString token;
-		int lastIndex = 0;	
-		while ( ( token = tokenizer.nextToken() ) != QString::null ) {
+		int lastIndex = 0;
+		kdDebug() << k_funcinfo << "A punt d'embuclar: " << query << endl;
+		token = tokenizer.nextToken();
+		while ( ! token.isNull() ) {
+		//while ( ( token = tokenizer.nextToken() ) != QString::null ) {
+			kdDebug() << k_funcinfo << "Bucle: " << token << endl;
 			if ( token.contains( "." ) && ! token.contains( "*" ) ) {
 				newQuery += expandDotsString( token );
 			} else {
 				newQuery += query.mid( lastIndex, tokenizer.currentIndex() - lastIndex );
 			}
 			lastIndex = tokenizer.currentIndex();
+			token = tokenizer.nextToken();
 		}
 		newQuery += tokenizer.tail();
 	}

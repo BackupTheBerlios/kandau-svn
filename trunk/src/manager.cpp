@@ -210,6 +210,7 @@ Manager::Manager( DbBackendIface *backend, NotificationHandler *handler )
 	m_notificationHandler = handler;
 	m_self = this;
 	m_maxObjects = MaxObjects;
+	m_cachePolicy = FreeMaxOnLoad;
 	// Initialize the backend (maybe it needs to initialize some
 	// values of the manager such as maxObjects or fill the map of objects in a
 	// memory only backend).
@@ -240,6 +241,16 @@ Manager* Manager::self()
 	return m_self;
 }
 
+void Manager::setCachePolicy( CachePolicy policy )
+{
+	m_cachePolicy = policy;
+}
+
+Manager::CachePolicy Manager::cachePolicy() const
+{
+	return m_cachePolicy;
+}
+
 void Manager::setMaxObjects( Q_ULLONG max )
 {
 	m_maxObjects = max;
@@ -255,12 +266,12 @@ uint Manager::count() const
 	return m_objects.count();
 }
 
-uint Manager::countObjectRelations() const
+uint Manager::countRelations() const
 {
 	return m_relations.count();
 }
 
-uint Manager::countCollectionRelations() const
+uint Manager::countCollections() const
 {
 	return m_collections.count();
 }
@@ -303,7 +314,9 @@ bool Manager::add( Object* object )
 	if ( object->isNull() )
 		object->setOid( m_dbBackend->newOid() );
 	// Call before m_objects.insert as it might free the just added object.
-	ensureUnderMaxObjects();
+
+	if ( m_cachePolicy == FreeMaxOnLoad || m_cachePolicy == FreeAllOnLoad )
+		ensureUnderMaxObjects();
 	m_objects.insert( object->oid(), ObjectHandler( object ) );
 	checkObjects();
 	return true;
@@ -394,7 +407,8 @@ bool Manager::rollback()
 	ManagerObjectIterator oend( m_objects.end() );
 	QValueList<OidType> olist;
 	for ( ; oit != oend; ++oit ) {
-		if ( (*oit).object()->isModified() )
+		oit.data().setValid( false );
+		if ( oit.data().object()->isModified() )
 			olist.append( oit.key() );
 	}
 	QValueListIterator<OidType> olit( olist.begin() );
@@ -404,11 +418,13 @@ bool Manager::rollback()
 		m_objects.remove( *olit );
 	}
 	olist.clear();
+	ensureUnderMaxObjects();
 
 	ManagerRelatedObjectIterator rit ( m_relations.begin() );
 	ManagerRelatedObjectIterator rend ( m_relations.end() );
 	QValueList<Reference> rlist;
 	for ( ; rit != rend; ++rit ) {
+		rit.data().setValid( false );
 		if ( rit.data().isModified() )
 			rlist.append( rit.key() );
 	}
@@ -418,11 +434,13 @@ bool Manager::rollback()
 		m_relations.remove( *rlit );
 	}
 	rlist.clear();
+	ensureUnderMaxRelations();
 
 	// Delete all modified collections
-	ManagerRelatedCollectionIterator cit( m_collections.end() );
+	ManagerRelatedCollectionIterator cit( m_collections.begin() );
 	ManagerRelatedCollectionIterator cend( m_collections.end() );
 	for ( ; cit != cend; ++cit ) {
+		cit.data().setValid( false );
 		if ( cit.data().collection()->modified() )
 			rlist.append( cit.key() );
 	}
@@ -432,6 +450,7 @@ bool Manager::rollback()
 		m_collections.remove( *rlit );
 	}
 	rlist.clear();
+	ensureUnderMaxCollections();
 
 	// Backend callback
 	m_dbBackend->afterRollback();
@@ -480,7 +499,8 @@ Object* Manager::load( OidType oid, const ClassInfo* info )
 		return 0;
 	}
 	// Call before m_objects.insert as it might free the just added object.
-	ensureUnderMaxObjects();
+	if ( m_cachePolicy == FreeMaxOnLoad || m_cachePolicy == FreeAllOnLoad )
+		ensureUnderMaxObjects();
 	m_objects.insert( oid, ObjectHandler( object ) );
 	checkObjects();
 	return object;
@@ -526,7 +546,8 @@ Object* Manager::load( OidType oid, CreateObjectFunction f )
 	}
 
 	// Call before m_objects.insert as it might free the just added object.
-	ensureUnderMaxObjects();
+	if ( m_cachePolicy == FreeMaxOnLoad || m_cachePolicy == FreeAllOnLoad )
+		ensureUnderMaxObjects();
 
 	m_objects.insert( oid, ObjectHandler( object ) );
 	return object;
@@ -570,7 +591,7 @@ void Manager::ensureUnderMaxObjects( Object *object )
 			//delete it.data();
 			list.append( it.key() );
 			total--;
-			if ( m_objects.count() - list.count() <= m_maxObjects )
+			if ( ( m_cachePolicy == FreeMaxOnLoad || m_cachePolicy == FreeMaxOnTransaction ) && m_objects.count() - list.count() <= m_maxObjects )
 				break;
 		}
 	}
@@ -597,7 +618,7 @@ void Manager::ensureUnderMaxRelations()
 		// If the object is not valid it can't have been modified
 		if ( !it.data().isValid() ) {
 			list.append( it.key() );
-			if ( m_relations.count() - list.count() <= m_maxObjects )
+			if ( ( m_cachePolicy == FreeMaxOnLoad || m_cachePolicy == FreeMaxOnTransaction ) && m_relations.count() - list.count() <= m_maxObjects )
 				break;
 		}
 	}
@@ -620,7 +641,7 @@ void Manager::ensureUnderMaxCollections()
 		// If the object is not valid it can't have been modified
 		if ( !it.data().isValid() ) {
 			list.append( it.key() );
-			if ( m_collections.count() - list.count() <= m_maxObjects )
+			if ( ( m_cachePolicy == FreeMaxOnLoad || m_cachePolicy == FreeMaxOnTransaction ) && m_collections.count() - list.count() <= m_maxObjects )
 				break;
 		}
 	}
@@ -648,18 +669,18 @@ ManagerObjectIterator Manager::end()
 void Manager::setRelation( const OidType& oid, const ClassInfo* classInfo, const QString& relationName, const OidType& oidRelated, bool recursive )
 {
 	assert( classInfo );
-	QString relation = ClassInfo::relationName( relationName, classInfo->name() );
+	QString relstr = ClassInfo::relationName( relationName, classInfo->name() );
 
 	bool isCollection = false;
 	QString relatedClassName;
 
-	if ( classInfo->containsCollection( relation ) ) {
+	if ( classInfo->containsCollection( relstr ) ) {
 		isCollection = true;
-		RelatedCollection* col = classInfo->collection( relation );
+		RelatedCollection* col = classInfo->collection( relstr );
 		relatedClassName = col->childrenClassInfo()->name();
-	} else if ( classInfo->containsObject( relation ) ) {
+	} else if ( classInfo->containsObject( relstr ) ) {
 		isCollection = false;
-		RelatedObject* obj = classInfo->object( relation );
+		RelatedObject* obj = classInfo->object( relstr );
 		relatedClassName = obj->relatedClassInfo()->name();
 	} else {
 		if ( ! recursive ) {
@@ -667,13 +688,29 @@ void Manager::setRelation( const OidType& oid, const ClassInfo* classInfo, const
 			return;
 		} else {
 			// There is an error !!!
-			kdDebug() << "ClassInfo: " << classInfo->name() << ", Relation: " << relation << endl;
+			kdDebug() << "ClassInfo: " << classInfo->name() << ", Relation: " << relstr << endl;
 			assert( false );
 		}
 	}
 
-	ensureUnderMaxRelations();
-	Reference ref( oid, relation );
+	if ( m_cachePolicy == FreeMaxOnLoad || m_cachePolicy == FreeAllOnLoad )
+		ensureUnderMaxRelations();
+		
+	OidType oldOid = relation( oid, classInfo->object( relstr ) );
+	if ( oldOid != 0 ) {
+		if ( oldOid != oidRelated ) {
+			if ( ! isCollection ) {
+				m_relations[ Reference( oldOid, relstr ) ].setOid( 0 );
+				m_relations[ Reference( oldOid, relstr ) ].setModified( true );
+			} else {
+				removeRelation( oldOid, classInfo->collection( relstr ), oid, false );
+			}
+		}
+	}
+	Reference ref( oid, relstr );
+	m_relations[ ref ].setOid( oidRelated );
+	m_relations[ ref ].setModified( true );
+	/*
 	if ( m_relations.contains( ref ) ) {
 		Reference old( m_relations[ ref ].oid(), relation );
 
@@ -692,32 +729,38 @@ void Manager::setRelation( const OidType& oid, const ClassInfo* classInfo, const
 	} else {
 		m_relations.insert( ref, RelationHandler( oidRelated, true ) );
 	}
+	*/
 	if ( recursive && oidRelated != 0 ) {
 		if ( ! isCollection ) {
-			setRelation( oidRelated, classInfo, relation, oid, false );
+			setRelation( oidRelated, classInfo, relstr, oid, false );
 		} else {
-			addRelation( oidRelated, classInfo->collection( relation ), oid, false );
+			addRelation( oidRelated, classInfo->collection( relstr ), oid, false );
 		}
 	}
 }
 
-void Manager::addRelation( const OidType& oid, const RelatedCollection* collection, const OidType& oidRelated, bool recursive )
+void Manager::addRelation( const OidType& oid, const RelatedCollection* relcol, const OidType& oidRelated, bool recursive )
 {
-	QString relation = ClassInfo::relationName( collection->name(), collection->parentClassInfo()->name() );
+	QString relation = ClassInfo::relationName( relcol->name(), relcol->parentClassInfo()->name() );
+	
+	Collection *col = collection( oid, relcol );
+/*	
 	Reference ref( oid, relation );
 	if ( m_collections[ ref ].collection() == 0 )
 		m_collections[ ref ].setCollection( new Collection( collection, oid, this ) );
 	m_collections[ ref ].collection()->simpleAdd( oidRelated );
+*/
 
 	// EnsureUnderMaxCollections AFTER modifying it (simpleAdd) we couldn't ensure
 	// the collection was still in memory otherwise.
-	ensureUnderMaxCollections();
+	if ( m_cachePolicy == FreeMaxOnLoad || m_cachePolicy == FreeAllOnLoad )
+		ensureUnderMaxCollections();
 
 	if ( recursive ) {
-		if ( Classes::classInfo( collection->childrenClassInfo()->name() )->containsObject( relation ) ) {
-			setRelation( oidRelated, collection->childrenClassInfo(), relation, oid, false );
-		} else if ( Classes::classInfo( collection->childrenClassInfo()->name() )->containsCollection( relation ) ) {
-			addRelation( oidRelated, collection->childrenClassInfo()->collection( relation ), oid, false );
+		if ( Classes::classInfo( relcol->childrenClassInfo()->name() )->containsObject( relation ) ) {
+			setRelation( oidRelated, relcol->childrenClassInfo(), relation, oid, false );
+		} else if ( Classes::classInfo( relcol->childrenClassInfo()->name() )->containsCollection( relation ) ) {
+			addRelation( oidRelated, relcol->childrenClassInfo()->collection( relation ), oid, false );
 		} else {
 			// It is not browseable from the other object
 			return;
@@ -725,21 +768,26 @@ void Manager::addRelation( const OidType& oid, const RelatedCollection* collecti
 	}
 }
 
-void Manager::removeRelation( const OidType& oid, const RelatedCollection* collection, const OidType& oidRelated, bool recursive )
+void Manager::removeRelation( const OidType& oid, const RelatedCollection* relcol, const OidType& oidRelated, bool recursive )
 {
-	QString relation = ClassInfo::relationName( collection->name(), collection->parentClassInfo()->name() );
-	Reference ref( oid, relation );
+	QString relation = ClassInfo::relationName( relcol->name(), relcol->parentClassInfo()->name() );
 	
+	Collection *col = collection( oid, relcol );
+	col->simpleRemove( oidRelated );
+	/*
+	Reference ref( oid, relation );
 	if ( ! m_collections.contains( ref ) )
 		return;
-
+	
 	m_collections[ ref ].collection()->simpleRemove( oidRelated );
+	*/
+	
 	
 	if ( recursive ) {
-		if ( Classes::classInfo( collection->childrenClassInfo()->name() )->containsObject( relation ) ) {
-			setRelation( oidRelated, collection->childrenClassInfo(), 0, false );
-		} else if ( Classes::classInfo( collection->childrenClassInfo()->name() )->containsCollection( relation ) ) {
-			removeRelation( oidRelated, collection->childrenClassInfo()->collection( relation ), oid, false );
+		if ( Classes::classInfo( relcol->childrenClassInfo()->name() )->containsObject( relation ) ) {
+			setRelation( oidRelated, relcol->childrenClassInfo(), 0, false );
+		} else if ( Classes::classInfo( relcol->childrenClassInfo()->name() )->containsCollection( relation ) ) {
+			removeRelation( oidRelated, relcol->childrenClassInfo()->collection( relation ), oid, false );
 		} else {
 			// It is not browseable from the other object
 			return;
@@ -747,10 +795,13 @@ void Manager::removeRelation( const OidType& oid, const RelatedCollection* colle
 	}
 }
 
+/*!
+Obtains the oid of the object that relates to the relation "related" for object with oid "oid". It assumes that the object with oid "oid" can have a relation of type "related".
+*/
 OidType Manager::relation( const OidType& oid, const RelatedObject* related )
 {
 	Reference ref( oid, related->name() );
-	// TODO: We are assuming the relation exists!!!
+	
 	if ( m_relations.contains( ref ) ) {
 		RelationHandler r = m_relations[ ref ];
 		if ( r.isValid() )
@@ -767,7 +818,8 @@ OidType Manager::relation( const OidType& oid, const RelatedObject* related )
 	m_relations[ ref ].setOid( relOid );
 	m_relations[ ref ].setValid( true );
 	m_relations[ ref ].setModified( false );
-	ensureUnderMaxRelations();
+	if ( m_cachePolicy == FreeMaxOnLoad || m_cachePolicy == FreeAllOnLoad )
+		ensureUnderMaxRelations();
 	return relOid;
 }
 
@@ -795,7 +847,8 @@ Collection* Manager::collection( const OidType& oid, const RelatedCollection* re
 	m_dbBackend->load( col );
 	m_collections[ ref ].setCollection( col );
 	m_collections[ ref ].setValid( true );
-	ensureUnderMaxCollections();
+	if ( m_cachePolicy == FreeMaxOnLoad || m_cachePolicy == FreeAllOnLoad )
+		ensureUnderMaxCollections();
 	return col;
 /*
 	assert( object );
