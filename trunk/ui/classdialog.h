@@ -51,7 +51,7 @@ private slots:
 private:
 	QMap<QString,QWidget*> m_mapProperties;
 	QMap<QString,KURLLabel*> m_mapObjects;
-	QMap<const QWidget*,RelatedObject*> m_mapChangeButtons;
+	QMap<const QWidget*,RelationInfo*> m_mapChangeButtons;
 	ObjectRef<Object> m_object;
 };
 

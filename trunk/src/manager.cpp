@@ -227,8 +227,8 @@ Manager::~Manager()
 	for ( ; it != end; ++it )
 		delete it.data().object();
 	
-	ManagerRelatedCollectionIterator it2( m_collections.begin() );
-	ManagerRelatedCollectionIterator end2( m_collections.end() );
+	ManagerCollectionIterator it2( m_collections.begin() );
+	ManagerCollectionIterator end2( m_collections.end() );
 	for ( ; it2 != end2; ++it2 )
 		delete it2.data().collection();
 	assert( m_dbBackend );
@@ -261,21 +261,13 @@ Q_ULLONG Manager::maxObjects() const
 	return m_maxObjects;
 }
 
-uint Manager::count() const
-{
-	return m_objects.count();
-}
-
-uint Manager::countRelations() const
-{
-	return m_relations.count();
-}
-
-uint Manager::countCollections() const
-{
-	return m_collections.count();
-}
-
+/*!
+This function prints with kdDebug() some information about the current status of the Manager. It is used for debugging purposes.
+Shown information includes:
+	* Number of objects kept in memory 
+	* Number of relations kept in memory
+	* Number of collections kept in memory
+*/
 void Manager::status() const
 {
 	QString info;
@@ -290,8 +282,8 @@ void Manager::status() const
 
 	info = "";
 	kdDebug() << "Number of relations: " << m_relations.count()  << endl;
-	ManagerRelatedObjectConstIterator rit( m_relations.begin() );
-	ManagerRelatedObjectConstIterator rend( m_relations.end() );
+	ManagerRelationConstIterator rit( m_relations.begin() );
+	ManagerRelationConstIterator rend( m_relations.end() );
 	for ( ; rit != rend; ++rit ) {
 		info += " " + oidToString( rit.key().oid() ) + " " + rit.key().name();
 	}
@@ -299,8 +291,8 @@ void Manager::status() const
 
 	info = "";
 	kdDebug() << "Number of collections: " << m_collections.count() << endl;
-	ManagerRelatedCollectionConstIterator cit( m_collections.begin() );
-	ManagerRelatedCollectionConstIterator cend( m_collections.end() );
+	ManagerCollectionConstIterator cit( m_collections.begin() );
+	ManagerCollectionConstIterator cend( m_collections.end() );
 	for ( ; cit != cend; ++cit ) {
 		info += " " + oidToString( cit.key().oid() ) + " " + rit.key().name();
 	}
@@ -313,7 +305,6 @@ bool Manager::add( Object* object )
 
 	if ( object->isNull() )
 		object->setOid( m_dbBackend->newOid() );
-	// Call before m_objects.insert as it might free the just added object.
 
 	if ( m_cachePolicy == FreeMaxOnLoad || m_cachePolicy == FreeAllOnLoad )
 		ensureUnderMaxObjects();
@@ -322,6 +313,11 @@ bool Manager::add( Object* object )
 	return true;
 }
 
+/*!
+Removes an object from the persistency system and from memory.
+TODO: What about data integrity?
+@return Should return false if there was an error removing the object. Currently always returns true.
+*/
 bool Manager::remove( Object* object )
 {
 	assert( object );
@@ -363,6 +359,10 @@ bool Manager::load( Collection* collection, const QString& query )
 	return m_dbBackend->load( collection, query );
 }
 
+/*!
+Commits the current transaction
+@return true if the transaction was commited correctly. False otherwise.
+*/
 bool Manager::commit()
 {
 	checkObjects();
@@ -378,28 +378,35 @@ bool Manager::commit()
 	return false;
 }
 
+/*!
+Sets objects and relations as unmodified. Used by commit once the backend has returned true from its commit function.
+*/
 void Manager::setEverythingUnmodified()
 {
-	ManagerObjectIterator mit( begin() );
-	ManagerObjectIterator mend( end() );
+	ManagerObjectIterator mit( m_objects.begin() );
+	ManagerObjectIterator mend( m_objects.end() );
 	for ( ; mit != mend; ++mit ) {
 		mit.data().object()->setModified( false );
 		mit.data().setValid( false );
 	}
-	ManagerRelatedObjectIterator oit( m_relations.begin() );
-	ManagerRelatedObjectIterator oend( m_relations.end() );
+	ManagerRelationIterator oit( m_relations.begin() );
+	ManagerRelationIterator oend( m_relations.end() );
 	for ( ; oit != oend; ++oit ) {
 		oit.data().setModified( false );
 		oit.data().setValid( false );
 	}
-	ManagerRelatedCollectionIterator cit( m_collections.begin() );
-	ManagerRelatedCollectionIterator cend( m_collections.end() );
+	ManagerCollectionIterator cit( m_collections.begin() );
+	ManagerCollectionIterator cend( m_collections.end() );
 	for ( ; cit != cend; ++cit ) {
 		cit.data().collection()->setModified( false );
 		cit.data().setValid( false );
 	}
 }
 
+/*!
+Aborts the current transaction.
+@return Should return false if couldn't rollback. Currently always returns true.
+*/
 bool Manager::rollback()
 {
 	// Delete all modified objects
@@ -420,8 +427,8 @@ bool Manager::rollback()
 	olist.clear();
 	ensureUnderMaxObjects();
 
-	ManagerRelatedObjectIterator rit ( m_relations.begin() );
-	ManagerRelatedObjectIterator rend ( m_relations.end() );
+	ManagerRelationIterator rit ( m_relations.begin() );
+	ManagerRelationIterator rend ( m_relations.end() );
 	QValueList<Reference> rlist;
 	for ( ; rit != rend; ++rit ) {
 		rit.data().setValid( false );
@@ -437,8 +444,8 @@ bool Manager::rollback()
 	ensureUnderMaxRelations();
 
 	// Delete all modified collections
-	ManagerRelatedCollectionIterator cit( m_collections.begin() );
-	ManagerRelatedCollectionIterator cend( m_collections.end() );
+	ManagerCollectionIterator cit( m_collections.begin() );
+	ManagerCollectionIterator cend( m_collections.end() );
 	for ( ; cit != cend; ++cit ) {
 		cit.data().setValid( false );
 		if ( cit.data().collection()->modified() )
@@ -506,6 +513,11 @@ Object* Manager::load( OidType oid, const ClassInfo* info )
 	return object;
 }
 
+/*!
+Returns a pointer to the requested object.
+@param oid The oid of the object
+@param f The pointer to the function that creates an object of the type of the expected object
+*/
 Object* Manager::load( OidType oid, CreateObjectFunction f )
 {
 	// This shouldn't be necessary but it is here because
@@ -553,6 +565,10 @@ Object* Manager::load( OidType oid, CreateObjectFunction f )
 	return object;
 }
 
+/*!
+Creates the database schema. The type of schema depends on the current backend.
+@returns true if the schema was created correctly. False otherwise.
+*/
 bool Manager::createSchema()
 {
 	return m_dbBackend->createSchema();
@@ -568,30 +584,31 @@ void Manager::checkObjects()
 	}
 }
 
-void Manager::ensureUnderMaxObjects( Object *object )
+/*!
+Ensures the total number of objects stays under maxObjects() as long as there
+are unmodified objects. Right now the parameter isn't used anywhere as we call this
+function before adding the object to the map. We'll see if it's necessary somewhere
+in the future, we could remove the parameter if isn't useful.
+*/
+void Manager::ensureUnderMaxObjects()
 {
 	if ( m_objects.count() < m_maxObjects )
 		return;
-
-	OidType oid = 0;
-	if ( object )
-		oid = object->oid();
-		
-	int total = m_objects.count();
 
 	ManagerObjectConstIterator it( m_objects.begin() );
 	ManagerObjectConstIterator end( m_objects.end() );
 	QValueVector<OidType> list;
 	Object *obj;
 	for ( ; it != end; ++it ) {
+		// Only invalid objects can be freed
 		if ( it.data().isValid() )
 			continue;
 		obj = it.data().object();
-		if ( ! obj->isModified() && it.key() != oid ) {
-			//delete it.data();
+		if ( ! obj->isModified() ) {
 			list.append( it.key() );
-			total--;
-			if ( ( m_cachePolicy == FreeMaxOnLoad || m_cachePolicy == FreeMaxOnTransaction ) && m_objects.count() - list.count() <= m_maxObjects )
+			if ( ( m_cachePolicy == FreeMaxOnLoad || 
+				m_cachePolicy == FreeMaxOnTransaction ) &&
+				m_objects.count() - list.count() <= m_maxObjects )
 				break;
 		}
 	}
@@ -612,8 +629,8 @@ void Manager::ensureUnderMaxRelations()
 		return;
 
 	QValueVector<Reference> list;
-	ManagerRelatedObjectConstIterator it( m_relations.constBegin() );
-	ManagerRelatedObjectConstIterator end( m_relations.constEnd() );
+	ManagerRelationConstIterator it( m_relations.constBegin() );
+	ManagerRelationConstIterator end( m_relations.constEnd() );
 	for ( ; it != end; ++it ) {
 		// If the object is not valid it can't have been modified
 		if ( !it.data().isValid() ) {
@@ -635,8 +652,8 @@ void Manager::ensureUnderMaxCollections()
 		return;
 
 	QValueVector<Reference> list;
-	ManagerRelatedCollectionConstIterator it( m_collections.constBegin() );
-	ManagerRelatedCollectionConstIterator end( m_collections.constEnd() );
+	ManagerCollectionConstIterator it( m_collections.constBegin() );
+	ManagerCollectionConstIterator end( m_collections.constEnd() );
 	for ( ; it != end; ++it ) {
 		// If the object is not valid it can't have been modified
 		if ( !it.data().isValid() ) {
@@ -652,18 +669,8 @@ void Manager::ensureUnderMaxCollections()
 	}
 }
 
-ManagerObjectIterator Manager::begin()
-{
-	return m_objects.begin();
-}
-
-ManagerObjectIterator Manager::end()
-{
-	return m_objects.end();
-}
-
 /*
-	Relation management functions
+Relation management functions
 */
 
 void Manager::setRelation( const OidType& oid, const ClassInfo* classInfo, const QString& relationName, const OidType& oidRelated, bool recursive )
@@ -676,11 +683,11 @@ void Manager::setRelation( const OidType& oid, const ClassInfo* classInfo, const
 
 	if ( classInfo->containsCollection( relstr ) ) {
 		isCollection = true;
-		RelatedCollection* col = classInfo->collection( relstr );
+		CollectionInfo* col = classInfo->collection( relstr );
 		relatedClassName = col->childrenClassInfo()->name();
 	} else if ( classInfo->containsObject( relstr ) ) {
 		isCollection = false;
-		RelatedObject* obj = classInfo->object( relstr );
+		RelationInfo* obj = classInfo->object( relstr );
 		relatedClassName = obj->relatedClassInfo()->name();
 	} else {
 		if ( ! recursive ) {
@@ -710,26 +717,6 @@ void Manager::setRelation( const OidType& oid, const ClassInfo* classInfo, const
 	Reference ref( oid, relstr );
 	m_relations[ ref ].setOid( oidRelated );
 	m_relations[ ref ].setModified( true );
-	/*
-	if ( m_relations.contains( ref ) ) {
-		Reference old( m_relations[ ref ].oid(), relation );
-
-		// Avoid removing the previously defined relation (we're probably inside the recursion)
-		if ( old.oid() != oidRelated ) {
-			if ( ! isCollection ) {
-				if ( m_relations.contains( old ) ) {
-					m_relations.remove( old );
-				}
-			} else {
-				removeRelation( old.oid(), classInfo->collection( relation ), oid, false );
-			}
-		}
-		m_relations[ ref ].setOid( oidRelated );
-		m_relations[ ref ].setModified( true );
-	} else {
-		m_relations.insert( ref, RelationHandler( oidRelated, true ) );
-	}
-	*/
 	if ( recursive && oidRelated != 0 ) {
 		if ( ! isCollection ) {
 			setRelation( oidRelated, classInfo, relstr, oid, false );
@@ -739,17 +726,12 @@ void Manager::setRelation( const OidType& oid, const ClassInfo* classInfo, const
 	}
 }
 
-void Manager::addRelation( const OidType& oid, const RelatedCollection* relcol, const OidType& oidRelated, bool recursive )
+void Manager::addRelation( const OidType& oid, const CollectionInfo* relcol, const OidType& oidRelated, bool recursive )
 {
 	QString relation = ClassInfo::relationName( relcol->name(), relcol->parentClassInfo()->name() );
 	
 	Collection *col = collection( oid, relcol );
-/*	
-	Reference ref( oid, relation );
-	if ( m_collections[ ref ].collection() == 0 )
-		m_collections[ ref ].setCollection( new Collection( collection, oid, this ) );
-	m_collections[ ref ].collection()->simpleAdd( oidRelated );
-*/
+	col->simpleAdd( oidRelated );
 
 	// EnsureUnderMaxCollections AFTER modifying it (simpleAdd) we couldn't ensure
 	// the collection was still in memory otherwise.
@@ -768,21 +750,13 @@ void Manager::addRelation( const OidType& oid, const RelatedCollection* relcol, 
 	}
 }
 
-void Manager::removeRelation( const OidType& oid, const RelatedCollection* relcol, const OidType& oidRelated, bool recursive )
+void Manager::removeRelation( const OidType& oid, const CollectionInfo* relcol, const OidType& oidRelated, bool recursive )
 {
 	QString relation = ClassInfo::relationName( relcol->name(), relcol->parentClassInfo()->name() );
 	
 	Collection *col = collection( oid, relcol );
 	col->simpleRemove( oidRelated );
-	/*
-	Reference ref( oid, relation );
-	if ( ! m_collections.contains( ref ) )
-		return;
-	
-	m_collections[ ref ].collection()->simpleRemove( oidRelated );
-	*/
-	
-	
+
 	if ( recursive ) {
 		if ( Classes::classInfo( relcol->childrenClassInfo()->name() )->containsObject( relation ) ) {
 			setRelation( oidRelated, relcol->childrenClassInfo(), 0, false );
@@ -798,7 +772,7 @@ void Manager::removeRelation( const OidType& oid, const RelatedCollection* relco
 /*!
 Obtains the oid of the object that relates to the relation "related" for object with oid "oid". It assumes that the object with oid "oid" can have a relation of type "related".
 */
-OidType Manager::relation( const OidType& oid, const RelatedObject* related )
+OidType Manager::relation( const OidType& oid, const RelationInfo* related )
 {
 	Reference ref( oid, related->name() );
 	
@@ -829,7 +803,7 @@ OidType Manager::relation( const Object* object, const QString& related )
 	return relation( object->oid(), object->classInfo()->object( ClassInfo::relationName( related, object->classInfo()->name() ) ) );
 }
 
-Collection* Manager::collection( const OidType& oid, const RelatedCollection* related )
+Collection* Manager::collection( const OidType& oid, const CollectionInfo* related )
 {
 	// TODO: We are assuming the relation exists!!!
 	Reference ref( oid, related->name() );
@@ -850,36 +824,12 @@ Collection* Manager::collection( const OidType& oid, const RelatedCollection* re
 	if ( m_cachePolicy == FreeMaxOnLoad || m_cachePolicy == FreeAllOnLoad )
 		ensureUnderMaxCollections();
 	return col;
-/*
-	assert( object );
-	Reference ref( object->oid(), relation );
-	if ( ! m_collections.contains( ref ) ) {
-		if ( ! object->classInfo()->containsCollection( relation ) ) {
-			kdDebug() << k_funcinfo << "Collection '" << relation << "' doesn't exist in class '" << object->classInfo()->name() << "'" << endl;
-			return 0;
-		}
-		RelatedCollection* col = object->classInfo()->collection( relation );
-
-		m_collections[ ref ].setCollection( new Collection( col, object->oid(), this ) );
-		load( m_collections[ ref ].collection() );
-	}
-	assert( m_collections[ ref ].collection() );
-	return m_collections[ ref ].collection();
-*/
 }
 
-/*
-Collection* Manager::collection( const OidType& oid, const RelatedCollection* collection )
-{
-	Reference ref( oid, collection->name() );
-	if ( ! m_collections.contains( ref ) ) {
-		m_collections[ ref ].setCollection( new Collection( collection, oid, this ) );
-		load( m_collections[ ref ].collection() );
-	}
-	return m_collections[ ref ].collection();
-}
-*/
 
+/*!
+For testing purposes only. Used by the tests to ensure no objects remain from the previous test.
+*/
 void Manager::reset()
 {
 	ManagerObjectIterator it( m_objects.begin() );
@@ -887,8 +837,8 @@ void Manager::reset()
 	for ( ; it != end; ++it )
 		delete it.data().object();
 	m_objects.clear();
-	ManagerRelatedCollectionIterator cit( m_collections.begin() );
-	ManagerRelatedCollectionIterator cend( m_collections.end() );
+	ManagerCollectionIterator cit( m_collections.begin() );
+	ManagerCollectionIterator cend( m_collections.end() );
 	for ( ; cit != cend; ++cit )
 		delete cit.data().collection();
 	m_collections.clear();
@@ -898,7 +848,11 @@ void Manager::reset()
 	m_dbBackend->reset();
 }
 
-void Manager::copy( Manager* manager )
+/*!
+Copies the contents (objects & relations) to another manager. Only objects and relations that are currently in memory are copied ATM. This means it will only copy the whole data in those src managers that have MaxObjects Unlimited. So it is possible to copy the whole Xml database to an Sql Database but not viceversa.
+@param manager The manager to which the contents of the current manager will be copied.
+*/
+void Manager::copyTo( Manager* manager )
 {
 	// There are no pointers in this structure so we can copy it using the default assignment operator
 	manager->m_relations = m_relations;
@@ -913,8 +867,8 @@ void Manager::copy( Manager* manager )
 		dstObj->setModified( true );
 	}
 
-	ManagerRelatedCollectionIterator cit( m_collections.begin() );
-	ManagerRelatedCollectionIterator cend( m_collections.end() );
+	ManagerCollectionIterator cit( m_collections.begin() );
+	ManagerCollectionIterator cend( m_collections.end() );
 	Collection *col, *srcCol;
 	for ( ; cit != cend; ++cit ) {
 		srcCol = cit.data().collection();
@@ -924,12 +878,17 @@ void Manager::copy( Manager* manager )
 	}
 }
 
-ManagerRelatedObjectMap& Manager::relations()
+ManagerObjectMap& Manager::objects()
+{
+	return m_objects;
+}
+
+ManagerRelationMap& Manager::relations()
 {
 	return m_relations;
 }
 
-ManagerRelatedCollectionMap& Manager::collections()
+ManagerCollectionMap& Manager::collections()
 {
 	return m_collections;
 }

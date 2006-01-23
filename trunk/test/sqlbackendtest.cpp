@@ -294,9 +294,9 @@ void SqlBackendTest::cache()
 
 	// Check when commiting object cache is purged to maxObjects
 	CHECK( Manager::self()->commit(), true );
-	CHECK( Manager::self()->count(), maxObjects );
-	CHECK( Manager::self()->countRelations(), maxObjects );
-	CHECK( Manager::self()->countCollections(), maxObjects );
+	CHECK( Manager::self()->objects().count(), maxObjects );
+	CHECK( Manager::self()->relations().count(), maxObjects );
+	CHECK( Manager::self()->collections().count(), maxObjects );
 
 	// Check data has been saved correctly to DB
 	for ( int i = 0; i < maxObjects * 2; ++i ) {
@@ -326,9 +326,9 @@ void SqlBackendTest::cache()
 	CHECK( a->code(), QString( "Code1" ) );
 	
 	// Ensure we're still under maxObjects
-	CHECK( Manager::self()->count(), maxObjects );
-	CHECK( Manager::self()->countRelations(), maxObjects );
-	CHECK( Manager::self()->countCollections(), maxObjects );
+	CHECK( Manager::self()->objects().count(), maxObjects );
+	CHECK( Manager::self()->relations().count(), maxObjects );
+	CHECK( Manager::self()->collections().count(), maxObjects );
 }
 
 void SqlBackendTest::freeing()
@@ -346,25 +346,25 @@ void SqlBackendTest::freeing()
 	oid2 = a2.oid();
 	oid3 = a3.oid();
 	Manager::self()->commit();
-	CHECK( Manager::self()->count(), 1 );
+	CHECK( Manager::self()->objects().count(), 1 );
 	ObjectRef<Article> b1 = Article::create( oid1 );
-	CHECK( Manager::self()->count(), 1 );
+	CHECK( Manager::self()->objects().count(), 1 );
 	ObjectRef<Article> b2 = Article::create( oid2 );
-	CHECK( Manager::self()->count(), 2 );
+	CHECK( Manager::self()->objects().count(), 2 );
 	ObjectRef<Article> b3 = Article::create( oid3 );
-	CHECK( Manager::self()->count(), 3 );
+	CHECK( Manager::self()->objects().count(), 3 );
 	CHECK( b1->oid(), oid1 );
-	CHECK( Manager::self()->count(), 3 );
+	CHECK( Manager::self()->objects().count(), 3 );
 	CHECK( b2->oid(), oid2 );
-	CHECK( Manager::self()->count(), 3 );
+	CHECK( Manager::self()->objects().count(), 3 );
 	CHECK( b3->oid(), oid3 );
-	CHECK( Manager::self()->count(), 3 );
+	CHECK( Manager::self()->objects().count(), 3 );
 	CHECK( b3->code(), QString( "3" ) );
-	CHECK( Manager::self()->count(), 3 );
+	CHECK( Manager::self()->objects().count(), 3 );
 	CHECK( b1->code(), QString( "1" ) );
-	CHECK( Manager::self()->count(), 3 );
+	CHECK( Manager::self()->objects().count(), 3 );
 	CHECK( b2->code(), QString( "2" ) );
-	CHECK( Manager::self()->count(), 3 );
+	CHECK( Manager::self()->objects().count(), 3 );
 }
 
 void SqlBackendTest::testRelations()
@@ -380,7 +380,7 @@ void SqlBackendTest::testRelations()
 	order->articles()->add( a2 );
 	order->articles()->add( a3 );
 	Manager::self()->commit();
-	CHECK( Manager::self()->count(), 0 );
+	CHECK( Manager::self()->objects().count(), 0 );
 	
 	CHECK( a2->orders()->count(), 1 );
 	CHECK( order->articles()->count(), 3 );
@@ -388,9 +388,9 @@ void SqlBackendTest::testRelations()
 	CHECK( a2->orders()->count(), 0 );
 	CHECK( order->articles()->count(), 2 );
 	Manager::self()->rollback();
-	CHECK( Manager::self()->count(), 0 );
-	CHECK( Manager::self()->countRelations(), 0 );
-	CHECK( Manager::self()->countCollections(), 0 );
+	CHECK( Manager::self()->objects().count(), 0 );
+	CHECK( Manager::self()->relations().count(), 0 );
+	CHECK( Manager::self()->collections().count(), 0 );
 
 	CHECK( a2->orders()->count(), 1 );
 	Manager::self()->status();
@@ -399,7 +399,7 @@ void SqlBackendTest::testRelations()
 	CHECK( a2->orders()->count(), 0 );
 	CHECK( order->articles()->count(), 2 );
 	Manager::self()->commit();
-	CHECK( Manager::self()->count(), 0 );
+	CHECK( Manager::self()->objects().count(), 0 );
 	CHECK( a2->orders()->count(), 0 );
 	CHECK( order->articles()->count(), 2 );
 

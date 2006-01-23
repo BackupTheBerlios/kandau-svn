@@ -73,8 +73,8 @@ QStringList ObjectAccess::relatedObjects( const QString& className ) const
 	
 	ClassInfo *c = Classes::classInfo( className );
 	assert( c );
-	RelatedObjectsIterator it( c->objectsBegin() );
-	RelatedObjectsIterator end( c->objectsEnd() );
+	RelationInfosIterator it( c->relationsBegin() );
+	RelationInfosIterator end( c->relationsEnd() );
 	kdDebug() << "1" << endl;
 	for ( ; it != end; ++it ) {
 		kdDebug() << "2" << endl;
@@ -90,8 +90,8 @@ QStringList ObjectAccess::relatedCollections( const QString& className ) const
 	if ( ! Classes::contains( className ) )
 		return r;
 	ClassInfo *c = Classes::classInfo( className );
-	RelatedCollectionsIterator it( c->collectionsBegin() );
-	RelatedCollectionsIterator end( c->collectionsEnd() );
+	CollectionInfosIterator it( c->collectionsBegin() );
+	CollectionInfosIterator end( c->collectionsEnd() );
 	kdDebug() << "1" << endl;
 	for ( ; it != end; ++it ) {
 		kdDebug() << "2" << endl;
@@ -111,8 +111,8 @@ QString ObjectAccess::create( const QString& className ) const
 QStringList ObjectAccess::objects() const
 {
 	QStringList r;
-	ManagerObjectIterator it( Manager::self()->begin() );
-	ManagerObjectIterator end( Manager::self()->end() );
+	ManagerObjectIterator it( Manager::self()->objects().begin() );
+	ManagerObjectIterator end( Manager::self()->objects().end() );
 	for ( ; it != end; ++it ) {
 		r.append( oidToString( it.data().object()->oid() ) );
 	}

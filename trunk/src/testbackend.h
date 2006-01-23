@@ -36,11 +36,11 @@ public:
 	bool load( const OidType& oid, Object *object );
 	bool load( Collection *collection );
 	bool load( Collection *collection, const QString& query );
-	bool load( OidType* relatedOid, const OidType& oid, const RelatedObject* related );
+	bool load( OidType* relatedOid, const OidType& oid, const RelationInfo* related );
 	bool createSchema();
 	bool hasChanged( Object * object );
 	bool hasChanged( Collection *collection );
-	bool hasChanged( const OidType& oid, const RelatedObject* related );
+	bool hasChanged( const OidType& oid, const RelationInfo* related );
 
 	bool commit();
 	OidType newOid();

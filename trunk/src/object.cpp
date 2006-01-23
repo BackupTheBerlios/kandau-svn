@@ -185,7 +185,7 @@ PropertiesConstIterator& PropertiesConstIterator::operator=(const PropertiesCons
 
 // ObjectsIterator
 
-ObjectsIterator::ObjectsIterator( const OidType& oid, RelatedObjectsConstIterator it, Manager* manager )
+ObjectsIterator::ObjectsIterator( const OidType& oid, RelationInfosConstIterator it, Manager* manager )
 {
 	m_oid = oid;
 	m_it = it;
@@ -212,7 +212,7 @@ const QString& ObjectsIterator::key() const
 	return m_it.key();
 }
 
-const RelatedObject* ObjectsIterator::relatedObject() const
+const RelationInfo* ObjectsIterator::relatedObject() const
 {
 	return (*m_it);
 }
@@ -272,7 +272,7 @@ ObjectsIterator& ObjectsIterator::operator=(const ObjectsIterator& it)
 
 // CollectionsIterator
 
-CollectionsIterator::CollectionsIterator( const OidType& oid, RelatedCollectionsConstIterator it, Manager* manager )
+CollectionsIterator::CollectionsIterator( const OidType& oid, CollectionInfosConstIterator it, Manager* manager )
 {
 	m_oid = oid;
 	m_it = it;
@@ -556,12 +556,12 @@ Functions for managing the other objects related
 
 ObjectsIterator Object::objectsBegin()
 {
-	return ObjectsIterator( m_oid, classInfo()->objectsBegin(), m_manager );
+	return ObjectsIterator( m_oid, classInfo()->relationsBegin(), m_manager );
 }
 
 ObjectsIterator Object::objectsEnd()
 {
-	return ObjectsIterator( m_oid, classInfo()->objectsEnd(), m_manager );
+	return ObjectsIterator( m_oid, classInfo()->relationsEnd(), m_manager );
 }
 
 int Object::numObjects() const
@@ -620,7 +620,7 @@ int Object::numCollections() const
 Collection* Object::collection( const QString& name ) const
 {
 	QString relation = ClassInfo::relationName( name, classInfo()->name() );
-	kdDebug() << " name = " << name << ", classInfo = " << classInfo()->name() << ", RELATION: " << relation << endl;
+//	kdDebug() << " name = " << name << ", classInfo = " << classInfo()->name() << ", RELATION: " << relation << endl;
 	assert( classInfo()->collection( relation ) );
 	return m_manager->collection( m_oid, classInfo()->collection( relation ) );
 }

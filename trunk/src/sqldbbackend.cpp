@@ -121,7 +121,7 @@ bool SqlDbBackend::load( const QSqlCursor &cursor, Object *object )
 	return true;
 }
 
-bool SqlDbBackend::load( OidType* relatedOid, const OidType& oid, const RelatedObject* related )
+bool SqlDbBackend::load( OidType* relatedOid, const OidType& oid, const RelationInfo* related )
 {
 	if ( oid == 0 ) {
 		*relatedOid = 0;
@@ -246,6 +246,7 @@ bool SqlDbBackend::save( Object *object )
 		}
 	}
 
+/*
 	ObjectsIterator oIt( object->objectsBegin() );
 	ObjectsIterator oEnd( object->objectsEnd() );
 	Object *obj;
@@ -258,13 +259,14 @@ bool SqlDbBackend::save( Object *object )
 		else
 			record->setNull( oIt.key() );
 	}
-	
+*/	
+/*
 	for ( uint i = 0; i < record->count(); ++i ) {
 		if ( record->fieldName( i ).right( 1 ) == "_" && variantToOid( record->value( i ) ) == 0 ) {
 			record->setNull( i );
 		}
 	}
-
+*/
 	if ( update ) {
 		if (! cursor.update() ) {
 			kdDebug() << k_funcinfo << " -> " << cursor.lastError().text() << endl;
@@ -315,7 +317,7 @@ SeqType SqlDbBackend::newSeq()
 	return variantToOid( query.value( 0 ) );
 }
 
-QString SqlDbBackend::filterFieldName( const RelatedCollection *collection ) const
+QString SqlDbBackend::filterFieldName( const CollectionInfo *collection ) const
 {
 	assert( collection );
 	return collection->parentClassInfo()->name();
@@ -335,7 +337,7 @@ OidType SqlDbBackend::filterValue( const Collection *collection ) const
 	return static_cast<Object*>(collection->parent())->oid();
 }
 
-QString SqlDbBackend::idFieldName( const RelatedCollection *collection ) const
+QString SqlDbBackend::idFieldName( const CollectionInfo *collection ) const
 {
 	assert( collection );
 	if ( collection->isNToOne() )
@@ -398,15 +400,19 @@ bool SqlDbBackend::createSchema()
 			if ( prop->readOnly() == false )
 				exec += prop->name() + " " + sqlType( prop->type() ) + ", ";
 		}
-	
+
 		// Create related objects fields
-		RelatedObjectsConstIterator oIt( currentClass->objectsBegin() );
-		RelatedObjectsConstIterator oEnd( currentClass->objectsEnd() );
-		RelatedObject *rObj;
+		// For 1-1 relations only create the field in one of the two tables.
+		// We assume that both classes have relation to each other.
+		RelationInfosConstIterator oIt( currentClass->relationsBegin() );
+		RelationInfosConstIterator oEnd( currentClass->relationsEnd() );
+		RelationInfo *rObj;
 		for ( ; oIt != oEnd; ++oIt ) {
 			rObj = *oIt;
-			exec += rObj->name().lower() + " BIGINT DEFAULT NULL, ";
-			constraints << currentClass->name().lower() + "-" + rObj->name().lower() + "-" + rObj->relatedClassInfo()->name().lower();
+			if ( ! rObj->isOneToOne() || rObj->relatedClassInfo()->name() > rObj->parentClassInfo()->name() ) {
+				exec += rObj->name().lower() + " BIGINT DEFAULT NULL, ";
+				constraints << currentClass->name().lower() + "-" + rObj->name().lower() + "-" + rObj->relatedClassInfo()->name().lower();
+			}
 		}
 
 		// Search in all the classes if they have N - 1 relations with the current class
@@ -415,9 +421,9 @@ bool SqlDbBackend::createSchema()
 		ClassInfo *cInfo;
 		for ( ; cIt != cEnd; ++cIt ) {
 			cInfo = *cIt;
-			RelatedCollectionsIterator colIt( cInfo->collectionsBegin() );
-			RelatedCollectionsIterator colEnd( cInfo->collectionsEnd() );
-			RelatedCollection *rCol;
+			CollectionInfosIterator colIt( cInfo->collectionsBegin() );
+			CollectionInfosIterator colEnd( cInfo->collectionsEnd() );
+			CollectionInfo *rCol;
 			for ( ; colIt != colEnd; ++colIt ) {
 				rCol = *colIt;
 				if ( rCol->childrenClassInfo()->name() == currentClass->name() && rCol->isNToOne() && constraints.grep( rCol->name().lower() ).count() == 0 ) {
@@ -427,9 +433,9 @@ bool SqlDbBackend::createSchema()
 			}
 		}
 
-		RelatedCollectionsIterator colIt( currentClass->collectionsBegin() );
-		RelatedCollectionsIterator colEnd( currentClass->collectionsEnd() );
-		RelatedCollection *col;
+		CollectionInfosIterator colIt( currentClass->collectionsBegin() );
+		CollectionInfosIterator colEnd( currentClass->collectionsEnd() );
+		CollectionInfo *col;
 		for ( ; colIt != colEnd; ++colIt ) {
 			col = *colIt;
 			if ( ! tables.grep( col->name().lower() ).count() > 0 && ! col->isNToOne() ) {
@@ -441,7 +447,7 @@ bool SqlDbBackend::createSchema()
 		exec = exec.left( exec.length() - 2 );
 		exec += ");";
 		m_db->exec( exec );
-		
+
 		if ( m_db->lastError().type() != QSqlError::None ) {
 			kdDebug() << k_funcinfo << exec << endl;
 			kdDebug() << k_funcinfo << m_db->lastError().text()  << endl;
@@ -528,7 +534,7 @@ bool SqlDbBackend::hasChanged( Collection *collection )
 	return false;
 }
 
-bool SqlDbBackend::hasChanged( const OidType& oid, const RelatedObject* related )
+bool SqlDbBackend::hasChanged( const OidType& oid, const RelationInfo* related )
 {
 	/* Right now we always consider we need to reload the oid */
 	return false;
@@ -548,32 +554,9 @@ bool SqlDbBackend::commit()
 		m_db->exec( "DELETE FROM " + (*rit).first + " WHERE dboid=" + oidToString( (*rit).second ) );
 	}
 
+	commitObjects();
+	commitRelations();
 	commitCollections();
-	
-	ManagerObjectIterator it( m_manager->begin() );
-	ManagerObjectIterator end( m_manager->end() );
-	Object *obj;
-	for ( ; it != end; ++it ) {
-		obj = it.data().object();
-		if ( obj->isModified() ) {
-			save( obj );
-		}
-	}
-
-/*
-	QMap<OidType, QMap<QString, QPair<OidType, bool> > > &relations = m_manager->relations();
-	QMapIterator<OidType, QMap<QString, QPair<OidType, bool> > > mit( relations.begin() );
-	QMapIterator<OidType, QMap<QString, QPair<OidType, bool> > > mend( relations.end() );
-	for ( ; mit != mend; ++mit ) {
-		QMapIterator<QString, QPair<OidType, bool> > mmit( (*mit).begin() );
-		QMapIterator<QString, QPair<OidType, bool> > mmend( (*mit).end() );
-		for ( ; mmit != mmend; ++mmit ) {
-			if ( (*mmit).second ) {
-
-			}
-		}
-	}
-*/
 
 	if ( m_db->commit() ) {
 		m_removedObjects.clear();
@@ -583,12 +566,39 @@ bool SqlDbBackend::commit()
 	}
 }
 
+void SqlDbBackend::commitObjects()
+{
+	// Store objects
+	ManagerObjectIterator it( m_manager->objects().begin() );
+	ManagerObjectIterator end( m_manager->objects().end() );
+	Object *obj;
+	for ( ; it != end; ++it ) {
+		obj = it.data().object();
+		if ( obj->isModified() ) {
+			save( obj );
+		}
+	}
+}
+
+void SqlDbBackend::commitRelations()
+{
+	ManagerRelationIterator it( m_manager->relations().begin() );
+	ManagerRelationIterator end( m_manager->relations().end() );
+	
+	for ( ; it != end; ++it ) {
+		it.data().
+		save( 
+		//obj = it.data().object();
+		//if ( obj->isModified() ) {
+		//	save( obj );
+		//}
+	}
+}
+
 void SqlDbBackend::commitCollections()
 {
-	QMap<OidType, QMap<QString, Collection*> > m_collections;
-
-	ManagerRelatedCollectionIterator cit( m_manager->collections().begin() ) ;
-	ManagerRelatedCollectionIterator cend( m_manager->collections().end() );
+	ManagerCollectionIterator cit( m_manager->collections().begin() ) ;
+	ManagerCollectionIterator cend( m_manager->collections().end() );
 	Collection *c;
 	for ( ; cit != cend; ++cit ) {
 		c = cit.data().collection();
@@ -657,7 +667,7 @@ QString SqlDbBackend::expandDotsString( const QString& string )
 		}
 		ClassInfo *classInfo = Classes::classInfo( className );
 		if ( classInfo->containsObject( relationName ) ) {
-			RelatedObject *rel = classInfo->object( relationName );
+			RelationInfo *rel = classInfo->object( relationName );
 			if ( rel->isOneToOne() ) {
 				expanded += className + "." + relationName + "=";
 				expanded += rel->relatedClassInfo()->name() + ".dboid AND ";
@@ -668,7 +678,7 @@ QString SqlDbBackend::expandDotsString( const QString& string )
 				className=rel->relatedClassInfo()->name();
 			}
 		} else if ( classInfo->containsCollection( relationName ) ) {
-			RelatedCollection *rel = classInfo->collection( relationName );
+			CollectionInfo *rel = classInfo->collection( relationName );
 			if ( rel->isNToOne() ) {
 				expanded += className + ".dboid=";
 				expanded += rel->childrenClassInfo()->name() + "." + relationName + " AND ";

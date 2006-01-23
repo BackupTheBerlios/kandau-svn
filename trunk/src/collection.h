@@ -86,11 +86,11 @@ class Collection
 public:
 	Collection();
 	Collection( const QString& query, Manager* manager = 0 );
-	Collection( const RelatedCollection *rel, const OidType& parent, Manager* manager );
+	Collection( const CollectionInfo *rel, const OidType& parent, Manager* manager );
 	virtual ~Collection();
 	Collection& operator=( const Collection& col );
 
-	const RelatedCollection* collectionInfo() const;
+	const CollectionInfo* collectionInfo() const;
 
 	void setQuery( const QString& query, Manager* manager = 0 );
 
@@ -144,7 +144,7 @@ private:
 	QMap<OidType,bool> m_collection;
 	//CreateObjectFunction m_createObjectFunction;
 
-	const RelatedCollection *m_collectionInfo;
+	const CollectionInfo *m_collectionInfo;
 	OidType m_parent;
 
 	// If the nToOne variable is set
@@ -267,7 +267,7 @@ public:
 private:
 	OidType m_oid;
 	Manager* m_manager;
-	const RelatedCollection *m_collectionInfo;
+	const CollectionInfo *m_collectionInfo;
 	Collection *m_collection;
 };
 

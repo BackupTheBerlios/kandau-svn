@@ -58,7 +58,7 @@ bool TestBackend::load( Collection* /*collection*/, const QString& /*query*/ )
 	return true;
 }
 
-bool TestBackend::load( OidType* relatedOid, const OidType& /*oid*/, const RelatedObject* /*related*/ )
+bool TestBackend::load( OidType* relatedOid, const OidType& /*oid*/, const RelationInfo* /*related*/ )
 {
 	relatedOid = 0;
 	return true;
@@ -79,7 +79,7 @@ bool TestBackend::hasChanged( Collection */*collection*/ )
 	return false;
 }
 
-bool TestBackend::hasChanged( const OidType& /*oid*/, const RelatedObject* /*related*/ )
+bool TestBackend::hasChanged( const OidType& /*oid*/, const RelationInfo* /*related*/ )
 {
 	return false;
 }
@@ -91,8 +91,8 @@ OidType TestBackend::newOid()
 
 bool TestBackend::commit()
 {
-	ManagerObjectIterator it( m_manager->begin() );
-	ManagerObjectIterator end( m_manager->end() );
+	ManagerObjectIterator it( m_manager->objects().begin() );
+	ManagerObjectIterator end( m_manager->objects().end() );
 	for ( ; it != end; ++it )
 		it.data().object()->setModified( false );
 	return true;

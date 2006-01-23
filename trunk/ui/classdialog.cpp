@@ -92,10 +92,10 @@ ClassDialog::ClassDialog( Object *object, QWidget *parent) :
 	}
 	
 	const ClassInfo *classInfo = object->classInfo();
-	RelatedObjectsConstIterator it2( classInfo->objectsBegin() );
-	RelatedObjectsConstIterator end2( classInfo->objectsEnd() );
+	RelationInfosConstIterator it2( classInfo->relationsBegin() );
+	RelationInfosConstIterator end2( classInfo->relationsEnd() );
 	for ( ; it2 != end2; ++it2, ++row ) {
-		RelatedObject *relObj = it2.data();
+		RelationInfo *relObj = it2.data();
 		label = new QLabel( widget );
 		if ( labels )
 			label->setText( labels->label( it2.data()->name() ) );
@@ -251,7 +251,7 @@ void ClassDialog::slotChangeClicked()
 {
 	const QWidget *w = dynamic_cast<const QWidget*>( sender() );
 	if ( w ) {
-		RelatedObject *rel = m_mapChangeButtons[ w ];
+		RelationInfo *rel = m_mapChangeButtons[ w ];
 		Collection col( rel->relatedClassInfo()->name() );
 		ChooseObjectDialog *c = new ChooseObjectDialog( &col, 0, this );
 		if ( c->exec() == QDialog::Accepted ) {

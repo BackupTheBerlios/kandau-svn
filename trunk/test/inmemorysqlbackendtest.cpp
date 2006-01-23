@@ -127,9 +127,9 @@ void InMemorySqlBackendTest::printClasses()
 
 		kdDebug() << "Class: " << current->name() << endl;
 		kdDebug() << "    Objects:" << endl;
-		RelatedObjectsIterator oit( current->objectsBegin() );
-		RelatedObjectsIterator oend( current->objectsEnd() );
-		RelatedObject *obj;
+		RelationInfosIterator oit( current->relationsBegin() );
+		RelationInfosIterator oend( current->relationsEnd() );
+		RelationInfo *obj;
 		for ( ; oit != oend; ++oit ) {
 			obj = (*oit);
 			QString n;
@@ -138,9 +138,9 @@ void InMemorySqlBackendTest::printClasses()
 		}
 
 		kdDebug() << "    Collections:" << endl;
-		RelatedCollectionsIterator lit( current->collectionsBegin() );
-		RelatedCollectionsIterator lend( current->collectionsEnd() );
-		RelatedCollection *col;
+		CollectionInfosIterator lit( current->collectionsBegin() );
+		CollectionInfosIterator lend( current->collectionsEnd() );
+		CollectionInfo *col;
 		for ( ; lit != lend; ++lit ) {
 			col = (*lit);
 

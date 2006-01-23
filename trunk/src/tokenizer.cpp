@@ -36,17 +36,12 @@ QString MTokenizer::nextToken()
 {
 	QString token;
 	int nextIndex;
-	kdDebug() << k_funcinfo << ": m_text = " << m_text << endl;
-	kdDebug() << k_funcinfo << ": m_symbols = " << m_symbols << endl;
 	nextIndex = m_text.find( QRegExp( "[" + m_symbols + "]" ), m_index );
-	kdDebug() << k_funcinfo << ": nextIndex = " << nextIndex << endl;
 	if ( nextIndex == -1 )
 		return QString::null;
 
 	token = m_text.mid( m_index, nextIndex - m_index );
-	kdDebug() << k_funcinfo << ": token = " << token << endl;
 	m_index = nextIndex + 1;
-	kdDebug() << k_funcinfo << ": m_index = " << m_index << endl;
 	return token;
 }
 

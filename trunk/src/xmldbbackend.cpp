@@ -235,7 +235,7 @@ bool XmlDbBackend::load( Collection */*collection*/, const QString& /*query*/ )
 	return true;
 }
 
-bool XmlDbBackend::load( OidType* /*relatedOid*/, const OidType& /*oid*/, const RelatedObject* /*related*/ )
+bool XmlDbBackend::load( OidType* /*relatedOid*/, const OidType& /*oid*/, const RelationInfo* /*related*/ )
 {
 	return true;
 }
@@ -255,7 +255,7 @@ bool XmlDbBackend::hasChanged( Collection */*collection*/ )
 	return false;
 }
 
-bool XmlDbBackend::hasChanged( const OidType& /*oid*/, const RelatedObject* /*related*/ )
+bool XmlDbBackend::hasChanged( const OidType& /*oid*/, const RelationInfo* /*related*/ )
 {
 	return false;
 }
@@ -271,8 +271,8 @@ bool XmlDbBackend::commit()
 	QDomElement root = doc.createElement( "Database" );
 	doc.appendChild( root );
 
-	ManagerObjectIterator it( m_manager->begin() );
-	ManagerObjectIterator end( m_manager->end() );
+	ManagerObjectIterator it( m_manager->objects().begin() );
+	ManagerObjectIterator end( m_manager->objects().end() );
 	for ( ; it != end; ++it )
 		objectToElement( it.data().object(), &doc, &root );
 

@@ -326,7 +326,7 @@ void TestBackendTest::references()
 
 	Manager::self()->remove( o1 );
 	Manager::self()->remove( o2 );
-	CHECK( Manager::self()->count(), 0 );
+	CHECK( Manager::self()->objects().count(), 0 );
 }
 
 void TestBackendTest::rollback()
@@ -336,9 +336,9 @@ void TestBackendTest::rollback()
 	ObjectRef<CustomerOrder> o1 = CustomerOrder::create();
 	ObjectRef<CustomerOrder> o2 = CustomerOrder::create();
 	o1->setOrder( o2 );
-	CHECK( Manager::self()->count(), 2 );
+	CHECK( Manager::self()->objects().count(), 2 );
 	CHECK( Manager::self()->rollback(), true );
-	CHECK( Manager::self()->count(), 0 );
+	CHECK( Manager::self()->objects().count(), 0 );
 }
 
 void TestBackendTest::commit()
@@ -349,11 +349,11 @@ void TestBackendTest::commit()
 	ObjectRef<CustomerOrder> o1 = CustomerOrder::create();
 	ObjectRef<CustomerOrder> o2 = CustomerOrder::create();
 	o1->setOrder( o2 );
-	CHECK( Manager::self()->count(), num + 2 );
+	CHECK( Manager::self()->objects().count(), num + 2 );
 	CHECK( Manager::self()->commit(), true );
-	CHECK( Manager::self()->count(), num + 2 );
+	CHECK( Manager::self()->objects().count(), num + 2 );
 	CHECK( Manager::self()->rollback(), true );
-	CHECK( Manager::self()->count(), num + 2 );
+	CHECK( Manager::self()->objects().count(), num + 2 );
 }
 
 void TestBackendTest::printClasses()
@@ -368,9 +368,9 @@ void TestBackendTest::printClasses()
 
 		kdDebug() << "Class: " << current->name() << endl;
 		kdDebug() << "    Objects:" << endl;
-		RelatedObjectsIterator oit( current->objectsBegin() );
-		RelatedObjectsIterator oend( current->objectsEnd() );
-		RelatedObject *obj;
+		RelationInfosIterator oit( current->relationsBegin() );
+		RelationInfosIterator oend( current->relationsEnd() );
+		RelationInfo *obj;
 		for ( ; oit != oend; ++oit ) {
 			obj = (*oit);
 			QString n;
@@ -379,9 +379,9 @@ void TestBackendTest::printClasses()
 		}
 
 		kdDebug() << "    Collections:" << endl;
-		RelatedCollectionsIterator lit( current->collectionsBegin() );
-		RelatedCollectionsIterator lend( current->collectionsEnd() );
-		RelatedCollection *col;
+		CollectionInfosIterator lit( current->collectionsBegin() );
+		CollectionInfosIterator lend( current->collectionsEnd() );
+		CollectionInfo *col;
 		for ( ; lit != lend; ++lit ) {
 			col = (*lit);
 

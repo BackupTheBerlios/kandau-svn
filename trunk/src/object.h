@@ -213,12 +213,12 @@ private:
 class ObjectsIterator
 {
 public:
-	ObjectsIterator( const OidType& oid, RelatedObjectsConstIterator it, Manager* manager );
+	ObjectsIterator( const OidType& oid, RelationInfosConstIterator it, Manager* manager );
 	Object* data();
 	const Object* data() const;
 	QString key();
 	const QString& key() const;
-	const RelatedObject* relatedObject() const;
+	const RelationInfo* relatedObject() const;
 	ObjectsIterator& operator++();
 	ObjectsIterator& operator--();
 	ObjectsIterator operator++(int);
@@ -230,7 +230,7 @@ public:
 	ObjectsIterator& operator=(const ObjectsIterator& it);
 
 private:
-	RelatedObjectsConstIterator m_it;
+	RelationInfosConstIterator m_it;
 	OidType m_oid;
 	Manager* m_manager;
 };
@@ -238,7 +238,7 @@ private:
 class CollectionsIterator
 {
 public:
-	CollectionsIterator( const OidType& oid, RelatedCollectionsConstIterator it, Manager* manager );
+	CollectionsIterator( const OidType& oid, CollectionInfosConstIterator it, Manager* manager );
 	Collection* data();
 	const Collection* data() const;
 	CollectionsIterator& operator++();
@@ -251,7 +251,7 @@ public:
 	const Collection* operator*() const;
 	CollectionsIterator& operator=(const CollectionsIterator& it);
 private:
-	RelatedCollectionsConstIterator m_it;
+	CollectionInfosConstIterator m_it;
 	OidType m_oid;
 	Manager* m_manager;
 };

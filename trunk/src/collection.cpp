@@ -235,7 +235,7 @@ Collection::Collection( const QString& query, Manager* manager )
 	setQuery( query, manager );
 }
 
-Collection::Collection( const RelatedCollection *rel, const OidType& parent, Manager* manager )
+Collection::Collection( const CollectionInfo *rel, const OidType& parent, Manager* manager )
 {
 	assert( rel );
 	m_collectionInfo = rel;
@@ -500,9 +500,9 @@ OidType Collection::parentOid() const
 }
 
 /*!
-Returns a pointer to a RelatedCollection which contains the information for the current collection.
+Returns a pointer to a CollectionInfo which contains the information for the current collection.
 */
-const RelatedCollection* Collection::collectionInfo() const
+const CollectionInfo* Collection::collectionInfo() const
 {
 	return m_collectionInfo;
 }

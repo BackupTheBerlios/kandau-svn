@@ -34,8 +34,8 @@
 class Object;
 class Collection;
 class DbBackendIface;
-class RelatedCollection;
-class RelatedObject;
+class CollectionInfo;
+class RelationInfo;
 class ClassInfo;
 class NotificationHandler;
 
@@ -63,10 +63,10 @@ public:
 	
 	void setValid( bool valid );
 	bool isValid() const;
-	
+
 	void setOid( const OidType& oid );
 	const OidType& oid() const;
-	
+
 	void setModified( bool modified );
 	bool isModified() const;
 private:
@@ -116,25 +116,13 @@ typedef QMap<OidType, ObjectHandler> ManagerObjectMap;
 typedef QMapIterator<OidType, ObjectHandler> ManagerObjectIterator;
 typedef QMapConstIterator<OidType, ObjectHandler> ManagerObjectConstIterator;
 
-typedef QMap<Reference, RelationHandler> ManagerRelatedObjectMap;
-typedef QMapIterator<Reference, RelationHandler> ManagerRelatedObjectIterator;
-typedef QMapConstIterator<Reference, RelationHandler> ManagerRelatedObjectConstIterator;
+typedef QMap<Reference, RelationHandler> ManagerRelationMap;
+typedef QMapIterator<Reference, RelationHandler> ManagerRelationIterator;
+typedef QMapConstIterator<Reference, RelationHandler> ManagerRelationConstIterator;
 
-typedef QMap<Reference, CollectionHandler> ManagerRelatedCollectionMap;
-typedef QMapIterator<Reference, CollectionHandler> ManagerRelatedCollectionIterator;
-typedef QMapConstIterator<Reference, CollectionHandler> ManagerRelatedCollectionConstIterator;
-
-/*
-typedef QMap<OidType, QMap<QString, RelationHandler> > ManagerRelatedObjectMap;
-typedef QMapIterator<OidType, QMap<QString, RelationHandler> > ManagerRelatedObjectIterator;
-typedef QMapConstIterator<OidType, QMap<QString, RelationHandler> > ManagerRelatedObjectConstIterator;
-
-typedef QMap<OidType, QMap<QString, CollectionHandler> > ManagerRelatedCollectionMap;
-typedef QMapIterator<OidType, QMap<QString, CollectionHandler> > ManagerRelatedCollectionIterator;
-typedef QMapConstIterator<OidType, QMap<QString, CollectionHandler> > ManagerRelatedCollectionConstIterator;
-*/
-
-typedef QMap<Object*,bool> LockedObjectsMap;
+typedef QMap<Reference, CollectionHandler> ManagerCollectionMap;
+typedef QMapIterator<Reference, CollectionHandler> ManagerCollectionIterator;
+typedef QMapConstIterator<Reference, CollectionHandler> ManagerCollectionConstIterator;
 
 #define MaxObjects 100
 
@@ -159,107 +147,52 @@ public:
 	/* Functions related to object cache management */
 	void setMaxObjects( Q_ULLONG max );
 	Q_ULLONG maxObjects() const;
-	uint count() const;
-	uint countRelations() const;
-	uint countCollections() const;
 
-	/*!
-	This function prints with kdDebug() some information about the current status of the Manager. It is used for debugging purposes.
-	Shown information includes:
-		* Number of objects kept in memory 
-		* Number of references to objects kept in memory
-		* Number of references to collections kept in memory
-	*/
 	void status() const;
 
 	/* Functions related to object management */
 	bool add( Object* object );
 	bool remove( Object* object );
 
-	/*!
-	Returns a pointer to the requested object.
-	@param oid The oid of the object
-	@param f The pointer to the function that creates an object of the type of the expected object
-	*/
 	Object* load( OidType oid, CreateObjectFunction f );
-	
 	Object* load( OidType oid, const ClassInfo* info );
 
-	/* Functions related to collection management */
 	bool load( Collection* collection );
-
-	// This function has to disappear some day. When Collection becomes an appropiate
-	// class hierarchy
 	bool load( Collection* collection, const QString& query );
 
-	ManagerObjectIterator begin();
-	ManagerObjectIterator end();
-
+	ManagerObjectMap& objects();
+	ManagerRelationMap& relations();
+	ManagerCollectionMap& collections();
+	
 	/* Relation management functions */
 	void setRelation( const OidType& oid, const ClassInfo* classInfo, const QString& relation, const OidType& oidRelated, bool recursive = true );
-	void addRelation( const OidType& oid, const RelatedCollection* collection, const OidType& oidRelated, bool recursive = true );
-	void removeRelation( const OidType& oid, const RelatedCollection* collection, const OidType& oidRelated, bool recursive = true );
+	void addRelation( const OidType& oid, const CollectionInfo* collection, const OidType& oidRelated, bool recursive = true );
+	void removeRelation( const OidType& oid, const CollectionInfo* collection, const OidType& oidRelated, bool recursive = true );
 	
-/*
-	void setModifiedRelation( const OidType& oid, const ClassInfo* classInfo, const QString& relationName, bool modified, bool recursive = true );
-	void setModifiedRelation( const OidType& oid, RelatedCollection* collection, const OidType& oidRelated, bool modified, bool recursive = true );
-*/
-
-//	OidType relation( const OidType& oid, const QString& relation );
-//	OidType relation( const Object* object, const QString& relation );
-	OidType relation( const OidType& oid, const RelatedObject* related );
-	// Needed by the GETOBJECT macro in Object derived classes
+	OidType relation( const OidType& oid, const RelationInfo* related );
 	OidType relation( const Object* object, const QString& related );
-	
-//	Collection* collection( const Object* object, const QString& relation );
-	Collection* collection( const OidType& oid, const RelatedCollection* related );
+	Collection* collection( const OidType& oid, const CollectionInfo* related );
 
 	bool notifyPropertyModified( const Object* object, const QString& function, const QVariant& value = QVariant() );
 	void setNotificationHandler( NotificationHandler* handler );
 	NotificationHandler* notificationHandler() const;
 	
 
-	/*!
-	Commits the current transaction
-	*/
 	bool commit();
-
-	/*!
-	Aborts the current transaction
-	*/
 	bool rollback();
 
-	/*!
-	*/
 	bool createSchema();
 
-	/*!
-	For testing purposes only. Used by the tests to ensure no objects remain from the previous test.
-	*/
 	void reset();
 
-	/*!
-	Copies the contents (objects & relations) to another manager. Only objects and relations that are currently in memory are copied currently. This means it only will copy the whole data in those src managers that have MaxObjects Unlimited. So it is possible to copy the whole Xml database to an Sql Database but not viceversa.
-	@param manager The manager to which the contents of the current manager will be copied.
-	*/
-	void copy( Manager* manager );
+	void copyTo( Manager* manager );
 	
 	static const Q_ULLONG Unlimited = ULONG_MAX;
 protected:
-	/*!
-	Ensures the total number of objects stays under maxObjects() as long as there
-	are unmodified objects. Right now the parameter isn't used anywhere as we call this
-	function before adding the object to the map. We'll see if it's necessary somewhere
-	in the future, we could remove the parameter if isn't useful.
-	@param object if provided, ensures that object won't be freed (ie. it has just been loaded)
-	*/
-	void ensureUnderMaxObjects( Object *object = 0 );
+	void ensureUnderMaxObjects();
 	void ensureUnderMaxRelations();
 	void ensureUnderMaxCollections();
 
-	/*!
-	Sets objects and relations as unmodified. Used by commit once the backend has returned true from its commit function.
-	*/
 	void setEverythingUnmodified();
 
 	enum Filter {
@@ -268,8 +201,6 @@ protected:
 	};
 
 public:
-	ManagerRelatedObjectMap& relations();
-	ManagerRelatedCollectionMap& collections();
 	void checkObjects();
 
 private:
@@ -278,6 +209,16 @@ private:
 	assigned
 	*/
 	ManagerObjectMap m_objects;
+
+	/*!
+	Mantains the relation between objects
+	*/
+	ManagerRelationMap m_relations;
+	
+	/*!
+	Mantains the collections of objects
+	*/
+	ManagerCollectionMap m_collections;
 
 	/*!
 	This is the pointer to the appropiate backend that will do the real persistance
@@ -295,16 +236,6 @@ private:
 	*/
 	uint m_maxObjects;
 
-	/*!
-	Mantains the relation between objects
-	*/
-	ManagerRelatedObjectMap m_relations;
-	
-	/*!
-	Mantains the collections of objects
-	*/
-	ManagerRelatedCollectionMap m_collections;
-	
 	/*!
 	The object that is called when an event occurrs
 	*/

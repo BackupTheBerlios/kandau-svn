@@ -90,7 +90,7 @@ bool DesktopConfigDbBackend::load( Collection */*collection*/, const QString& /*
 	return true;
 }
 
-bool DesktopConfigDbBackend::load( OidType* /*relatedOid*/, const OidType& /*oid*/, const RelatedObject* /*related*/ )
+bool DesktopConfigDbBackend::load( OidType* /*relatedOid*/, const OidType& /*oid*/, const RelationInfo* /*related*/ )
 {
 	return true;
 }
@@ -110,7 +110,7 @@ bool DesktopConfigDbBackend::hasChanged( Collection */*collection*/ )
 	return false;
 }
 
-bool DesktopConfigDbBackend::hasChanged( const OidType& /*oid*/, const RelatedObject* /*related*/ )
+bool DesktopConfigDbBackend::hasChanged( const OidType& /*oid*/, const RelationInfo* /*related*/ )
 {
 	return false;
 }
@@ -134,8 +134,8 @@ bool DesktopConfigDbBackend::commit()
 {
 	KSimpleConfig config( m_fileName );
 
-	ManagerObjectIterator it( m_manager->begin() );
-	ManagerObjectIterator end( m_manager->end() );
+	ManagerObjectIterator it( m_manager->objects().begin() );
+	ManagerObjectIterator end( m_manager->objects().end() );
 	for ( ; it != end; ++it )
 		objectToElement( it.data().object(), &config );
 

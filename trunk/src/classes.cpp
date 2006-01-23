@@ -50,15 +50,15 @@ bool PropertyInfo::readOnly() const
 	return m_readOnly;
 }
 
-/* RelatedObject */
+/* RelationInfo */
 
 /*
-RelatedObject::RelatedObject()
+RelationInfo::RelationInfo()
 {
 }
 */
 
-RelatedObject::RelatedObject( const ClassInfo *classInfo, const QString& name, CreateObjectFunction function )
+RelationInfo::RelationInfo( const ClassInfo *classInfo, const QString& name, CreateObjectFunction function )
 {
 	assert( classInfo );
 	assert( function );
@@ -78,38 +78,38 @@ RelatedObject::RelatedObject( const ClassInfo *classInfo, const QString& name, C
 	delete obj;
 }
 
-const QString& RelatedObject::name() const
+const QString& RelationInfo::name() const
 {
 	return m_name;
 }
 
-CreateObjectFunction RelatedObject::createObjectFunction() const
+CreateObjectFunction RelationInfo::createObjectFunction() const
 {
 	return m_function;
 }
 
-bool RelatedObject::isOneToOne() const
+bool RelationInfo::isOneToOne() const
 {
 	return m_oneToOne;
 }
 
-const ClassInfo* RelatedObject::relatedClassInfo() const
+const ClassInfo* RelationInfo::relatedClassInfo() const
 {
 	return m_relatedClassInfo;
 }
 
-const ClassInfo* RelatedObject::parentClassInfo() const
+const ClassInfo* RelationInfo::parentClassInfo() const
 {
 	return m_parentClassInfo;
 }
 
-/* RelatedCollection */
+/* CollectionInfo */
 
-RelatedCollection::RelatedCollection()
+CollectionInfo::CollectionInfo()
 {
 }
 
-RelatedCollection::RelatedCollection( const ClassInfo* parent, const QString& name, const ClassInfo* children, bool nToOne )
+CollectionInfo::CollectionInfo( const ClassInfo* parent, const QString& name, const ClassInfo* children, bool nToOne )
 {
 	m_parentClassInfo = parent;
 	m_name = name;
@@ -117,22 +117,22 @@ RelatedCollection::RelatedCollection( const ClassInfo* parent, const QString& na
 	m_childrenClassInfo = children;
 }
 
-const QString& RelatedCollection::name() const
+const QString& CollectionInfo::name() const
 {
 	return m_name;
 }
 
-bool RelatedCollection::isNToOne() const
+bool CollectionInfo::isNToOne() const
 {
 	return m_childrenClassInfo->containsObject( m_name );
 }
 
-const ClassInfo* RelatedCollection::childrenClassInfo() const
+const ClassInfo* CollectionInfo::childrenClassInfo() const
 {
 	return m_childrenClassInfo;
 }
 
-const ClassInfo* RelatedCollection::parentClassInfo() const
+const ClassInfo* CollectionInfo::parentClassInfo() const
 {
 	return m_parentClassInfo;
 }
@@ -207,7 +207,7 @@ void ClassInfo::addObject( const QString& className, const QString& relationName
 
 	assert( ! m_objects.contains( name ) );
 	assert( function );
-	m_objects.insert( name, new RelatedObject( this, name, function ) );
+	m_objects.insert( name, new RelationInfo( this, name, function ) );
 }
 
 void ClassInfo::addCollection( const QString& className, const QString& relationName, bool nToOne )
@@ -220,7 +220,7 @@ void ClassInfo::addCollection( const QString& className, const QString& relation
 		name = relationName;
 
 	assert( ! m_collections.contains( name ) );
-	m_collections.insert( name, new RelatedCollection( this, name, Classes::classInfo( className ), nToOne ) );
+	m_collections.insert( name, new CollectionInfo( this, name, Classes::classInfo( className ), nToOne ) );
 }
 
 void ClassInfo::addProperty( const QString& name, QVariant::Type type, bool readOnly )
@@ -239,22 +239,22 @@ void ClassInfo::createProperties()
 	}
 }
 
-RelatedObjectsConstIterator ClassInfo::objectsBegin() const
+RelationInfosConstIterator ClassInfo::relationsBegin() const
 {
 	return m_objects.begin();
 }
 
-RelatedObjectsConstIterator ClassInfo::objectsEnd() const
+RelationInfosConstIterator ClassInfo::relationsEnd() const
 {
 	return m_objects.end();
 }
 
-RelatedObjectsIterator ClassInfo::objectsBegin()
+RelationInfosIterator ClassInfo::relationsBegin()
 {
 	return m_objects.begin();
 }
 
-RelatedObjectsIterator ClassInfo::objectsEnd()
+RelationInfosIterator ClassInfo::relationsEnd()
 {
 	return m_objects.end();
 }
@@ -264,7 +264,7 @@ bool ClassInfo::containsObject( const QString& name ) const
 	return m_objects.contains( name );
 }
 
-RelatedObject* ClassInfo::object( const QString& name ) const
+RelationInfo* ClassInfo::object( const QString& name ) const
 {
 	return m_objects[ name ];
 }
@@ -279,22 +279,22 @@ int ClassInfo::numObjects() const
 	return m_objects.count();
 }
 
-RelatedCollectionsConstIterator ClassInfo::collectionsBegin() const
+CollectionInfosConstIterator ClassInfo::collectionsBegin() const
 {
 	return m_collections.begin();
 }
 
-RelatedCollectionsConstIterator ClassInfo::collectionsEnd() const
+CollectionInfosConstIterator ClassInfo::collectionsEnd() const
 {
 	return m_collections.end();
 }
 
-RelatedCollectionsIterator ClassInfo::collectionsBegin()
+CollectionInfosIterator ClassInfo::collectionsBegin()
 {
 	return m_collections.begin();
 }
 
-RelatedCollectionsIterator ClassInfo::collectionsEnd()
+CollectionInfosIterator ClassInfo::collectionsEnd()
 {
 	return m_collections.end();
 }
@@ -304,7 +304,7 @@ bool ClassInfo::containsCollection( const QString& name ) const
 	return m_collections.contains( name );
 }
 
-RelatedCollection* ClassInfo::collection( const QString& name ) const
+CollectionInfo* ClassInfo::collection( const QString& name ) const
 {
 	return m_collections[ name ];
 }

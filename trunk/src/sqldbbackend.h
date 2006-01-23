@@ -28,7 +28,7 @@
 
 class QSqlCursor;
 class QSqlDatabase;
-class RelatedCollection;
+class CollectionInfo;
 
 /**
 @author Albert Cervera Areny
@@ -52,10 +52,10 @@ public:
 	bool load( const OidType& oid, Object *object );
 	bool load( Collection *collection );
 	bool load( Collection *collection, const QString& query );
-	bool load( OidType* relatedOid, const OidType& oid, const RelatedObject* related );
+	bool load( OidType* relatedOid, const OidType& oid, const RelationInfo* related );
 	bool hasChanged( Object * object );
 	bool hasChanged( Collection *collection );
-	bool hasChanged( const OidType& oid, const RelatedObject* related );
+	bool hasChanged( const OidType& oid, const RelationInfo* related );
 
 	bool createSchema();
 	bool commit();
@@ -72,14 +72,17 @@ protected:
 	bool save( Object *object );
 	bool save( Collection *collection );
 	bool load( const QSqlCursor &cursor, Object *object );
+	void commitObjects();
+	void commitRelations();
 	void commitCollections();
+
 	QString expandDotsString( const QString& string );
 
 	SeqType newSeq();
 
-	QString filterFieldName( const RelatedCollection *collection ) const;
+	QString filterFieldName( const CollectionInfo *collection ) const;
 	OidType filterValue( const Collection *collection ) const;
-	QString idFieldName( const RelatedCollection *collection ) const;
+	QString idFieldName( const CollectionInfo *collection ) const;
 	QString sqlType( QVariant::Type type );
 	QSqlDatabase *m_db;
 

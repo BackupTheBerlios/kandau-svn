@@ -60,20 +60,20 @@ Stores the information of a relation to an object. Mainly stores the name of the
 
 The constructor is only called from the addObject function in ClassInfo which is called in the OBJECT macro in object.h
 */
-class RelatedObject
+class RelationInfo
 {
 public:
 	/*!
 	Empty constructor, created for convenience only.
 	*/
-//	RelatedObject();
+//	RelationInfo();
 
 	/*!
 	@param classInfo A pointer to the ClassInfo object the collection is in.
 	@param name The name of the relation (not the class of the related object)
 	@param function The function which creates an object of the type of the related one
 	*/
-	RelatedObject( const ClassInfo *classInfo, const QString& name, CreateObjectFunction function );
+	RelationInfo( const ClassInfo *classInfo, const QString& name, CreateObjectFunction function );
 
 	/*!
 	Get the name of the relation
@@ -124,13 +124,13 @@ Stores the information of a relation to collection of objects. Mainly stores the
 
 The constructor is only called from the addCollection function in ClassInfo which is called by COLLECTION and COLLECTIONN macros in object.h
 */
-class RelatedCollection
+class CollectionInfo
 {
 public:
 	/*!
 	Empty constructor, created for convenience only.
 	*/
-	RelatedCollection();
+	CollectionInfo();
 
 	/*!
 	@param classInfo A pointer to the ClassInfo object the collection is in.
@@ -138,7 +138,7 @@ public:
 	@param function The function which creates an object of the type of the related one
 	@param nToOne Specifies if the relation is N to One, or N to N. This is a hint only and only needed if in the related class there is no declaration.
 	*/
-	RelatedCollection( const ClassInfo *parent, const QString& name, const ClassInfo *children, bool nToOne );
+	CollectionInfo( const ClassInfo *parent, const QString& name, const ClassInfo *children, bool nToOne );
 
 	/*!
 	Get the name of the relation
@@ -187,13 +187,13 @@ typedef QMap<QString,PropertyInfo*> PropertiesInfo;
 //typedef QMapIterator<QString,PropertyInfo*> PropertiesInfoIterator;
 typedef QMapConstIterator<QString,PropertyInfo*> PropertiesInfoConstIterator;
 
-typedef QMap<QString,RelatedObject*> RelatedObjects;
-typedef QMapIterator<QString,RelatedObject*> RelatedObjectsIterator;
-typedef QMapConstIterator<QString,RelatedObject*> RelatedObjectsConstIterator;
+typedef QMap<QString,RelationInfo*> RelationInfos;
+typedef QMapIterator<QString,RelationInfo*> RelationInfosIterator;
+typedef QMapConstIterator<QString,RelationInfo*> RelationInfosConstIterator;
 
-typedef QMap<QString,RelatedCollection*> RelatedCollections;
-typedef QMapIterator<QString,RelatedCollection*> RelatedCollectionsIterator;
-typedef QMapConstIterator<QString,RelatedCollection*> RelatedCollectionsConstIterator;
+typedef QMap<QString,CollectionInfo*> CollectionInfos;
+typedef QMapIterator<QString,CollectionInfo*> CollectionInfosIterator;
+typedef QMapConstIterator<QString,CollectionInfo*> CollectionInfosConstIterator;
 
 
 /*!
@@ -264,25 +264,25 @@ public:
 	Gets the beggining of the list of related objects. This is the const version.
 	@return An iterator pointing to the first position of the list of related objects.
 	*/
-	RelatedObjectsConstIterator objectsBegin() const;
+	RelationInfosConstIterator relationsBegin() const;
 
 	/*!
 	Gets the last item of the list of related objects. This is the const version.
 	@return An iterator pointing to the last position of the list of related objects.
 	*/
-	RelatedObjectsConstIterator objectsEnd() const;
+	RelationInfosConstIterator relationsEnd() const;
 
 	/*!
 	Gets the beggining of the list of related objects.
 	@return An iterator pointing to the first position of the list of related objects.
 	*/
-	RelatedObjectsIterator objectsBegin();
+	RelationInfosIterator relationsBegin();
 
 	/*!
 	Gets the beggining of the list of related objects.
 	@return An iterator pointing to the first position of the list of related objects.
 	*/
-	RelatedObjectsIterator objectsEnd();
+	RelationInfosIterator relationsEnd();
 
 	/*!
 	Searches if the object contains a 1-to-1 relation with the given name.
@@ -292,11 +292,11 @@ public:
 	bool containsObject( const QString& name ) const;
 
 	/*!
-	Returns the RelatedObject for a given 1-to-1 relation.
+	Returns the RelationInfo for a given 1-to-1 relation.
 	@param name Name of the relation to look for.
-	@return The RelatedObject.
+	@return The RelationInfo.
 	*/
-	RelatedObject* object( const QString& name ) const;
+	RelationInfo* object( const QString& name ) const;
 
 	/*!
 	Gets the number of 1-to-1 relations
@@ -314,24 +314,24 @@ public:
 	Gets the beggining of the list of related collections. This is the const version.
 	@return An iterator pointing to the first position of the list of related collections.
 	*/
-	RelatedCollectionsConstIterator collectionsBegin() const;
+	CollectionInfosConstIterator collectionsBegin() const;
 	/*!
 	Gets the last entry of the list of related objects. This is the const version.
 	@return An iterator pointing to the first position of the list of related collections.
 	*/
-	RelatedCollectionsConstIterator collectionsEnd() const;
+	CollectionInfosConstIterator collectionsEnd() const;
 	
 	/*!
 	Gets the beggining of the list of related collections.
 	@return An iterator pointing to the first position of the list of related collections.
 	*/
-	RelatedCollectionsIterator collectionsBegin();
+	CollectionInfosIterator collectionsBegin();
 	
 	/*!
 	Gets the last entry of the list of related objects.
 	@return An iterator pointing to the first position of the list of related collections.
 	*/
-	RelatedCollectionsIterator collectionsEnd();
+	CollectionInfosIterator collectionsEnd();
 
 	/*!
 	Searches if the class contains a N-to-1 or N-to-N relation with the given name.
@@ -341,11 +341,11 @@ public:
 	bool containsCollection( const QString& name ) const;
 	
 	/*!
-	Returns the RelatedCollection for a given 1-to-1 relation.
+	Returns the CollectionInfo for a given 1-to-1 relation.
 	@param name Name of the relation to look for.
-	@return The RelatedCollection.
+	@return The CollectionInfo.
 	*/
-	RelatedCollection* collection( const QString& name ) const;
+	CollectionInfo* collection( const QString& name ) const;
 
 	/*!
 	Gets the number of N-to-1 or N-to-N relations
@@ -374,8 +374,8 @@ private:
 	QString m_name;
 	CreateObjectFunction m_function;
 
-	RelatedObjects m_objects;
-	RelatedCollections m_collections;
+	RelationInfos m_objects;
+	CollectionInfos m_collections;
 	PropertiesInfo m_properties;
 	QMap<QString,QObject*> m_metaInfo;
 };

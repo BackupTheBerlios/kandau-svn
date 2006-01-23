@@ -91,8 +91,8 @@ void InMemorySqlDbBackend::loadObject( const QSqlCursor& cursor, Object* object 
 			(*pIt).setValue( cursor.value( (*pIt).name() ) );
 	}
 	// Load all object relations
-	RelatedObjectsConstIterator oIt( object->classInfo()->objectsBegin() );
-	RelatedObjectsConstIterator oEnd( object->classInfo()->objectsEnd() );
+	RelationInfosConstIterator oIt( object->classInfo()->relationsBegin() );
+	RelationInfosConstIterator oEnd( object->classInfo()->relationsEnd() );
 	for ( ; oIt != oEnd; ++oIt )
 		object->setObject( (*oIt)->name(), variantToOid( cursor.value( (*oIt)->name() ) ) );
 
@@ -136,8 +136,8 @@ void InMemorySqlDbBackend::saveObject( Object* object )
 		if ( (*pIt).readOnly() == false )
 			buffer->setValue( (*pIt).name(), (*pIt).value() );
 	}
-	RelatedObjectsConstIterator oIt( object->classInfo()->objectsBegin() );
-	RelatedObjectsConstIterator oEnd( object->classInfo()->objectsEnd() );
+	RelationInfosConstIterator oIt( object->classInfo()->relationsBegin() );
+	RelationInfosConstIterator oEnd( object->classInfo()->relationsEnd() );
 	for ( ; oIt != oEnd; ++oIt ) {
 		if ( object->object( (*oIt)->name() ) != 0 )
 			buffer->setValue( (*oIt)->name(), object->object( (*oIt)->name() )->oid() );
@@ -194,13 +194,13 @@ bool InMemorySqlDbBackend::load( Collection* /*collection*/ )
 	return true;
 }
 
-bool InMemorySqlDbBackend::load( OidType* /*relatedOid*/, const OidType& /*oid*/, const RelatedObject* /*related*/ )
+bool InMemorySqlDbBackend::load( OidType* /*relatedOid*/, const OidType& /*oid*/, const RelationInfo* /*related*/ )
 {
 	return true;
 }
 
 
-QString InMemorySqlDbBackend::idFieldName( RelatedCollection *collection ) const
+QString InMemorySqlDbBackend::idFieldName( CollectionInfo *collection ) const
 {
 	assert( collection );
 	if ( collection->isNToOne() )
@@ -235,9 +235,9 @@ bool InMemorySqlDbBackend::createSchema()
 		}
 
 		// Create related objects fields
-		RelatedObjectsConstIterator oIt( currentClass->objectsBegin() );
-		RelatedObjectsConstIterator oEnd( currentClass->objectsEnd() );
-		RelatedObject *rObj;
+		RelationInfosConstIterator oIt( currentClass->relationsBegin() );
+		RelationInfosConstIterator oEnd( currentClass->relationsEnd() );
+		RelationInfo *rObj;
 		for ( ; oIt != oEnd; ++oIt ) {
 			rObj = *oIt;
 			exec += rObj->name().lower() + " BIGINT DEFAULT NULL, ";
@@ -250,9 +250,9 @@ bool InMemorySqlDbBackend::createSchema()
 		ClassInfo *cInfo;
 		for ( ; cIt != cEnd; ++cIt ) {
 			cInfo = *cIt;
-			RelatedCollectionsIterator colIt( cInfo->collectionsBegin() );
-			RelatedCollectionsIterator colEnd( cInfo->collectionsEnd() );
-			RelatedCollection *rCol;
+			CollectionInfosIterator colIt( cInfo->collectionsBegin() );
+			CollectionInfosIterator colEnd( cInfo->collectionsEnd() );
+			CollectionInfo *rCol;
 			for ( ; colIt != colEnd; ++colIt ) {
 				rCol = *colIt;
 				if ( rCol->childrenClassInfo()->name() == currentClass->name() && rCol->isNToOne() && constraints.grep( rCol->name().lower() ).count() == 0 ) {
@@ -262,9 +262,9 @@ bool InMemorySqlDbBackend::createSchema()
 			}
 		}
 
-		RelatedCollectionsIterator colIt( currentClass->collectionsBegin() );
-		RelatedCollectionsIterator colEnd( currentClass->collectionsEnd() );
-		RelatedCollection *col;
+		CollectionInfosIterator colIt( currentClass->collectionsBegin() );
+		CollectionInfosIterator colEnd( currentClass->collectionsEnd() );
+		CollectionInfo *col;
 		for ( ; colIt != colEnd; ++colIt ) {
 			col = *colIt;
 			if ( ! tables.grep( col->name().lower() ).count() > 0 && ! col->isNToOne() ) {
@@ -319,7 +319,7 @@ bool InMemorySqlDbBackend::hasChanged( Collection */*collection*/ )
 	return false;
 }
 
-bool InMemorySqlDbBackend::hasChanged( const OidType& /*oid*/, const RelatedObject* /*related*/ )
+bool InMemorySqlDbBackend::hasChanged( const OidType& /*oid*/, const RelationInfo* /*related*/ )
 {
 	return false;
 }
@@ -357,8 +357,8 @@ bool InMemorySqlDbBackend::commit()
 			kdDebug() << k_funcinfo << m_db->lastError().text()  << endl;
 		}
 
-		RelatedCollectionsIterator m_cIt( (*m_it)->collectionsBegin() );
-		RelatedCollectionsIterator m_cEnd( (*m_it)->collectionsEnd() );
+		CollectionInfosIterator m_cIt( (*m_it)->collectionsBegin() );
+		CollectionInfosIterator m_cEnd( (*m_it)->collectionsEnd() );
 		for ( ; m_cIt != m_cEnd; ++m_cIt ) {
 			if ( ! (*m_cIt)->isNToOne() )
 				m_db->exec( "DELETE FROM " + (*m_cIt)->name() );
@@ -370,8 +370,8 @@ bool InMemorySqlDbBackend::commit()
 	}
 
 	m_savedCollections.clear();
-	ManagerObjectIterator it( m_manager->begin() );
-	ManagerObjectIterator end( m_manager->end() );
+	ManagerObjectIterator it( m_manager->objects().begin() );
+	ManagerObjectIterator end( m_manager->objects().end() );
 	for ( ; it != end; ++it ) {
 		saveObject( it.data().object() );
 	}

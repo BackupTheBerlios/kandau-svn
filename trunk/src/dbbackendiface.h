@@ -26,7 +26,7 @@ class QString;
 class Object;
 class Collection;
 class Manager;
-class RelatedObject;
+class RelationInfo;
 
 /**
 @author Albert Cervera Areny
@@ -77,10 +77,10 @@ public:
 	Loads the oidRelated to an object.
 	@param relatedOid Pointer to the OidType we want the related oid to be loaded in. The value must be 0 if an error occurred loading.
 	@param oid Oid of the object.
-	@param related RelatedObject of the object oid we want to obtain the related object.
+	@param related RelationInfo of the object oid we want to obtain the related object.
 	@return true if the relatedOid was loaded successfully, false otherwise.
 	*/
-	virtual bool load( OidType* relatedOid, const OidType& oid, const RelatedObject* related ) = 0;
+	virtual bool load( OidType* relatedOid, const OidType& oid, const RelationInfo* related ) = 0;
 
 	/*!
 	Creates the database schema, such as creating tables and sequences in a SQL backend or a DTD in a XML backend.
@@ -107,7 +107,7 @@ public:
 	@param oid Oid of the object 
 	@param related Type of relation we want to check if has changed.
 	*/
-	virtual bool hasChanged( const OidType& oid, const RelatedObject* related ) = 0;
+	virtual bool hasChanged( const OidType& oid, const RelationInfo* related ) = 0;
 
 	/*!
 	Commits the current transaction

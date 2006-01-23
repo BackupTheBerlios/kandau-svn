@@ -45,7 +45,7 @@ void MultipleBackendsTest::xml2xml()
 	DbBackendIface *backend2 = new XmlDbBackend( "database2.xml", true );
 	Manager *manager2 = new Manager( backend2 );
 	manager2->createSchema();
-	manager1->copy( manager2 );
+	manager1->copyTo( manager2 );
 	manager2->commit();
 	
 	delete manager2;
@@ -104,7 +104,7 @@ void MultipleBackendsTest::xml2sql()
 	DbBackendIface *backend2 = new SqlDbBackend( db );
 	Manager *manager2 = new Manager( backend2 );
 	manager2->createSchema();
-	manager1->copy( manager2 );
+	manager1->copyTo( manager2 );
 	manager2->commit();
 	delete manager2;
 	delete manager1;
@@ -129,7 +129,7 @@ void MultipleBackendsTest::sql2xml()
 	DbBackendIface *backend2 = new XmlDbBackend( "database3.xml", true );
 	Manager *manager2 = new Manager( backend2 );
 	
-	manager1->copy( manager2 );
+	manager1->copyTo( manager2 );
 	manager2->commit();
 
 	delete manager1;
@@ -162,7 +162,7 @@ void MultipleBackendsTest::creates()
 	ObjectRef<Customer> c2 = Customer::create( m2 );
 	c2->setCustomerName( "Customer Name" );
 	
-	CHECK( m1->count(), m2->count() );
+	CHECK( m1->objects().count(), m2->objects().count() );
 	
 	CHECK( m1->commit(), true );
 	CHECK( m2->commit(), true );
