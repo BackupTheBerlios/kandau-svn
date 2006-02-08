@@ -155,10 +155,8 @@ void SqlBackendTest::transactions()
 	cursor.setName( "customerorder" );
 	cursor.select( "number = 50000" );
 	CHECK( cursor.next(), true );
-	//CHECK( variantToOid( cursor.value( "customer_customerorder" ) ), variantToOid( c2->oid() ) );
-	CHECK( variantToOid( cursor.value( "customer_customerorder" ) ), variantToOid( c->oid() ) );
+	CHECK( variantToOid( cursor.value( "customer_customerorder" ) ), variantToOid( c2->oid() ) );
 	CHECK( cursor.next(), false );
-
 
 	order->articles()->add( a2 );
 	CHECK( Manager::self()->commit(), true );
@@ -171,11 +169,10 @@ void SqlBackendTest::transactions()
 	cursor.select( "article = " + oidToString( a2->oid() ) + " AND customerorder = " + oidToString( order->oid() ) );
 	CHECK( cursor.next(), true );
 	CHECK( cursor.next(), false );
-	
 
 	order->articles()->remove( a1 );
 	CHECK( Manager::self()->commit(), true );
-	
+
 	// Check a1 has been removed from the list
 	cursor.setName( "article_customerorder" );
 	cursor.select( "article = " + oidToString( a1->oid() ) + " AND customerorder = " + oidToString( order->oid() ) );
@@ -402,8 +399,6 @@ void SqlBackendTest::testRelations()
 	CHECK( Manager::self()->objects().count(), 0 );
 	CHECK( a2->orders()->count(), 0 );
 	CHECK( order->articles()->count(), 2 );
-
-	
 }
 
 void SqlBackendTest::allTests()

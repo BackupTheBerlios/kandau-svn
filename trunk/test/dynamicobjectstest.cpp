@@ -41,6 +41,8 @@ void DynamicObjectsTest::allTests()
 	ci->addProperty( "Property1", QVariant::String );
 	ci->addProperty( "Property2", QVariant::ULongLong );
 
+	Classes::setupRelations();
+
 	// Drop the database if already exists
 	KProcess *proc = new KProcess;
 	*proc << "dropdb";

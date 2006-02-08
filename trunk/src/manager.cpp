@@ -48,6 +48,7 @@ ObjectHandler::ObjectHandler( Object* object )
 {
 	m_object = object;
 	m_valid = true;
+	m_removed = false;
 }
 
 void ObjectHandler::setValid( bool valid )
@@ -70,18 +71,32 @@ Object* ObjectHandler::object() const
 	return m_object;
 }
 
+/*
+void ObjectHandler::setRemoved( bool removed )
+{
+	m_removed = removed;
+}
+
+bool ObjectHandler::isRemoved() const
+{
+	return m_removed;
+}
+*/
+
 /* RelationHandler */
 
 RelationHandler::RelationHandler()
 {
 	m_oid = 0;
+	m_relationInfo = 0;
 	m_modified = false;
 	m_valid = false;
 }
 
-RelationHandler::RelationHandler( const OidType& oid, bool modified )
+RelationHandler::RelationHandler( const OidType& oid, const RelationInfo* relation, bool modified )
 {
 	m_oid = oid;
+	m_relationInfo = relation;
 	m_modified = modified;
 	m_valid = true;
 }
@@ -115,6 +130,17 @@ bool RelationHandler::isModified() const
 {
 	return m_modified;
 }
+
+void RelationHandler::setRelationInfo( const RelationInfo* relation )
+{
+	m_relationInfo = relation;
+}
+
+const RelationInfo* RelationHandler::relationInfo()
+{
+	return m_relationInfo;
+}
+
 
 /* CollectionHandler */
 
@@ -323,13 +349,18 @@ bool Manager::remove( Object* object )
 	assert( object );
 	assert( object->oid() );
 	assert( m_objects.count() > 0 );
-	uint num = m_objects.count() - 1;
+//	uint num = m_objects.count() - 1;
+	if ( ! m_objects.contains( object->oid() ) )
+		return false;
 	//Backend hook
 	m_dbBackend->beforeRemove( object );
 	m_objects.remove( object->oid() );
+	m_removedOids.append( object->oid() );
+	//m_objects[ object->oid() ].setRemoved( true );
+	//m_objects[ object->oid() ].setObject( 0 );
 	delete object;
 	object = 0;
-	assert( m_objects.count() == num );
+//	assert( m_objects.count() == num );
 	checkObjects();
 	return true;
 }
@@ -459,6 +490,8 @@ bool Manager::rollback()
 	rlist.clear();
 	ensureUnderMaxCollections();
 
+	m_removedOids.clear();
+
 	// Backend callback
 	m_dbBackend->afterRollback();
 
@@ -495,6 +528,9 @@ Object* Manager::load( OidType oid, const ClassInfo* info )
 		delete object;
 		m_objects.remove( oid );
 	}
+	// If the object has been removed return a pointer to zero
+	if ( m_removedOids.contains( oid ) )
+		return 0;
 	object = info->createInstance();
 	if ( ! object )
 		return 0;
@@ -535,6 +571,7 @@ Object* Manager::load( OidType oid, CreateObjectFunction f )
 	if ( m_objects.contains( oid ) ) {
 		// If object has been loaded in this transaction return it
 		if ( m_objects[ oid ].isValid() ) {
+			// Note that it can retur a pointer to zero if the object has been removed
 			return m_objects[ oid ].object();
 		}
 		object = m_objects[ oid ].object();
@@ -547,6 +584,10 @@ Object* Manager::load( OidType oid, CreateObjectFunction f )
 		delete object;
 		m_objects.remove( oid );
 	}
+	// If the object has been removed return a pointer to zero
+	if ( m_removedOids.contains( oid ) )
+		return 0;
+
 	object = (*f)();
 	if ( ! object )
 		return 0;
@@ -678,51 +719,32 @@ void Manager::setRelation( const OidType& oid, const ClassInfo* classInfo, const
 	assert( classInfo );
 	QString relstr = ClassInfo::relationName( relationName, classInfo->name() );
 
-	bool isCollection = false;
-	QString relatedClassName;
-
-	if ( classInfo->containsCollection( relstr ) ) {
-		isCollection = true;
-		CollectionInfo* col = classInfo->collection( relstr );
-		relatedClassName = col->childrenClassInfo()->name();
-	} else if ( classInfo->containsObject( relstr ) ) {
-		isCollection = false;
-		RelationInfo* obj = classInfo->object( relstr );
-		relatedClassName = obj->relatedClassInfo()->name();
-	} else {
-		if ( ! recursive ) {
-			// It is not browseable from this object so we return
-			return;
-		} else {
-			// There is an error !!!
-			kdDebug() << "ClassInfo: " << classInfo->name() << ", Relation: " << relstr << endl;
-			assert( false );
-		}
-	}
-
 	if ( m_cachePolicy == FreeMaxOnLoad || m_cachePolicy == FreeAllOnLoad )
 		ensureUnderMaxRelations();
-		
+
+	// Remove the old relation if appropiate
 	OidType oldOid = relation( oid, classInfo->object( relstr ) );
 	if ( oldOid != 0 ) {
 		if ( oldOid != oidRelated ) {
-			if ( ! isCollection ) {
+			if ( classInfo->object( relstr )->isOneToOne() ) {
 				m_relations[ Reference( oldOid, relstr ) ].setOid( 0 );
 				m_relations[ Reference( oldOid, relstr ) ].setModified( true );
 			} else {
-				removeRelation( oldOid, classInfo->collection( relstr ), oid, false );
+				removeRelation( oldOid, classInfo->object( relstr )->relatedClassInfo()->collection( relstr ), oid, false );
 			}
 		}
 	}
+	// Create the new relation
 	Reference ref( oid, relstr );
 	m_relations[ ref ].setOid( oidRelated );
 	m_relations[ ref ].setModified( true );
+	
+	// Create the relation from the other side if appropiate
 	if ( recursive && oidRelated != 0 ) {
-		if ( ! isCollection ) {
-			setRelation( oidRelated, classInfo, relstr, oid, false );
-		} else {
-			addRelation( oidRelated, classInfo->collection( relstr ), oid, false );
-		}
+		if ( classInfo->object( relstr )->isOneToOne() )
+			setRelation( oidRelated, classInfo->object( relstr )->relatedClassInfo(), relstr, oid, false );
+		else
+			addRelation( oidRelated, classInfo->object( relstr )->relatedClassInfo()->collection( relstr ), oid, false );
 	}
 }
 
@@ -739,6 +761,12 @@ void Manager::addRelation( const OidType& oid, const CollectionInfo* relcol, con
 		ensureUnderMaxCollections();
 
 	if ( recursive ) {
+		if ( relcol->isNToOne() )
+			setRelation( oidRelated, relcol->childrenClassInfo(), relation, oid, false );
+		else
+			addRelation( oidRelated, relcol->childrenClassInfo()->collection( relation ), oid, false );
+		
+	/*
 		if ( Classes::classInfo( relcol->childrenClassInfo()->name() )->containsObject( relation ) ) {
 			setRelation( oidRelated, relcol->childrenClassInfo(), relation, oid, false );
 		} else if ( Classes::classInfo( relcol->childrenClassInfo()->name() )->containsCollection( relation ) ) {
@@ -747,6 +775,7 @@ void Manager::addRelation( const OidType& oid, const CollectionInfo* relcol, con
 			// It is not browseable from the other object
 			return;
 		}
+	*/
 	}
 }
 
@@ -758,6 +787,11 @@ void Manager::removeRelation( const OidType& oid, const CollectionInfo* relcol, 
 	col->simpleRemove( oidRelated );
 
 	if ( recursive ) {
+		if ( relcol->isNToOne() ) 
+			setRelation( oidRelated, relcol->childrenClassInfo(), 0, false );
+		else
+			removeRelation( oidRelated, relcol->childrenClassInfo()->collection( relation ), oid, false );
+	/*
 		if ( Classes::classInfo( relcol->childrenClassInfo()->name() )->containsObject( relation ) ) {
 			setRelation( oidRelated, relcol->childrenClassInfo(), 0, false );
 		} else if ( Classes::classInfo( relcol->childrenClassInfo()->name() )->containsCollection( relation ) ) {
@@ -766,6 +800,7 @@ void Manager::removeRelation( const OidType& oid, const CollectionInfo* relcol, 
 			// It is not browseable from the other object
 			return;
 		}
+	*/
 	}
 }
 
@@ -790,6 +825,7 @@ OidType Manager::relation( const OidType& oid, const RelationInfo* related )
 	OidType relOid = 0;
 	m_dbBackend->load( &relOid, oid, related );
 	m_relations[ ref ].setOid( relOid );
+	m_relations[ ref ].setRelationInfo( related );
 	m_relations[ ref ].setValid( true );
 	m_relations[ ref ].setModified( false );
 	if ( m_cachePolicy == FreeMaxOnLoad || m_cachePolicy == FreeAllOnLoad )

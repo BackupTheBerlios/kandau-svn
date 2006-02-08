@@ -105,11 +105,11 @@ class Object;
 
 
 #ifdef MODIFIED_NONE
-#elif MODIFIED_EMPTY
+#elifdef MODIFIED_EMPTY
 #define MODIFIED
-#elif MODIFIED_SIMPLE
+#elifdef MODIFIED_SIMPLE
 #define MODIFIED m_modified = true;
-#elif MODIFIED_FULL
+#elifdef MODIFIED_FULL
 #define MODIFIED(value) if ( ! m_manager->notifyPropertyModified( this, __FUNCTION__, value ) ) return; m_modified = true;
 #else
 #define MODIFIED if ( ! m_manager->notifyPropertyModified( this, __FUNCTION__ ) ) return; m_modified = true;

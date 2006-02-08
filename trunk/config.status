@@ -670,7 +670,7 @@ s,@LIB_KDEPIM@,-lkdepim,;t t
 s,@LIB_KSYCOCA@,-lkio,;t t
 s,@LIB_KFILE@,-lkio,;t t
 s,@LIB_KFM@,,;t t
-s,@TOPSUBDIRS@, src ui test examples po doc,;t t
+s,@TOPSUBDIRS@, src ui test examples doc po,;t t
 s,@LIBOBJS@,,;t t
 s,@LTLIBOBJS@,,;t t
 CEOF

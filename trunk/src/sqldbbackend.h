@@ -67,11 +67,13 @@ public:
 	void beforeRemove( Object* object );
 
 protected:
-	bool remove( Object *object );
-	bool remove( Collection *collection, const OidType& oid );
-	bool save( Object *object );
-	bool save( Collection *collection );
-	bool load( const QSqlCursor &cursor, Object *object );
+	virtual bool remove( Object *object );
+	virtual bool remove( Collection *collection, const OidType& oid );
+	virtual bool save( Object *object );
+	virtual bool save( const OidType& oid, const RelationInfo* relationInfo, const OidType& relatedOid );
+	virtual bool save( Collection *collection );
+	virtual bool load( const QSqlCursor &cursor, Object *object );
+	
 	void commitObjects();
 	void commitRelations();
 	void commitCollections();

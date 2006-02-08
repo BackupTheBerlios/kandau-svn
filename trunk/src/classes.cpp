@@ -52,21 +52,20 @@ bool PropertyInfo::readOnly() const
 
 /* RelationInfo */
 
-/*
-RelationInfo::RelationInfo()
-{
-}
+/*!
+RelationInfo constructor. Note that the relation is browsable by default.
+@param classInfo A pointer to the ClassInfo object the collection is in.
+@param name The name of the relation (not the class of the related object)
+@param function The function which creates an object of the type of the related one
 */
-
 RelationInfo::RelationInfo( const ClassInfo *classInfo, const QString& name, CreateObjectFunction function )
 {
 	assert( classInfo );
 	assert( function );
 	m_parentClassInfo = classInfo;
 	m_name = name;
-	m_function = function;
-	
-	Object *obj = m_function();
+	m_browsable = true;
+	Object *obj = function();
 	assert( obj );
 	m_relatedClassInfo = obj->classInfo();
 	// TODO: We don't check if the type of the collection is of the same type of our class. Maybe this check could be added when compiled with the DEBUG flag.
@@ -78,63 +77,150 @@ RelationInfo::RelationInfo( const ClassInfo *classInfo, const QString& name, Cre
 	delete obj;
 }
 
+/*!
+Get the name of the relation
+@return The name of the relation
+*/
 const QString& RelationInfo::name() const
 {
 	return m_name;
 }
 
-CreateObjectFunction RelationInfo::createObjectFunction() const
-{
-	return m_function;
-}
-
+/*!
+Get whether the relation is One to One or One to N.
+@return True if the relation is One to One, false if it's One to N.
+*/
 bool RelationInfo::isOneToOne() const
 {
 	return m_oneToOne;
 }
 
+/*!
+Gets the ClassInfo of the class of the objects related.
+@return The ClassInfo pointer of the class.
+*/
 const ClassInfo* RelationInfo::relatedClassInfo() const
 {
 	return m_relatedClassInfo;
 }
 
+/*!
+Gets the ClassInfo of the parent class
+@return The ClassInfo pointer of the parent class
+*/
 const ClassInfo* RelationInfo::parentClassInfo() const
 {
 	return m_parentClassInfo;
 }
 
-/* CollectionInfo */
-
-CollectionInfo::CollectionInfo()
+/*!
+Obtains whether the relation was designed to be browsable. That is, there is a 
+declaration in the the definition of the class parentClassInfo() that points to 
+relatedClassInfo(). Otherwise, the relation exists only in the declaration from 
+relatedClassInfo().
+@return True if it was designed to be browsable, false otherwise.
+*/
+bool RelationInfo::browsable() const
 {
+	return m_browsable;
 }
 
+/*!
+Establishes whether the relation is 1-1 or 1-N.
+@param oneToOne True if the relation is 1-1, false if it's 1-N
+*/
+void RelationInfo::setOneToOne( bool oneToOne )
+{
+	m_oneToOne = oneToOne;
+}
+
+/*!
+Establishes whether the relation is browsable or not.
+@param browsable True if the relation is browsable, false otherwise.
+*/
+void RelationInfo::setBrowsable( bool browsable )
+{
+	m_browsable = browsable;
+}
+
+/* CollectionInfo */
+
+/*!
+CollectionInfo constructor. Note that it's browsable by default.
+@param classInfo A pointer to the ClassInfo object the collection is in.
+@param name The name of the relation (not the class of the related object)
+@param children Pointer to the ClassInfo object which holds the type of the related objects.
+@param nToOne Specifies if the relation is N to One, or N to N. This is a hint only and only needed if in the related class there is no declaration.
+*/
 CollectionInfo::CollectionInfo( const ClassInfo* parent, const QString& name, const ClassInfo* children, bool nToOne )
 {
 	m_parentClassInfo = parent;
 	m_name = name;
-	//m_function = function;
+	m_browsable = true;
 	m_childrenClassInfo = children;
 }
 
+/*!
+Get the name of the relation
+@return The name of the relation
+*/
 const QString& CollectionInfo::name() const
 {
 	return m_name;
 }
 
+/*!
+Get whether the relation is N to One or N to N.
+@return True if the relation is N to One, false if it's N to N.
+*/
 bool CollectionInfo::isNToOne() const
 {
 	return m_childrenClassInfo->containsObject( m_name );
 }
 
+/*!
+Gets the ClassInfo of the class of the objects related.
+@return The name of the class.
+*/
 const ClassInfo* CollectionInfo::childrenClassInfo() const
 {
 	return m_childrenClassInfo;
 }
 
+/*!
+Obtains the ClassInfo of the class of the parent
+@return ClassInfo pointer of the class of the parent
+*/
 const ClassInfo* CollectionInfo::parentClassInfo() const
 {
 	return m_parentClassInfo;
+}
+
+/*!
+Obtains whether the collection is browsable or not
+@return True if the collection is browsable, false otherwise.
+*/
+bool CollectionInfo::browsable() const
+{
+	return m_browsable;
+}
+
+/*!
+Establishes whether the relation is N-1 or N-M
+@param nToOne True if the relation is N-1, false if it's N-M.
+*/
+void CollectionInfo::setNToOne( bool nToOne )
+{
+	m_nToOne = nToOne;
+}
+
+/*!
+Establishes whether the relation is browsable or not.
+@param browsable True if the relation is browsable, false otherwise.
+*/
+void CollectionInfo::setBrowsable( bool browsable )
+{
+	m_browsable = browsable;
 }
 
 /* ClassInfo */
@@ -389,7 +475,10 @@ CreateRelationsFunction TmpClass::createRelations() const
 }
 
 /* Classes */
-
+/*!
+Ends all the configuration required for browsing through class relations. 
+Should be used at the very begining of each application.
+*/
 void Classes::setup()
 {
 	// If m_tmpClasses has not been initialized probably setup() has
@@ -410,6 +499,71 @@ void Classes::setup()
 	}
 	delete m_tmpClasses;
 	m_tmpClasses = 0;
+
+	setupRelations();
+}
+
+/*!
+Called by Classes::setup(). You should make sure you call it after creating new classes
+(using DynamicObjects).
+*/
+void Classes::setupRelations()
+{
+	// Browse all relations and collections.
+	// And add new non-browsable collections where needed.
+	QValueVector<QStringList> list;
+	
+	ClassInfoConstIterator it2( Classes::begin() );
+	ClassInfoConstIterator end2( Classes::end() );
+	ClassInfo *classInfo;
+	RelationInfo *relInfo;
+	for ( ; it2 != end2; ++it2 ) {
+		classInfo = it2.data();
+		RelationInfosConstIterator rit( classInfo->relationsBegin() );
+		RelationInfosConstIterator rend( classInfo->relationsEnd() );
+		for ( ; rit != rend; ++rit ) {
+			relInfo = rit.data();
+			if ( relInfo->relatedClassInfo()->containsObject( relInfo->name() ) ) {
+				relInfo->setOneToOne( true );
+			} else {
+				relInfo->setOneToOne( false );
+				if ( ! relInfo->relatedClassInfo()->containsCollection( relInfo->name() ) ) {
+					QStringList t;
+					t << relInfo->relatedClassInfo()->name();
+					t << relInfo->parentClassInfo()->name();
+					t << relInfo->name();
+					t << "true";
+					list.append( t );
+				}
+			}
+		}
+		CollectionInfosConstIterator cit( classInfo->collectionsBegin() );
+		CollectionInfosConstIterator cend( classInfo->collectionsEnd() );
+		CollectionInfo *colInfo;
+		for ( ; cit != cend; ++cit ) {
+			colInfo = cit.data();
+			if ( colInfo->childrenClassInfo()->containsObject( colInfo->name() ) ) {
+				colInfo->setNToOne( true );
+			} else {
+				colInfo->setNToOne( false );
+				if ( ! colInfo->childrenClassInfo()->containsCollection( colInfo->name() ) ) {
+					QStringList t;
+					t << colInfo->childrenClassInfo()->name();
+					t << colInfo->parentClassInfo()->name();
+					t << colInfo->name();
+					t << "false";
+					list.append( t );
+				}
+			}
+		}
+	}
+	for ( uint i = 0; i < list.count(); ++i ) {
+		QStringList str = list[ i ];
+		ClassInfo *t = Classes::classInfo( str[0] );
+		t->addCollection( str[1], str[2] );
+		t->collection( str[2] )->setBrowsable( false );
+		t->collection( str[2] )->setNToOne( str[3] == "true" );
+	}
 }
 
 void Classes::addClass( const QString &name, CreateObjectFunction createInstance, CreateRelationsFunction createRelations )

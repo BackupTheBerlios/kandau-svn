@@ -25,11 +25,9 @@
 */
 
 #include <qmap.h>
+#include <qvaluevector.h>
 #include "defs.h"
 #include "oidtype.h"
-
-#define LOCK_ME m_manager->lockObject( this );
-#define UNLOCK_ME m_manager->unlockObject( this );
 
 class Object;
 class Collection;
@@ -44,23 +42,28 @@ class ObjectHandler
 public:
 	ObjectHandler();
 	ObjectHandler( Object* object );
-	
+
 	void setValid( bool valid );
 	bool isValid() const;
-	
+
 	void setObject( Object* object );
 	Object* object() const;
+
+//	void setRemoved( bool removed );
+//	bool isRemoved() const;
+
 private:
 	bool m_valid;
 	Object* m_object;
+	bool m_removed;
 };
 
 class RelationHandler
 {
 public:
 	RelationHandler();
-	RelationHandler( const OidType& oid, bool modified );
-	
+	RelationHandler( const OidType& oid, const RelationInfo* relation, bool modified );
+
 	void setValid( bool valid );
 	bool isValid() const;
 
@@ -69,10 +72,16 @@ public:
 
 	void setModified( bool modified );
 	bool isModified() const;
+
+	void setRelationInfo( const RelationInfo* relation );
+	const RelationInfo* relationInfo();
+
 private:
 	OidType m_oid;
 	bool m_modified;
 	bool m_valid;
+	bool m_removed;
+	const RelationInfo* m_relationInfo;
 };
 
 class CollectionHandler
@@ -219,6 +228,11 @@ private:
 	Mantains the collections of objects
 	*/
 	ManagerCollectionMap m_collections;
+
+	/*!
+	Contains a list with the objects removed in the current transaction
+	*/
+	QValueList<OidType> m_removedOids;
 
 	/*!
 	This is the pointer to the appropiate backend that will do the real persistance

@@ -29,6 +29,7 @@ class QObject;
 class Object;
 class ClassInfo;
 class Manager;
+class Classes;
 
 //typedef QMap<QString, Object *(*)(void)> ClassMap;
 //typedef QMapIterator<QString, Object *(*)(void)> ClassIterator;
@@ -63,52 +64,23 @@ The constructor is only called from the addObject function in ClassInfo which is
 class RelationInfo
 {
 public:
-	/*!
-	Empty constructor, created for convenience only.
-	*/
-//	RelationInfo();
-
-	/*!
-	@param classInfo A pointer to the ClassInfo object the collection is in.
-	@param name The name of the relation (not the class of the related object)
-	@param function The function which creates an object of the type of the related one
-	*/
 	RelationInfo( const ClassInfo *classInfo, const QString& name, CreateObjectFunction function );
-
-	/*!
-	Get the name of the relation
-	@return The name of the relation
-	*/
 	const QString& name() const;
-
-	/*!
-	Get the function pointer to create a new object
-	@return The function pointer
-	*/
-	CreateObjectFunction createObjectFunction() const;
-
-	/*!
-	Get whether the relation is One to One or One to N.
-	@return True if the relation is One to One, false if it's One to N.
-	*/
 	bool isOneToOne() const;
-
-	/*!
-	Gets the ClassInfo of the class of the objects related.
-	@return The ClassInfo pointer of the class.
-	*/
 	const ClassInfo* relatedClassInfo() const;
-
-	/*!
-	Gets the ClassInfo of the parent class
-	@return The  ClassInfo pointer of the parent class
-	*/
 	const ClassInfo* parentClassInfo() const;
+	bool browsable() const;
 
 private:
-	CreateObjectFunction m_function;
+	// This allows Classes to call setBrowsable & setOneToOne
+	friend class Classes;
+
+	void setOneToOne( bool oneToOne );
+	void setBrowsable( bool browsable );
+
 	QString m_name;
 	bool m_oneToOne;
+	bool m_browsable;
 
 	// Pointer to the parent ClassInfo
 	const ClassInfo *m_parentClassInfo;
@@ -127,48 +99,23 @@ The constructor is only called from the addCollection function in ClassInfo whic
 class CollectionInfo
 {
 public:
-	/*!
-	Empty constructor, created for convenience only.
-	*/
-	CollectionInfo();
-
-	/*!
-	@param classInfo A pointer to the ClassInfo object the collection is in.
-	@param name The name of the relation (not the class of the related object)
-	@param function The function which creates an object of the type of the related one
-	@param nToOne Specifies if the relation is N to One, or N to N. This is a hint only and only needed if in the related class there is no declaration.
-	*/
 	CollectionInfo( const ClassInfo *parent, const QString& name, const ClassInfo *children, bool nToOne );
-
-	/*!
-	Get the name of the relation
-	@return The name of the relation
-	*/
 	const QString& name() const;
-	
-	/*!
-	Get whether the relation is N to One or N to N.
-	@return True if the relation is N to One, false if it's N to N.
-	*/
 	bool isNToOne() const;
-
-	/*!
-	Gets the ClassInfo of the class of the objects related.
-	@return The name of the class.
-	*/
 	const ClassInfo* childrenClassInfo() const;
-
-	/*!
-	Gets the ClassInfo of the class of the parent
-	*/
 	const ClassInfo* parentClassInfo() const;
-	
-private:
-	/*!
-	Calculates the isNToOne() and relatedClassInfo() information and saves it in the cache variables.
-	*/
-	void cacheData();
+	bool browsable() const;
 
+private:
+	// This allows Classes to call setBrowsable & setNToOne
+	friend class Classes;
+
+	void setNToOne( bool nToOne );
+	void setBrowsable( bool browsable );
+
+	/*!
+	Name of the relation
+	*/
 	QString m_name;
 
 	/*! 
@@ -180,6 +127,15 @@ private:
 	Contains the cached ClassInfo of the related class
 	*/
 	const ClassInfo *m_childrenClassInfo;
+	
+	/*!
+	Contains whether the relation is N-1 or N-M.
+	*/
+	bool m_nToOne;
+	/*!
+	Contains whether the collection is browsable or not
+	*/
+	bool m_browsable;
 };
 
 
@@ -405,10 +361,9 @@ typedef QMapConstIterator<QString, TmpClass*> TmpClassConstIterator;
 class Classes
 {
 public:
-	/*!
-	Ends all the configuration required for browsing throug class relations. Should be used at the very begginning of each application.
-	*/
+
 	static void setup();
+	static void setupRelations();
 
 	/*!
 	Registers a new class to the list of known classes. This function is used by DeclareClass.

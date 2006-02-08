@@ -121,30 +121,98 @@ bool SqlDbBackend::load( const QSqlCursor &cursor, Object *object )
 	return true;
 }
 
-bool SqlDbBackend::load( OidType* relatedOid, const OidType& oid, const RelationInfo* related )
+bool SqlDbBackend::load( OidType* relatedOid, const OidType& oid, const RelationInfo* relationInfo )
 {
+	QString searchTable;
+	QString searchField;
+	QString resultField;
+
 	if ( oid == 0 ) {
 		*relatedOid = 0;
 		return false;
 	}
-	QSqlCursor cursor( related->parentClassInfo()->name() );
+	
+	if ( relationInfo->isOneToOne() ) {
+		QString related = relationInfo->relatedClassInfo()->name();
+		QString parent = relationInfo->parentClassInfo()->name();
+		if ( related >= parent ) {
+			//cursor = new QSqlCursor( related );
+			searchTable = related;
+			searchField = relationInfo->name();
+			resultField = "dboid";
+		} else {
+			//cursor = new QSqlCursor( parent );
+			searchTable = parent;
+			searchField = "dboid";
+			resultField = relationInfo->name();
+		}
+	} else {
+		//cursor = new QSqlCursor( relationInfo->parentClassInfo()->name() );
+		searchTable = relationInfo->parentClassInfo()->name();
+		searchField = "dboid";
+		resultField = relationInfo->name();
+	}
+
+	QSqlCursor cursor( searchTable );
+	cursor.select( "to_number( " + searchField + ", '9999999999G0') = " + oidToString( oid ) );
+	if ( ! cursor.next() ) {
+		*relatedOid = 0;
+		return false;
+	}
+	if ( ! cursor.contains( resultField ) ) {
+		*relatedOid = 0;
+		return false;
+	}
+	*relatedOid = variantToOid( cursor.value( resultField ) );
+
+/*
+	QSqlCursor cursor( relationInfo->parentClassInfo()->name() );
 	cursor.select( "to_number( dboid, '9999999999G0') = " + oidToString( oid ) );
 	if ( ! cursor.next() ) {
 		*relatedOid = 0;
 		return false;
 	}
-	if ( ! cursor.contains( related->name() ) ) {
+	if ( ! cursor.contains( relationInfo->name() ) ) {
 		*relatedOid = 0;
 		return false;
 	}
-	*relatedOid = variantToOid( cursor.value( related->name() ) );
+	*relatedOid = variantToOid( cursor.value( relationInfo->name() ) );
+*/
 	return true;
 }
 
 bool SqlDbBackend::load( Collection *collection )
 {
 	assert( collection );
+	QString searchTable;
+	QString searchField;
+	QString resultField;
 
+	collection->clear();
+
+	if ( collection->collectionInfo()->isNToOne() ) {
+		searchTable = collection->collectionInfo()->parentClassInfo()->name();
+		searchField = "dboid";
+		resultField = collection->collectionInfo()->name();
+	} else {
+		searchTable = collection->collectionInfo()->name();
+		searchField = collection->collectionInfo()->parentClassInfo()->name();
+		resultField = collection->collectionInfo()->childrenClassInfo()->name();
+	}
+
+	QSqlCursor cursor( searchTable );
+	cursor.select( searchField + " = " + oidToString( collection->parentOid() ) );
+	if ( ! cursor.contains( resultField ) ) {
+		collection->setModified( false );
+		return false;
+	}
+	while ( cursor.next() )
+		collection->simpleAdd( variantToOid( cursor.value( resultField ) ) );
+
+	collection->setModified( false );
+	return true;
+
+/*
 	collection->clear();
 
 	QSqlCursor cursor( collection->collectionInfo()->name() );
@@ -166,30 +234,9 @@ bool SqlDbBackend::load( Collection *collection )
 			collection->simpleAdd( val );
 		}
 	}
-	// TODO: Look if it is necessary a function like this:
-	//collection->setLoaded( true );
 	collection->setModified( false );
 	return true;
-}
-
-bool SqlDbBackend::save( Collection *collection )
-{
-	assert( collection );
-	m_db->exec( "DELETE FROM " + collection->collectionInfo()->name() + " WHERE " + collection->collectionInfo()->parentClassInfo()->name() + " = " + oidToString( collection->parentOid() ) );
-
-	QSqlCursor cursor( collection->collectionInfo()->name() );
-	QSqlRecord *record;
-
-	CollectionIterator it( collection->begin() );
-	CollectionIterator end( collection->end() );
-	for ( ; it != end; ++it ) {
-		record = cursor.primeInsert();
-		record->setValue( collection->collectionInfo()->parentClassInfo()->name(), collection->parentOid() );
-		record->setValue( collection->collectionInfo()->childrenClassInfo()->name(), (*it)->oid() );
-		record->setValue( "dbseq", newSeq() );
-		cursor.insert();
-	}
-	return true;
+*/
 }
 
 bool SqlDbBackend::save( Object *object )
@@ -219,9 +266,20 @@ bool SqlDbBackend::save( Object *object )
 		}
 	}
 
-	record->setValue( "dboid", object->oid() );
-	record->setValue( "dbseq", newSeq() );
+	// We don't mark any field as generated. So at first, none
+	// would be included in the INSERT/UPDATE. Then we must make sure
+	// we set the generated flag to each property field.
+	// Note that this is necesary as we want relation fields to take their
+	// default values when inserted.
+	for ( uint i = 0; i < record->count(); ++i ) {
+		record->setGenerated( i, false );
+	}
 
+	record->setValue( "dboid", object->oid() );
+	record->setGenerated( "dboid", true );
+	record->setValue( "dbseq", newSeq() );
+	record->setGenerated( "dbseq", true );
+	
 	PropertiesIterator pIt( object->propertiesBegin() );
 	PropertiesIterator pEnd( object->propertiesEnd() );
 	Property prop;
@@ -244,6 +302,7 @@ bool SqlDbBackend::save( Object *object )
 		} else {
 			record->setValue( prop.name(), prop.value() );
 		}
+		record->setGenerated( prop.name(), true );
 	}
 
 /*
@@ -282,6 +341,119 @@ bool SqlDbBackend::save( Object *object )
 	}
 	return true;
 }
+
+bool SqlDbBackend::save( const OidType& oid, const RelationInfo* relationInfo, const OidType& relatedOid )
+{
+	QString searchTable;
+	OidType searchOid;
+	OidType setOid;
+	bool update;
+	QSqlRecord *record;
+	
+	if ( relationInfo->isOneToOne() ) {
+		QString related = relationInfo->relatedClassInfo()->name();
+		QString parent = relationInfo->parentClassInfo()->name();
+		if ( related >= parent ) {
+			//cursor = new QSqlCursor( related );
+			searchTable = related;
+			searchOid = relatedOid;
+			setOid = oid;
+		} else {
+			//cursor = new QSqlCursor( parent );
+			searchTable = parent;
+			searchOid = oid;
+			setOid = relatedOid;
+		}
+	} else {
+		//cursor = new QSqlCursor( relationInfo->parentClassInfo()->name() );
+		searchTable = relationInfo->parentClassInfo()->name();
+		searchOid = oid;
+		setOid = relatedOid;
+	}
+
+	QSqlCursor cursor( searchTable );
+	//TODO: Probably the object should always already exist as commitObjects() is
+	// called before commitRelations(). So maybe if record isn't found should be
+	// considered an error.
+	if ( oid == 0 ) {
+		// Creates a unique oid. TODO: Should it ever happen?
+		cursor.select();
+		record = cursor.primeInsert();
+		update = false;
+	} else {
+		cursor.select( "to_number( dboid, '9999999999G0') = " + oidToString( searchOid ) );
+		if ( ! cursor.next() ) {
+			cursor.select();
+			record = cursor.primeInsert();
+			update = false;
+		} else {
+			record = cursor.primeUpdate();
+			update = true;
+		}
+	}
+
+	// We don't mark any field as generated. So at first, none
+	// would be included in the INSERT/UPDATE. Then we must make sure
+	// we set the generated flag to each property field.
+	// Note that this is necesary as we want relation fields to take their
+	// default values when inserted.
+	for ( uint i = 0; i < record->count(); ++i ) {
+		record->setGenerated( i, false );
+	}
+
+	record->setValue( "dboid", searchOid );
+	record->setGenerated( "dboid", true );
+	record->setValue( "dbseq", newSeq() );
+	record->setGenerated( "dbseq", true );
+
+	if ( setOid != 0 )
+		record->setValue( relationInfo->name(), setOid );
+	else
+		record->setNull( relationInfo->name() );
+	record->setGenerated( relationInfo->name(), true );
+
+	if ( update ) {
+		if (! cursor.update() ) {
+			kdDebug() << k_funcinfo << " -> " << cursor.lastError().text() << endl;
+			kdDebug() << k_funcinfo << " -> " << cursor.executedQuery() << endl;
+			//delete cursor;
+			ERROR( "Update failed" );
+		}
+	} else {
+		if ( ! cursor.insert() ) {
+			kdDebug() << k_funcinfo << " -> " << cursor.lastError().text() << endl;
+			kdDebug() << k_funcinfo << " -> " << cursor.executedQuery() << endl;
+			//delete cursor;
+			ERROR( "Insert failed" );
+		}
+	}
+	//delete cursor;
+	return true;
+}
+
+bool SqlDbBackend::save( Collection *collection )
+{
+	assert( collection );
+	m_db->exec( "DELETE FROM " + collection->collectionInfo()->name() + " WHERE " + collection->collectionInfo()->parentClassInfo()->name() + " = " + oidToString( collection->parentOid() ) );
+
+	if ( collection->collectionInfo()->name() == "Customer_CustomerOrder" ) {
+		kdDebug() << "Found" << endl;
+	}
+	QSqlCursor cursor( collection->collectionInfo()->name() );
+	QSqlRecord *record;
+
+	CollectionIterator it( collection->begin() );
+	CollectionIterator end( collection->end() );
+	for ( ; it != end; ++it ) {
+		record = cursor.primeInsert();
+		record->setValue( collection->collectionInfo()->parentClassInfo()->name(), collection->parentOid() );
+		record->setValue( collection->collectionInfo()->childrenClassInfo()->name(), (*it)->oid() );
+		record->setValue( "dbseq", newSeq() );
+		cursor.insert();
+	}
+	return true;
+}
+
 
 bool SqlDbBackend::remove( Object *object )
 {
@@ -409,7 +581,8 @@ bool SqlDbBackend::createSchema()
 		RelationInfo *rObj;
 		for ( ; oIt != oEnd; ++oIt ) {
 			rObj = *oIt;
-			if ( ! rObj->isOneToOne() || rObj->relatedClassInfo()->name() > rObj->parentClassInfo()->name() ) {
+			// needs to be >= to consider cases where the parent and related class(table) are the same
+			if ( ! rObj->isOneToOne() || rObj->relatedClassInfo()->name() >= rObj->parentClassInfo()->name() ) {
 				exec += rObj->name().lower() + " BIGINT DEFAULT NULL, ";
 				constraints << currentClass->name().lower() + "-" + rObj->name().lower() + "-" + rObj->relatedClassInfo()->name().lower();
 			}
@@ -523,21 +696,21 @@ bool SqlDbBackend::hasChanged( Object * object )
 
 	// Has it been deleted?
 	if ( ! cursor.next() )
-		return false;
+		return true;
 
 	return variantToSeq( cursor.value( 0 ) ) != object->seq();
 }
 
-bool SqlDbBackend::hasChanged( Collection *collection )
+bool SqlDbBackend::hasChanged( Collection* /*collection*/ )
 {
 	/* Right now we always consider we need to reload the collection */
-	return false;
+	return true;
 }
 
-bool SqlDbBackend::hasChanged( const OidType& oid, const RelationInfo* related )
+bool SqlDbBackend::hasChanged( const OidType& /*oid*/, const RelationInfo* /*related*/ )
 {
 	/* Right now we always consider we need to reload the oid */
-	return false;
+	return true;
 }
 
 /*!
@@ -586,12 +759,9 @@ void SqlDbBackend::commitRelations()
 	ManagerRelationIterator end( m_manager->relations().end() );
 	
 	for ( ; it != end; ++it ) {
-		it.data().
-		save( 
-		//obj = it.data().object();
-		//if ( obj->isModified() ) {
-		//	save( obj );
-		//}
+		if ( it.data().isModified() ) {
+			save( it.key().oid(), it.data().relationInfo(), it.data().oid() );
+		}
 	}
 }
 
@@ -602,7 +772,10 @@ void SqlDbBackend::commitCollections()
 	Collection *c;
 	for ( ; cit != cend; ++cit ) {
 		c = cit.data().collection();
-		if ( c->modified() ) {
+		// Only save as collection N-M relations the rest will be treated
+		// by the commitRelations() function as modifing the collection will
+		// modify the relation too.
+		if ( c->modified() && ! c->collectionInfo()->isNToOne() ) {
 			save( c );
 		}
 	}
