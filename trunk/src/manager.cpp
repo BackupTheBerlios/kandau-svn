@@ -718,6 +718,7 @@ void Manager::setRelation( const OidType& oid, const ClassInfo* classInfo, const
 {
 	assert( classInfo );
 	QString relstr = ClassInfo::relationName( relationName, classInfo->name() );
+	assert( classInfo->containsObject( relstr ) );
 
 	if ( m_cachePolicy == FreeMaxOnLoad || m_cachePolicy == FreeAllOnLoad )
 		ensureUnderMaxRelations();

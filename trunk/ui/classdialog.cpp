@@ -59,9 +59,9 @@ ClassDialog::ClassDialog( Object *object, QWidget *parent) :
 	QWidget *widget = new QWidget( this );
 	setMainWidget( widget );
 	connect( this, SIGNAL(okClicked()), SLOT(slotOkClicked()) );
-	
+
 	QVBoxLayout *layout = new QVBoxLayout( widget );
-	
+
 	LabelsMetaInfo *labels = dynamic_cast<LabelsMetaInfo*>( object->classInfo()->metaInfo( "labels" ) );
 
 	QLabel *label;
@@ -255,7 +255,7 @@ void ClassDialog::slotChangeClicked()
 		Collection col( rel->relatedClassInfo()->name() );
 		ChooseObjectDialog *c = new ChooseObjectDialog( &col, 0, this );
 		if ( c->exec() == QDialog::Accepted ) {
-			m_object->setObject( rel->relatedClassInfo()->name(), c->selectedObject() );
+			m_object->setObject( rel->name(), c->selectedObject() );
 		}
 		delete c;
 	}

@@ -36,6 +36,11 @@ static const LabelDescription customerLabels[] = {
 	{ "city", I18N_NOOP( "City" ) },
 	{ "zipCode", I18N_NOOP( "Zip Code" ) },
 	{ "country", I18N_NOOP( "Coutry" ) },
+	{ "one_to_one", I18N_NOOP( "One to one" ) },
+	{ "default_article", I18N_NOOP( "Default Article" ) },
+	{ "second_default_article", I18N_NOOP( "Second Default Article" ) },
+	{ "discounted_articles", I18N_NOOP( "Discounted Articles" ) },
+	{ "adapted_articles", I18N_NOOP( "Adapted articles" ) },
 	LabelDescriptionLast
 };
 

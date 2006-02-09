@@ -66,7 +66,7 @@ int main( int argc, char** argv )
 	Notifier *notifier = new Notifier();
 	DbBackendIface *backend = new SqlDbBackend( db );
 	Manager *manager = new Manager( backend, notifier );
-	
+	manager->setMaxObjects( 1000 );
 	Collection col( "CustomerOrder" );
 	CollectionIterator it( col.begin() );
 	CollectionIterator end( col.end() );
