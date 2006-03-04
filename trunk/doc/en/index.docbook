@@ -52,7 +52,7 @@ as Authors, publish date, the abstract, and Keywords -->
 <othername></othername>
 <surname>Albert Cervera Areny</surname>
 <affiliation>
-<address><email>albertca&#64;hotpop&#46;com</email></address>
+<address><email>albertca AT mail DOT berlios DOT de</email></address>
 </affiliation>
 </author>
 </authorgroup>
@@ -124,15 +124,15 @@ Here is a list of &kandau; features:
 </para>
 
 <itemizedlist>
-	<listitem><para><emphasis>Object manager.</emphasis> Object pointers are managed by the library making it harder to leak objects in memory.</para></listitem>
-	<listitem><para><emphasis>Class introspection.</emphasis> Offers an easy way to browse all the classes, its properties, relations and associated metadata without a precompiler. Only inherit and call a couple of macros.</para></listitem>
+<!--	<listitem><para><emphasis>Object manager.</emphasis> Object pointers are managed by the library making it harder to leak objects in memory.</para></listitem> -->
+	<listitem><para><emphasis>Class introspection.</emphasis> Offers an easy way to browse all the classes, its properties, relations and associated metadata using the moc precompiler. Only inherit and call a couple of macros.</para></listitem>
 	<listitem><para><emphasis>Dynamic classes.</emphasis> Apart from the classes created by the programmer, new classes can be created at run time. This classes, can have relations with C++ ones and use the same persistency framework.</para></listitem>
 	<listitem><para><emphasis>Read only properties.</emphasis>Read only properties can be created so they are browsable but not saved at commit time.</para></listitem>
-	<listitem><para><emphasis>QObject properties compatible.</emphasis> Though an alternative iterator is provided for easy object introspection, &kandau; uses the same property system provided by Qt, so no functionality is lost by making the object persistent.</para></listitem>
+	<listitem><para><emphasis>QObject properties compatible.</emphasis> Though an alternative iterator is provided for easy object introspection, &kandau; uses the same property system provided by Qt, so no functionality is lost by making the object persistable.</para></listitem>
 	<listitem><para><emphasis>Notification system.</emphasis>A notification system is provided so a slot can be registered to be notified each time an object, any object in a class or a particular property is modified.</para></listitem>
 	<listitem><para><emphasis>Caching system.</emphasis> In some backends, you can configure the maximum number of objects that are kept in memory by the manager, so they don't have to be loaded from the database/backend.</para></listitem>
 	<listitem><para><emphasis>Transaction based.</emphasis>All modifications should be commited or rolledback. No saving is done until the <function>commit()</function> function is called.</para></listitem>
-	<listitem><para><emphasis>Backend independent.</emphasis>You can make your program without worrying where your data will be saved. Currently, SQL, XML and .desktop backends are implemented, but you can create your own.</para></listitem>
+	<listitem><para><emphasis>Backend independent.</emphasis>You can develop your program without worrying where your data will be saved. Currently, SQL, XML and .desktop backends are implemented, but you can create your own.</para></listitem>
 	<listitem><para><emphasis>DCOP interface.</emphasis> &kandau; comes with some tests and demo applications. A nice one is a DCOP Server. Use this application with a library which has implemented all your persistent classes and you immediately have a simple way to save and load data using shell scripts and without the need to treat xml files or know the structure of your sql database.</para></listitem>
 	<listitem><para><emphasis>Automatic relationship updates.</emphasis>Say you have object A, and object B. Say you set the relation <emphasis>brother</emphasis> of object A to <emphasis>B</emphasis>. Then you query B to know who is <emphasis>brother</emphasis> and it will tell you it is <emphasis>A</emphasis></para></listitem>
 	<listitem><para><emphasis>Multiple backends simultaneously.</emphasis>You can have objects pertaining to different backends at the same time, two configuration files, for example.</para></listitem>
@@ -203,7 +203,7 @@ private:
 </programlisting>
 
 <para>
-So what we have here is a Book class declaration. A book has four properties: title, author, isbn and year. The implementation details are obvious and so, are not shown.
+So what we have here is a Book class declaration. A book has four properties: title, author, isbn and year. The implementation details are obvious and are not shown.
 </para>
 
 <note>
@@ -311,7 +311,7 @@ And that's all. Now we're able to store any book object into a PostgreSQL databa
 	<listitem><para>Add a call to the DCLASS( your_class ) macro in the header file.</para></listitem>
 	<listitem><para>Add a call to the ICLASS( your_class ) macro in the implementation file.</para></listitem>
 	<listitem><para>Add the implementation of the createRelations function (which is empty in this example).</para></listitem>
-	<listitem><para>Add the MODIFIED macro call to each set function. This allows the system to know whether the object has been modified or not, so the manager knows if it can free the object from cache (which is only possible if the object hasn't been modified).</para></listitem>
+	<listitem><para>Add the MODIFIED macro call to each set function. This allows the system to know whether the object has been modified or not, so the manager knows if it has to save it to the database.</para></listitem>
 </itemizedlist>
 
 </para>
@@ -322,7 +322,7 @@ And that's all. Now we're able to store any book object into a PostgreSQL databa
 <title>Initialization</title>
 
 <para>Once we have created all the classes, we need to initialize the system.</para>
-<para>First of all, we have to call the Classes::setup() static function. That should be done at the very beggining. After that call, you can start browsing all the available classes. See the Classes class for more information on that.</para>
+<para>First of all, we need to call the Classes::setup() static function. That should be done at the very beggining. After that call, you can start browsing all the available classes. See the Classes class for more information on that.</para>
 
 <para>After that, most usually you'll want to initialize the Manager. Here is where you decide which backend you want.
 </para>
@@ -361,7 +361,7 @@ int main()
 ]]>
 </programlisting>
 
-<note><para>The database needs to exist, but you can optionally call m_manager->createSchema() function, which will create the table book in your database.</para></note>
+<note><para>The database has to exist, but you can optionally call manager->createSchema() function, which will create the table book in the existent database.</para></note>
 
 <para>To use the XML backend, you can use something like this:</para>
 
@@ -390,7 +390,7 @@ benzina->setYear( 1983 );
 
 ObjectRef<Book> sentimental = Book::create();
 sentimental->setTitle( "Sentimental" );
-sentimental->setAuthor( "Sergi PÃÂ mies" );
+sentimental->setAuthor( "Sergi Pàmies" );
 sentimental->setIsbn( "84-7727-135-6" );
 sentimental->setYear( 1995 );
 Manager::self()->commit();
@@ -407,7 +407,8 @@ kdDebug() << "Sergi Pàmies' book title: " << sentimental->title() << endl;
 <itemizedlist>
 	<listitem><para>The first thing we do is create an object which is automatically managed by the Manager class. That's why we call Book::create() instead of using the <emphasis>new</emphasis> operator.
 	</para></listitem>
-	<listitem><para>Note that we use the ObjectRef template instead of using a Book pointer directly. This is good practice, as once the object has been commited the instance in memory could be freed. The template will ensure that it will be loaded any time you try to access any property once commited.</para></listitem>
+	<listitem><para>Note that we use the ObjectRef template instead of using a Book pointer directly. This is good practice, as once the object has been commited (or rolledback) the instance in memory could be freed. The template will ensure that it will be loaded any time you try to access any property once commited.</para></listitem>
+	<listitem><para>There's no start transaction function. You're always inside a transaction.</para></listitem>
 </itemizedlist>
 
 </sect1>
@@ -416,7 +417,7 @@ kdDebug() << "Sergi Pàmies' book title: " << sentimental->title() << endl;
 <title>Loading objects</title>
 <para>There are mainly three ways you can use to load objects:</para>
 <itemizedlist>
-	<listitem><para>When you have an object loaded that points to another one. If the latter isn't loaded, it will be loaded automatically by the engine.</para></listitem>
+	<listitem><para>When you have an loaded object that points to another one. If the latter isn't loaded, it will be loaded automatically by the engine.</para></listitem>
 	<listitem><para>You can load a random object by its oid.</para></listitem>
 	<listitem><para>Load a collection of objects of the same class.</para></listitem>
 </itemizedlist>
@@ -475,6 +476,9 @@ if ( ! benzina.isNull() ) {
 }
 ]]>
 </programlisting>
+
+<para>As you can see you need to specify the manager the object is bound to when you create it with the create() function.</para>
+
 </sect1>
 
 <sect1 id="relations">
@@ -524,7 +528,7 @@ private:
 
 <itemizedlist>
 	<listitem><para>fullName is a read only property. Kandau will let you browse this property as any other, but the backend won't save that information in the database. In this case fullName simply concatenates the first and last names with a colon in between (e.g. "Monzó, Quim").</para></listitem>
-	<listitem><para>bibliography is not a property. In fact we expect each book to have an author related, so it is possible to browse from the book to its author, but also the other way round. From the author get a list of all his/her books.</para></listitem>
+	<listitem><para>bibliography is not a property. In fact we expect each book to have an author related, so it is possible to browse from the book to its author, but also the other way round. From the author, get a list of all his/her books.</para></listitem>
 </itemizedlist>
 
 <para>Now that we have defined what information we want from the author, let's see what we need to change from the Book class. See the new Book declaration:</para>
@@ -596,7 +600,7 @@ void Author::createRelations()
 
 Collection* Author::bibliography()
 {
-	GETCOLLECTION( Book );
+	return GETCOLLECTION( Book );
 }
 ]]>
 </programlisting>
@@ -616,7 +620,8 @@ ObjectRef<Author> monzo = Author::create();
 monzo->setFirstName( "Quim" );
 monzo->setLastName( "Monzó" );
 monzo->setBirthYear( 1952 );
-monzo->setBiography( "Born in Barcelona in 1952, has worked as a graphic designer, translator, journalist and has contributed to radio and TV programms." );
+monzo->setBiography( "Born in Barcelona in 1952, has worked as a graphic designer, translator, journalist and "
+"has contributed to radio and TV programms." );
 
 ObjectRef<Book> benzina = Book::create();
 benzina->setTitle( "Benzina" );
@@ -634,7 +639,7 @@ kdDebug() << "The author of the book 'Benzina' is " << benzina->author()->fullNa
 <sect1 id="browsing">
 <title>Browse your classes</title>
 <para>
-As you may have already guessed, Kandau required macros build a graph in memory containing all your classes (ok, only those with the appropiate macros). That is used by the Kandau persistency engine, but is also available to the application developer and brings the possibilities of introspection beyond properties.
+As you may have already guessed, Kandau required macros in order to build a graph in memory containing all your classes (ok, only those with the appropiate macros). This is used by the Kandau persistency engine, but is also available to the application developer and brings the possibilities of introspection beyond properties.
 </para>
 <para>
 In fact, Qt's introspection works at Object level, while Kandau's works at class level, that is, you don't need to instantiate an object in order to know which properties the <emphasis>class</emphasis> has.
@@ -645,10 +650,10 @@ Some of the things that you can do are:
 <itemizedlist>
 	<listitem><para>Know which classes you have available.</para></listitem>
 	<listitem><para>Instantiate an object by it's class name.</para></listitem>
-	<listitem><para>Iterate through the properties of a class, its related objects and related collections (only those that are browsable from the class). Know the data types, whether they are readonly or not, etc.</para></listitem>
+	<listitem><para>Iterate through the properties of a class, its related objects and related collections. Know the data types, whether they are readonly or not, etc.</para></listitem>
 </itemizedlist>
 
-<para>As allways an example makes it clearer. The following piece of code, iterates through all the existing classes and prints all their properties and type.</para>
+<para>As always an example makes it clearer. The following piece of code, iterates through all the existing classes and prints all their properties and type.</para>
 
 <programlisting>
 <![CDATA[
@@ -719,7 +724,7 @@ static const LabelDescription authorLabels[] = {
 void Author::createRelations()
 {
 	COLLECTION( Book );
-	ADDMETAINFO( "labels", new LabelsMetaInfo( articleLabels ) );
+	ADDMETAINFO( "labels", new LabelsMetaInfo( authorLabels ) );
 }
 ]]>
 </programlisting>
@@ -755,7 +760,7 @@ if ( meta && meta->inherits( "LabelsMetaInfo" ) ) {
 <sect1 id="dynamic">
 <title>Dynamic Classes</title>
 <para>
-Dynamic classes are those who's structure can be configured at runtime and don't have a <emphasis>real</emphasis> C++ declaration. That is, you just create an structure which you want to be browseable just like any other class you have created, you want to be able to make it persistent with the same engine. But you can do more, you can relate these dynamic objects with your C++ ones and relations will be stored transparently for you.
+Dynamic classes are those who's structure can be configured at runtime and don't have a <emphasis>real</emphasis> C++ declaration. That is, you just create an structure which you want to be browseable just like any other class you have created and you want to be able to make it persistent with the same engine. But you can do more, you can relate these dynamic objects with your C++ ones and relations will be stored transparently for you.
 </para>
 
 <para>
@@ -771,11 +776,15 @@ ci->addProperty( "numberOfCopies", QVariant::ULongLong );
 ci->addProperty( "dateOfAcquisition", QVariant::Date );
 ci->addObject( "Book", "book" );
 ci->addCollection( "Book", "similarBooks" );
+Classes::setupRelations();
 ]]>
 </programlisting>
 
 <para>
-After the code is executed each time you browse your available classes you will have a new one called BookExtraInfo, which will contain three properties: notes, numberOfCopies and dateOfAcquisition, the book the information it relates to and a list of similar books. So if you are using the SQL backend and call the createSchema() function, you'll get two new tables (BookExtraInfo and similarBooks) with the necessary fields to store this information.
+You should call the Classes::setupRelations() function after you have your new classes before using them.
+</para>
+<para>
+After the code is executed, each time you browse your available classes you will have a new one called BookExtraInfo, which will contain three properties: notes, numberOfCopies and dateOfAcquisition, the book the information it relates to and a list of similar books. So if you are using the SQL backend and call the createSchema() function, you'll get two new tables (BookExtraInfo and similarBooks) with the necessary fields to store this information.
 </para>
 
 <para>Of course, you can create an instance of BookExtraInfo and set the dateOfAcquisition and a similar book with:</para>
@@ -799,7 +808,7 @@ Another facility provided by &kandau; is a notification system. It allows you to
 </para>
 
 <para>
-The notification mechanism makes use of the MODIFIED macro in your set functions. The mechanism, suposes that the functiona name matches the property name, adds the 'set' prefix, and changes the capital letters by lowercase with a preceded by an underscore. That is 'setParentName' to 'parent_name'
+The notification mechanism makes use of the MODIFIED macro in your set functions. The mechanism, suposes that the function name matches the property name, adds the 'set' prefix, and changes the capital letters by lowercase with a preceded by an underscore. That is 'setParentName' to 'parent_name'
 </para>
 
 <para>
@@ -808,7 +817,7 @@ The notification mechanism makes use of the MODIFIED macro in your set functions
 
 <programlisting>
 <![CDATA[
-
+[TODO]
 ]]>
 </programlisting>
 
@@ -836,12 +845,6 @@ The notification mechanism makes use of the MODIFIED macro in your set functions
 </para>
 </sect1>
 
-<sect1 id="locking">
-<title>Avoid segfaults by locking your object</title>
-
-<para>An object can be freed by the manager any time a new object is loaded in memory. That's why we use the ObjectRef template and that solves the problem for most cases. However, it could happen that you load new objects inside a function of an object that is being handled by the manager. This can cause the manager to free your object while still executing one of its functions (it will only happen if the object is unmodified).</para>
-</sect1>
-
 <sect1 id="performance">
 <title>Performance Tips</title>
 
@@ -850,7 +853,7 @@ Kandau hasn't been tested for performance at the moment, and some of the mechani
 </para>
 
 <para>
-That said, I'd like to share some of the internal mechanisms that even before analyzing I think can cause performance problems to the users. So if you're worried about performance or your application suffers some of these problems I hope these notes will help you:
+That said, I'd like to share some of the internal mechanisms that even before analyzing I think can cause performance problems to developers. So if you're worried about performance or your application suffers some of these problems I hope these notes will help you:
 </para>
 
 <sect2>
@@ -868,22 +871,23 @@ The MODIFIED macro can also offer the possibility of emiting a signal whenever t
 <para>That's why at compile time you can choose what you want the MODIFIED macro to do:</para>
 
 <itemizedlist>
-	<listitem><para><command>-DMODIFIED_NONE</command> With this flag the MODIFIED macro won't be defined at all. That means you can define it (take a look at the object.h file for examples) or simply not use it. I wouldn't recommend the latter, better use the -DMODIFIED_EMPTY, so you don't have to add the macro everywhere if you ever change your mind or your needs.</para></listitem>
+	<listitem><para><command>-DMODIFIED_NONE</command> With this flag the MODIFIED macro won't be defined at all. That means you can define it yourself (take a look at the object.h file for examples) or simply not use it in the set functions. I wouldn't recommend the latter, better use the -DMODIFIED_EMPTY, so you don't have to add the macro everywhere if you ever change your mind or your needs.</para></listitem>
 	<listitem><para><command>-DMODIFIED_EMPTY</command> With this flag the MODIFIED macro will exist but it will be empty. This allows you to create all your code with the MODIFIED macro but optimize it in the case you eventually decide you don't need it.</para></listitem>
-	<listitem><para><command>-DMODIFIED_SIMPLE</command> This is declared as "m_modified=true". This means that the object is set as modified and that's all. Ideal if you don't use the notification mechanisme. Note that the object is set modified using a variable directly (which is protected instead of private and then accessed by a method) for performance reasons.</para></listitem>
+	<listitem><para><command>-DMODIFIED_SIMPLE</command> This is declared as "m_modified=true". This means that the object is set as modified and that's all. Ideal if you don't use the notification mechanism. Note that the object is set modified using a variable directly (which is protected instead of private and then accessed by a method) for performance reasons.</para></listitem>
 	<listitem><para><emphasis>Default behaviour.</emphasis> If you don't set any flags at compile time this will be the declaration used. This will set your object modified and will enable the notification mechanism which will allow you to be notified every time a property is modified.</para></listitem>
-	<listitem><para><command>-DMODIFIED_FULL</command> This is the most featurefull and will define the MODIFIED macro expecting a parameter to it. The parameter should be the new value that will be set to the property. That means you won't be able to reuse your normal MODIFIED calls.</para></listitem>
+	<listitem><para><command>-DMODIFIED_FULL</command> This is the most featurefull and will define the MODIFIED macro expecting a parameter to it. The parameter should be the new value that will be set to the property. That means you won't be able to reuse your normal MODIFIED calls. This value, then can be read by the notification mechanism. You could, for example, create a trigger that disabled certain values to a property.</para></listitem>
 </itemizedlist>
 
 </sect2>
 
 <sect2>
 <title>The ObjectRef template</title>
-<para>The caching system used by Kandau make it possible for an object to be freed from memory without the user (programmer) requesting it, and the object can be loaded again into memory whenever is needed. That's why you should use <classname>ObjectRef&lt;YourPersistentObject&gt;</classname> instead of the pointer directly.</para>
+<para>The caching system used by Kandau makes it possible for an object to be freed from memory without the user (programmer) requesting it, and the object can be loaded again into memory whenever it's needed. That's why you should use <classname>ObjectRef&lt;YourPersistentObject&gt;</classname> instead of the pointer directly.</para>
 
 <para>This can add a significant overhead which could be critical in some cases. Fortunately, the manager doesn't remove objects in the background but only in some cases:</para>
 
 <itemizedlist>
+	<listitem><para>Only an object marked as invalid can be freed. An object is invalid if it hasn't been loaded in the current transaction.</para></listitem>
 	<listitem><para>Whenever a new object is loaded because it might cause the cache to grow beyond the maximum number of objects allowed.</para></listitem>
 	<listitem><para>After commiting, because many objects could be modified in memory that have been stored. Note that the maximum number of cached objects can be exceeded if the objects are marked as modified.</para></listitem>
 </itemizedlist>
@@ -910,33 +914,33 @@ Manager::self()->commit();
 </sect1>
 
 
-<sect1>
+<sect1 id="backends">
 <title>Available backends</title>
 <para>In this section we will analyze the behaviour of each of the backends you have available with the standard Kandau distribution.</para>
 
 <sect2>
 <title>TestDbBackend</title>
-<para></para>
+<para>[TODO]</para>
 </sect2>
 
 <sect2>
 <title>XmlDbBackend</title>
-<para></para>
+<para>[TODO]</para>
 </sect2>
 
 <sect2>
 <title>SqlDbBackend</title>
-<para></para>
+<para>[TODO]</para>
 </sect2>
 
 <sect2>
 <title>InMemorySqlDbBackend</title>
-<para></para>
+<para>[TODO]</para>
 </sect2>
 
 <sect2>
 <title>DesktopConfigDbBackend</title>
-<para></para>
+<para>[TODO]</para>
 </sect2>
 
 </sect1>
@@ -1005,11 +1009,11 @@ distribution. -->
 &kandau;
 </para>
 <para>
-Program copyright 2005 Albert Cervera Areny <email>albertca&#64;hotpop&#46;com</email>
+Program copyright 2005 Albert Cervera Areny <email>albertca AT mail DOT berlios DOT de</email>
 </para>
 
 <para>
-Documentation copyright 2005 Albert Cervera Areny <email>albertca&#64;hotpop&#46;com</email>
+Documentation copyright 2005 Albert Cervera Areny <email>albertca AT mail DOT berlios DOT de</email>
 </para>
 
 <!-- TRANS:CREDIT_FOR_TRANSLATORS -->
@@ -1044,7 +1048,8 @@ In order to use &kandau; you need Qt and KDE libraries. It's been tested with KD
 <sect1 id="compilation">
 <title>Compilation and Installation</title>
 
-&install.compile.documentation;
+<para>[TODO]</para>
+<!-- &install.compile.documentation; -->
 
 </sect1>
 
