@@ -148,6 +148,8 @@ public:
 	Manager( DbBackendIface *backend, NotificationHandler *handler = 0 );
 	~Manager();
 
+	DbBackendIface *backend() const;
+	
 	static Manager* self();
 
 	void setCachePolicy( CachePolicy policy );

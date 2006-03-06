@@ -262,6 +262,11 @@ Manager::~Manager()
 	m_self = 0;
 }
 
+DbBackendIface* Manager::backend() const
+{
+	return m_dbBackend;
+}
+
 Manager* Manager::self()
 {
 	return m_self;
