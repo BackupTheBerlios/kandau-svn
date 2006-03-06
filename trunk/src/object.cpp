@@ -482,6 +482,7 @@ void Object::reset()
 			case QVariant::UInt:
 			case QVariant::LongLong:
 			case QVariant::ULongLong:
+			case QVariant::Double:
 				p.setValue( 0 );
 				break;
 			case QVariant::String:
