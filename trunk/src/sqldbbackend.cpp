@@ -131,7 +131,7 @@ bool SqlDbBackend::load( OidType* relatedOid, const OidType& oid, const Relation
 		*relatedOid = 0;
 		return false;
 	}
-	
+
 	if ( relationInfo->isOneToOne() ) {
 		QString related = relationInfo->relatedClassInfo()->name();
 		QString parent = relationInfo->parentClassInfo()->name();
@@ -211,32 +211,6 @@ bool SqlDbBackend::load( Collection *collection )
 
 	collection->setModified( false );
 	return true;
-
-/*
-	collection->clear();
-
-	QSqlCursor cursor( collection->collectionInfo()->name() );
-	cursor.select( filterFieldName( collection->collectionInfo() ) + " = " + QString::number( filterValue( collection ) ) );
-
-	OidType val;
-	while ( cursor.next() ) {
-		if ( collection->collectionInfo()->isNToOne() ) {
-			// Optimització: en cas de tractar-se d'una relació N - 1 com que la taula
-			// que tenim oberta és la dels objectes a carregar podem utilitzar el mateix
-			// cursor i passar-lo com a paràmetre
-			//load( *cursor, obj );
-			val = variantToOid( cursor.value( idFieldName( collection->collectionInfo() ) ) );
-			//load( val, obj );
-			collection->simpleAdd( val );
-		} else {
-			val = variantToOid( cursor.value( idFieldName( collection->collectionInfo() ) ) );
-			//load( val, obj );
-			collection->simpleAdd( val );
-		}
-	}
-	collection->setModified( false );
-	return true;
-*/
 }
 
 bool SqlDbBackend::save( Object *object )
@@ -247,7 +221,6 @@ bool SqlDbBackend::save( Object *object )
 	QSqlCursor cursor( object->classInfo()->name() );
 
 	if ( object->oid() == 0 ) {
-		// Crea un oid únic
 		object->setOid( newOid() );
 		cursor.select();
 		record = cursor.primeInsert();
@@ -255,8 +228,6 @@ bool SqlDbBackend::save( Object *object )
 	} else {
 		cursor.select( "to_number( dboid, '9999999999G0') = " + oidToString( object->oid() ) );
 		if ( ! cursor.next() ) {
-			//if ( ! force )
-			//	ERROR( "Oid diferent of zero but not found" );
 			cursor.select();
 			record = cursor.primeInsert();
 			update = false;
@@ -279,7 +250,7 @@ bool SqlDbBackend::save( Object *object )
 	record->setGenerated( "dboid", true );
 	record->setValue( "dbseq", newSeq() );
 	record->setGenerated( "dbseq", true );
-	
+
 	PropertiesIterator pIt( object->propertiesBegin() );
 	PropertiesIterator pEnd( object->propertiesEnd() );
 	Property prop;
@@ -305,27 +276,6 @@ bool SqlDbBackend::save( Object *object )
 		record->setGenerated( prop.name(), true );
 	}
 
-/*
-	ObjectsIterator oIt( object->objectsBegin() );
-	ObjectsIterator oEnd( object->objectsEnd() );
-	Object *obj;
-	for ( ; oIt != oEnd; ++oIt ) {
-		obj = (*oIt);
-		if ( ! cursor.contains( oIt.key() ) )
-			continue;
-		if ( obj )
-			record->setValue( oIt.key(), obj->oid() );
-		else
-			record->setNull( oIt.key() );
-	}
-*/	
-/*
-	for ( uint i = 0; i < record->count(); ++i ) {
-		if ( record->fieldName( i ).right( 1 ) == "_" && variantToOid( record->value( i ) ) == 0 ) {
-			record->setNull( i );
-		}
-	}
-*/
 	if ( update ) {
 		if (! cursor.update() ) {
 			kdDebug() << k_funcinfo << " -> " << cursor.lastError().text() << endl;
@@ -349,7 +299,7 @@ bool SqlDbBackend::save( const OidType& oid, const RelationInfo* relationInfo, c
 	OidType setOid;
 	bool update;
 	QSqlRecord *record;
-	
+
 	if ( relationInfo->isOneToOne() ) {
 		QString related = relationInfo->relatedClassInfo()->name();
 		QString parent = relationInfo->parentClassInfo()->name();
@@ -644,7 +594,7 @@ bool SqlDbBackend::createSchema()
 	for ( i = 0; i < constraints.count(); ++i ) {
 		list = QStringList::split( QString( "-" ), constraints[ i ] );
 		exec = "ALTER TABLE " + list[ 0 ] + " ADD FOREIGN KEY (" + list[ 1 ] + ") REFERENCES " + list[ 2 ] + "( dboid ) DEFERRABLE INITIALLY DEFERRED";
-		
+
 		m_db->exec( exec );
 		if ( m_db->lastError().type() != QSqlError::None ) {
 			kdDebug() << k_funcinfo << " -> " << exec << endl;
@@ -757,7 +707,7 @@ void SqlDbBackend::commitRelations()
 {
 	ManagerRelationIterator it( m_manager->relations().begin() );
 	ManagerRelationIterator end( m_manager->relations().end() );
-	
+
 	for ( ; it != end; ++it ) {
 		if ( it.data().isModified() ) {
 			save( it.key().oid(), it.data().relationInfo(), it.data().oid() );
@@ -806,9 +756,9 @@ QString SqlDbBackend::expandDots( const QString& msg )
 	element = pickElement( token, 0 );
 	if ( ! Classes::contains( element ) )
 		return QString::null;
-		
+
 	QString curClass;
-	
+
 	curClass = element;
 	element = pickElement( token, 1 );
 
@@ -817,7 +767,7 @@ QString SqlDbBackend::expandDots( const QString& msg )
 
 		curClass + "." + element + " = " + relatedClassName + ".dboid AND " + relatedClassName;
 	} else if ( Classes::classInfo( curClass )->containsCollection( element ) ) {
-		
+
 	}
 }
 */
@@ -827,9 +777,9 @@ QString SqlDbBackend::expandDotsString( const QString& string )
 	QString className;
 	QString relationName;
 	QString expanded;
-	
+
 	assert( string.contains( "." ) );
-	
+
 	MTokenizer tokenizer( string, "." );
 	className = tokenizer.nextToken();
 	relationName = tokenizer.nextToken();
@@ -866,12 +816,12 @@ QString SqlDbBackend::expandDotsString( const QString& string )
 		} else {
 			kdDebug() << k_funcinfo << "Class '" << className << "' doesn't contain any relation named '" << relationName << "'" << endl;
 			expanded += className + "." + tokenizer.tail();
-			break;
+			kdDebug() << k_funcinfo << "Expanded string: " << expanded  << endl;
+			return expanded;
 		}
-		relationName = tokenizer.nextToken();	
+		relationName = tokenizer.nextToken();
 	} while ( ! relationName.isNull() );
 	expanded += className + "." + tokenizer.tail() + " ";
-	//expanded += "." + tokenizer.tail();
 	kdDebug() << k_funcinfo << "Expanded string: " << expanded  << endl;
 	return expanded;
 }
@@ -897,7 +847,6 @@ bool SqlDbBackend::load( Collection* collection, const QString& query )
 		kdDebug() << k_funcinfo << "A punt d'embuclar: " << query << endl;
 		token = tokenizer.nextToken();
 		while ( ! token.isNull() ) {
-		//while ( ( token = tokenizer.nextToken() ) != QString::null ) {
 			kdDebug() << k_funcinfo << "Bucle: " << token << endl;
 			if ( token.contains( "." ) && ! token.contains( "*" ) ) {
 				newQuery += expandDotsString( token );
