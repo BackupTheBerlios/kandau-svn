@@ -47,6 +47,7 @@ protected slots:
 	void slotDialogFinished();
 	void slotDoubleClicked ( QListViewItem *item, const QPoint &, int );
 	void slotCurrentClassChanged( int i );
+	void slotSave();
 
 private slots:
 	void slotSetup();

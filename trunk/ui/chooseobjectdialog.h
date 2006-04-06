@@ -39,6 +39,9 @@ public:
 	void setCollection( Collection *collection );
 	Collection *collection() const;
 
+public slots:
+	void slotDoubleClicked( QListViewItem*, const QPoint&, int );
+
 private:
 	Object *m_currentObject;
 	Collection *m_collection;

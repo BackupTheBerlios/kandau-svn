@@ -31,7 +31,7 @@
 #include <kdatetimewidget.h>
 #include <klocale.h>
 #include <kurllabel.h>
-//#include <kmessagebox.h>
+#include <kmessagebox.h>
 
 #include <object.h>
 #include <labelsmetainfo.h>
@@ -41,10 +41,10 @@
 #include "classdialog.h"
 #include "chooseobjectdialog.h"
 /**
- * 
- * @param object 
- * @param parent 
- * @return 
+ *
+ * @param object
+ * @param parent
+ * @return
  */
 ClassDialog::ClassDialog( Object *object, QWidget *parent) :
 	KDialogBase(parent)
@@ -90,7 +90,7 @@ ClassDialog::ClassDialog( Object *object, QWidget *parent) :
 		m_mapProperties.insert( p.name(), tmp );
 		gridLayout->addWidget( tmp, row, 1 );
 	}
-	
+
 	const ClassInfo *classInfo = object->classInfo();
 	RelationInfosConstIterator it2( classInfo->relationsBegin() );
 	RelationInfosConstIterator end2( classInfo->relationsEnd() );
@@ -99,7 +99,7 @@ ClassDialog::ClassDialog( Object *object, QWidget *parent) :
 		label = new QLabel( widget );
 		if ( labels )
 			label->setText( labels->label( it2.data()->name() ) );
-		else 
+		else
 			label->setText( it2.data()->name() );
 		gridLayout->addWidget( label, row, 0 );
 
@@ -133,11 +133,12 @@ QWidget* ClassDialog::createInput( QWidget* parent, const Property& property )
 {
 	QWidget *widget;
 	switch ( property.type() ) {
+		case QVariant::CString:
 		case QVariant::String: {
 			KLineEdit *line = new KLineEdit( parent );
 			line->setText( property.value().toString() );
 			widget = line;
-			break;	
+			break;
 		}
 		case QVariant::LongLong:
 		case QVariant::ULongLong:
@@ -188,6 +189,7 @@ void ClassDialog::updateObjectLabel( KURLLabel *objLabel, const Object *obj )
 		else
 			objLabel->setText( oidToString( obj->oid() ) );
 		objLabel->setURL( oidToString( obj->oid() ) );
+		objLabel->setEnabled( true );
 	} else {
 		objLabel->setText( i18n( "(not assigned)" ) );
 		objLabel->setEnabled( false );
@@ -223,7 +225,7 @@ void ClassDialog::slotObjectSelected( const QString& oid )
 	ObjectsIterator it( m_object->objectsBegin() );
 	ObjectsIterator end( m_object->objectsEnd() );
 	for ( ; it != end; ++it ) {
-		
+
 		if ( it.data() != 0 ) {
 			kdDebug() << k_funcinfo << " Oid: " << (*it)->oid() << endl;
 			if ( (*it)->oid() == stringToOid(oid) ) {
@@ -256,6 +258,7 @@ void ClassDialog::slotChangeClicked()
 		ChooseObjectDialog *c = new ChooseObjectDialog( &col, 0, this );
 		if ( c->exec() == QDialog::Accepted ) {
 			m_object->setObject( rel->name(), c->selectedObject() );
+			updateObjectLabel( m_mapObjects[ rel->name() ], c->selectedObject() );
 		}
 		delete c;
 	}

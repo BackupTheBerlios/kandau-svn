@@ -22,6 +22,7 @@
 #include <qlayout.h>
 
 #include <klistviewsearchline.h>
+#include <kstdaction.h>
 
 #include <collection.h>
 #include <labelsmetainfo.h>
@@ -68,7 +69,7 @@ void ClassMainWindow::initGUI()
 			m_classSelector->addItem( new QWidget(m_classSelector), info->name() );
 	}
 
-	
+
 	connect( m_listView, SIGNAL(doubleClicked(QListViewItem*,const QPoint&, int)), SLOT(slotDoubleClicked(QListViewItem*,const QPoint&, int)));
 
 	m_listViewSearchLine = new KListViewSearchLine( m_centralWidget );
@@ -76,9 +77,11 @@ void ClassMainWindow::initGUI()
 
 	vlayout->addWidget( m_listViewSearchLine );
 	vlayout->addWidget( m_listView );
-	
+
+	KStdAction::save( this, SLOT(slotSave()), actionCollection() );
+
 	setupGUI();
-	
+
 	// Connect m_classSelector at the end to avoid receiving signals while filling it
 	connect( m_classSelector, SIGNAL(currentChanged(int)), SLOT(slotCurrentClassChanged(int)) );
 }
@@ -88,6 +91,10 @@ void ClassMainWindow::slotSetup()
 	m_listView->fill();
 }
 
+void ClassMainWindow::slotSave()
+{
+	Manager::self()->commit();
+}
 
 void ClassMainWindow::slotDoubleClicked ( QListViewItem *item, const QPoint &, int )
 {

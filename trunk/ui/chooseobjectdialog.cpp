@@ -21,6 +21,7 @@
 #include <qlayout.h>
 
 #include <klistviewsearchline.h>
+#include <kmessagebox.h>
 
 #include <collection.h>
 
@@ -35,7 +36,7 @@ ChooseObjectDialog::ChooseObjectDialog( Collection *collection, Object *currentO
 	QWidget *dummy = new QWidget( this );
 	setMainWidget( dummy );
 	QVBoxLayout *vlayout = new QVBoxLayout( dummy );
-	
+
 	KListViewSearchLine *m_searchLine = new KListViewSearchLine( dummy );
 	if ( collection )
 		m_listView = new CollectionListView( collection->childrenClassInfo(), dummy );
@@ -50,6 +51,8 @@ ChooseObjectDialog::ChooseObjectDialog( Collection *collection, Object *currentO
 		if ( item )
 			m_listView->setSelected( item, true );
 	}
+
+	connect( m_listView, SIGNAL(doubleClicked(QListViewItem*,const QPoint&,int)), SLOT(slotDoubleClicked(QListViewItem*,const QPoint&,int)) );
 }
 
 Object* ChooseObjectDialog::selectedObject() const
@@ -57,9 +60,9 @@ Object* ChooseObjectDialog::selectedObject() const
 	QListViewItem *selected = m_listView->selectedItem();
 	if ( ! selected )
 		return 0;
-		
+
 	OidType oid = stringToOid( selected->text( 0 ) );
-	return Classes::classInfo( m_collection->childrenClassInfo()->name() )->create( oid );
+	return m_collection->object( oid );
 }
 
 void ChooseObjectDialog::setCollection( Collection *collection )
@@ -77,5 +80,9 @@ Collection* ChooseObjectDialog::collection() const
 	return m_collection;
 }
 
+void ChooseObjectDialog::slotDoubleClicked( QListViewItem*, const QPoint&, int )
+{
+	slotOk();
+}
 
 #include "chooseobjectdialog.moc"
