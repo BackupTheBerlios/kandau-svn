@@ -46,13 +46,13 @@ static const KCmdLineOptions options[] =
 int main( int argc, char** argv )
 {
 	QString dbname = "test";
-	Classes::setup();
-	
+
 	KAboutData aboutData( "tests","Test","0.1" );
 	KCmdLineArgs::init( argc, argv, &aboutData );
 	KCmdLineArgs::addCmdLineOptions( options );
-	
+
 	KApplication app;
+	Classes::setup();
 
 	QSqlDatabase *db = QSqlDatabase::addDatabase( "QPSQL7" );
 	db->setDatabaseName( dbname );
