@@ -136,15 +136,13 @@ bool SqlDbBackend::load( OidType* relatedOid, const OidType& oid, const Relation
 		QString related = relationInfo->relatedClassInfo()->name();
 		QString parent = relationInfo->parentClassInfo()->name();
 		if ( related >= parent ) {
-			//cursor = new QSqlCursor( related );
-			searchTable = related;
-			searchField = relationInfo->name();
-			resultField = "dboid";
-		} else {
-			//cursor = new QSqlCursor( parent );
 			searchTable = parent;
 			searchField = "dboid";
 			resultField = relationInfo->name();
+		} else {
+			searchTable = related;
+			searchField = relationInfo->name();
+			resultField = "dboid";
 		}
 	} else {
 		//cursor = new QSqlCursor( relationInfo->parentClassInfo()->name() );
@@ -304,23 +302,25 @@ bool SqlDbBackend::save( const OidType& oid, const RelationInfo* relationInfo, c
 		QString related = relationInfo->relatedClassInfo()->name();
 		QString parent = relationInfo->parentClassInfo()->name();
 		if ( related >= parent ) {
-			//cursor = new QSqlCursor( related );
-			searchTable = related;
-			searchOid = relatedOid;
-			setOid = oid;
-		} else {
-			//cursor = new QSqlCursor( parent );
 			searchTable = parent;
 			searchOid = oid;
 			setOid = relatedOid;
+		} else {
+			searchTable = related;
+			searchOid = relatedOid;
+			setOid = oid;
 		}
 	} else {
-		//cursor = new QSqlCursor( relationInfo->parentClassInfo()->name() );
 		searchTable = relationInfo->parentClassInfo()->name();
 		searchOid = oid;
 		setOid = relatedOid;
 	}
 
+	// We shouldn't store anything of any object with oid zero
+	if ( searchOid == 0 )
+		return true;
+
+	kdDebug() << "Search table: " << searchTable << endl;
 	QSqlCursor cursor( searchTable );
 	//TODO: Probably the object should always already exist as commitObjects() is
 	// called before commitRelations(). So maybe if record isn't found should be
@@ -710,6 +710,7 @@ void SqlDbBackend::commitRelations()
 
 	for ( ; it != end; ++it ) {
 		if ( it.data().isModified() ) {
+			kdDebug() << "Relation Oid: " << oidToString( it.data().oid() ) << endl;
 			save( it.key().oid(), it.data().relationInfo(), it.data().oid() );
 		}
 	}
