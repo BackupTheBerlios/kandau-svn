@@ -40,6 +40,8 @@
 
 #include "classdialog.h"
 #include "chooseobjectdialog.h"
+#include "propertywidget.h"
+
 /**
  *
  * @param object
@@ -86,7 +88,8 @@ ClassDialog::ClassDialog( Object *object, QWidget *parent) :
 		else
 			label->setText( p.name() );
 		gridLayout->addWidget( label, row, 0 );
-		QWidget *tmp = createInput( widget, p );
+		//QWidget *tmp = createInput( widget, p );
+		PropertyWidget *tmp = new PropertyWidget( p, widget );
 		m_mapProperties.insert( p.name(), tmp );
 		gridLayout->addWidget( tmp, row, 1 );
 	}
@@ -128,7 +131,7 @@ Object* ClassDialog::object() const
 {
 	return m_object;
 }
-
+/*
 QWidget* ClassDialog::createInput( QWidget* parent, const Property& property )
 {
 	QWidget *widget;
@@ -179,6 +182,7 @@ QWidget* ClassDialog::createInput( QWidget* parent, const Property& property )
 	widget->setEnabled( ! property.readOnly() );
 	return widget;
 }
+*/
 
 void ClassDialog::updateObjectLabel( KURLLabel *objLabel, const Object *obj )
 {
@@ -196,6 +200,7 @@ void ClassDialog::updateObjectLabel( KURLLabel *objLabel, const Object *obj )
 	}
 }
 
+/*
 QVariant ClassDialog::readInput( QWidget* widget )
 {
 	QString className = widget->className();
@@ -219,6 +224,7 @@ QVariant ClassDialog::readInput( QWidget* widget )
 		return QVariant();
 	}
 }
+*/
 
 void ClassDialog::slotObjectSelected( const QString& oid )
 {
@@ -240,11 +246,11 @@ void ClassDialog::slotObjectSelected( const QString& oid )
 
 void ClassDialog::slotOkClicked()
 {
-	QMapConstIterator<QString,QWidget*> it( m_mapProperties.constBegin() );
-	QMapConstIterator<QString,QWidget*> end( m_mapProperties.constEnd() );
+	QMapConstIterator<QString,PropertyWidget*> it( m_mapProperties.constBegin() );
+	QMapConstIterator<QString,PropertyWidget*> end( m_mapProperties.constEnd() );
 	for ( ; it!=end; ++it ) {
 		if ( m_object->containsProperty( it.key() ) ) {
-			m_object->property( it.key() ).setValue( readInput( it.data() ) );
+			m_object->property( it.key() ).setValue( it.data()->property() );
 		}
 	}
 }

@@ -10,50 +10,43 @@
  *   This program is distributed in the hope that it will be useful,       *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
- *   GNU Library General Public License for more details.                          *
+ *   GNU General Public License for more details.                          *
  *                                                                         *
- *   You should have received a copy of the GNU Library General Public License     *
+ *   You should have received a copy of the GNU General Public License     *
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#ifndef CLASSDIALOG_H
-#define CLASSDIALOG_H
+#ifndef PROPERTYWIDGET_H
+#define PROPERTYWIDGET_H
 
-#include <kdialogbase.h>
+#include <qwidget.h>
+
 #include <object.h>
 
-class PropertyWidget;
-
 /**
-	@author Albert Cervera Areny <albertca@hotpop.com>
+@author Albert Cervera Areny <albertca@hotpop.com>
 */
-class ClassDialog : public KDialogBase
+class PropertyWidget : public QWidget
 {
 	Q_OBJECT
 public:
-	ClassDialog( Object* object, QWidget *parent = 0 );
-	Object* object() const;
+	PropertyWidget( QWidget *parent = 0 );
+	PropertyWidget( const Property& property, QWidget *parent = 0 );
 
-signals:
-	void objectSelected( Object* object );
+	void setProperty( const QVariant& property );
+	QVariant property() const;
 
 protected:
-//	static QWidget* createInput( QWidget* parent, const Property& property );
-//	static QVariant readInput( QWidget* widget );
-	static void updateObjectLabel( KURLLabel *objLabel, const Object *obj );
-
-private slots:
-	void slotObjectSelected( const QString& oid );
-	void slotOkClicked();
-	void slotChangeClicked();
-	void slotObjectModified( const ClassInfo* classInfo, const OidType& object, const PropertyInfo *property, const QVariant& newValue );
+	virtual QWidget* createWidget();
+	virtual void setValue( const QVariant& value );
+	virtual QVariant value() const;
+	QWidget *widget() const;
 
 private:
-	QMap<QString,PropertyWidget*> m_mapProperties;
-	QMap<QString,KURLLabel*> m_mapObjects;
-	QMap<const QWidget*,RelationInfo*> m_mapChangeButtons;
-	ObjectRef<Object> m_object;
+	QVariant m_value;
+	QWidget *m_widget;
+	QVBoxLayout *m_layout;
 };
 
 #endif
