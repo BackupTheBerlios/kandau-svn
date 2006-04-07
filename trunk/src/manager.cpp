@@ -203,7 +203,7 @@ bool Reference::operator==( const Reference& reference ) const
 
 bool Reference::operator<( const Reference& reference ) const
 {
-	return ( oidToString( m_oid ) + "XX" + m_name ) < 
+	return ( oidToString( m_oid ) + "XX" + m_name ) <
 		( oidToString( reference.m_oid ) + "XX" + reference.m_name );
 }
 
@@ -247,12 +247,12 @@ Manager::~Manager()
 {
 	// Backend hook
 	m_dbBackend->shutdown();
-	
+
 	ManagerObjectIterator it( m_objects.begin() );
 	ManagerObjectIterator end( m_objects.end() );
 	for ( ; it != end; ++it )
 		delete it.data().object();
-	
+
 	ManagerCollectionIterator it2( m_collections.begin() );
 	ManagerCollectionIterator end2( m_collections.end() );
 	for ( ; it2 != end2; ++it2 )
@@ -295,7 +295,7 @@ Q_ULLONG Manager::maxObjects() const
 /*!
 This function prints with kdDebug() some information about the current status of the Manager. It is used for debugging purposes.
 Shown information includes:
-	* Number of objects kept in memory 
+	* Number of objects kept in memory
 	* Number of relations kept in memory
 	* Number of collections kept in memory
 */
@@ -652,7 +652,7 @@ void Manager::ensureUnderMaxObjects()
 		obj = it.data().object();
 		if ( ! obj->isModified() ) {
 			list.append( it.key() );
-			if ( ( m_cachePolicy == FreeMaxOnLoad || 
+			if ( ( m_cachePolicy == FreeMaxOnLoad ||
 				m_cachePolicy == FreeMaxOnTransaction ) &&
 				m_objects.count() - list.count() <= m_maxObjects )
 				break;
@@ -733,8 +733,14 @@ void Manager::setRelation( const OidType& oid, const ClassInfo* classInfo, const
 	if ( oldOid != 0 ) {
 		if ( oldOid != oidRelated ) {
 			if ( classInfo->object( relstr )->isOneToOne() ) {
-				m_relations[ Reference( oldOid, relstr ) ].setOid( 0 );
-				m_relations[ Reference( oldOid, relstr ) ].setModified( true );
+				if ( classInfo->object( relstr )->relatedClassInfo() != classInfo ) {
+					// We test that we're not modifying the same class
+					Reference ref( oldOid, relstr );
+					m_relations[ ref ].setOid( 0 );
+					m_relations[ ref ].setModified( true );
+					m_relations[ ref ].setValid( true );
+					m_relations[ ref ].setRelationInfo( classInfo->object( relstr )->relatedClassInfo()->object( relstr ) );
+				}
 			} else {
 				removeRelation( oldOid, classInfo->object( relstr )->relatedClassInfo()->collection( relstr ), oid, false );
 			}
@@ -744,7 +750,7 @@ void Manager::setRelation( const OidType& oid, const ClassInfo* classInfo, const
 	Reference ref( oid, relstr );
 	m_relations[ ref ].setOid( oidRelated );
 	m_relations[ ref ].setModified( true );
-	
+
 	// Create the relation from the other side if appropiate
 	if ( recursive && oidRelated != 0 ) {
 		if ( classInfo->object( relstr )->isOneToOne() )
@@ -757,7 +763,7 @@ void Manager::setRelation( const OidType& oid, const ClassInfo* classInfo, const
 void Manager::addRelation( const OidType& oid, const CollectionInfo* relcol, const OidType& oidRelated, bool recursive )
 {
 	QString relation = ClassInfo::relationName( relcol->name(), relcol->parentClassInfo()->name() );
-	
+
 	Collection *col = collection( oid, relcol );
 	col->simpleAdd( oidRelated );
 
@@ -771,7 +777,7 @@ void Manager::addRelation( const OidType& oid, const CollectionInfo* relcol, con
 			setRelation( oidRelated, relcol->childrenClassInfo(), relation, oid, false );
 		else
 			addRelation( oidRelated, relcol->childrenClassInfo()->collection( relation ), oid, false );
-		
+
 	/*
 		if ( Classes::classInfo( relcol->childrenClassInfo()->name() )->containsObject( relation ) ) {
 			setRelation( oidRelated, relcol->childrenClassInfo(), relation, oid, false );
@@ -788,12 +794,12 @@ void Manager::addRelation( const OidType& oid, const CollectionInfo* relcol, con
 void Manager::removeRelation( const OidType& oid, const CollectionInfo* relcol, const OidType& oidRelated, bool recursive )
 {
 	QString relation = ClassInfo::relationName( relcol->name(), relcol->parentClassInfo()->name() );
-	
+
 	Collection *col = collection( oid, relcol );
 	col->simpleRemove( oidRelated );
 
 	if ( recursive ) {
-		if ( relcol->isNToOne() ) 
+		if ( relcol->isNToOne() )
 			setRelation( oidRelated, relcol->childrenClassInfo(), 0, false );
 		else
 			removeRelation( oidRelated, relcol->childrenClassInfo()->collection( relation ), oid, false );
@@ -816,7 +822,7 @@ Obtains the oid of the object that relates to the relation "related" for object 
 OidType Manager::relation( const OidType& oid, const RelationInfo* related )
 {
 	Reference ref( oid, related->name() );
-	
+
 	if ( m_relations.contains( ref ) ) {
 		RelationHandler r = m_relations[ ref ];
 		if ( r.isValid() )
@@ -898,7 +904,7 @@ void Manager::copyTo( Manager* manager )
 {
 	// There are no pointers in this structure so we can copy it using the default assignment operator
 	manager->m_relations = m_relations;
-	
+
 	ManagerObjectIterator it( m_objects.begin() );
 	ManagerObjectIterator end( m_objects.end() );
 	Object *srcObj, *dstObj;
@@ -949,7 +955,7 @@ bool Manager::notifyPropertyModified( const Object* object, const QString& funct
 	if ( property.left( 1 ) == "_" )
 		property = property.right( property.length() -1 );
 	kdDebug() << k_funcinfo << property << endl;
-	
+
 	return m_notificationHandler->propertyModified( object->classInfo(), object->oid(), property, value );
 }
 
