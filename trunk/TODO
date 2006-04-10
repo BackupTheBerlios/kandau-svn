@@ -79,7 +79,7 @@ There are lots of things to think about. Here are some of them:
 	
 	- Allow different behaviours for transactions. Maybe the start() function should be added.
 		* The default behaviour (without using start()) should be the already implemented optimistic offline locking.
-		* If start() is called a SERIALIZABLE transaction should be started on the database until commit. This, however, means that after the start() function, the modified and unmodified objects that are kept in memory need to be reloaded (or at least selected) from the backend so that the underlying database knows the items have been read an can provide the necessary transaction protection.
+		* If start() is called a SERIALIZABLE transaction should be started on the database until commit. This, however, means that after the start() function, the modified and unmodified objects that are kept in memory need to be reloaded (or at least selected) from the backend so that the underlying database knows the items have been read and can provide the necessary transaction protection.
 
 	- Change the notification mechanism in the function Manager::notifyPropertyModified, so that it is easy to redefine the MODIFIED macro to use another naming scheme for matching function name with the property or even send the property name as a parameter to the MODIFIED macro.
 	
@@ -89,10 +89,13 @@ There are lots of things to think about. Here are some of them:
 	
 	- EnsureUnderMaxObjects should test related objects too (and viceversa).
 	
-	- What happens if an object is freed while we're using it in a loop or whatever and we use its iterators?? Probably the iterator of te new object is incompatible with the iterator of the old one!!!
-	
 	- What happens when you try to remove an object that has relations? Should it be an option to cascade or not??
 	
-	- Add the reset() function to Object to allow initializing all object properties??
+(DONE)	- Add the reset() function to Object to allow initializing all object properties??
 	
-	- With SqlDbBackend save 1-1 relations to only one of the tables. This means modifying the createSchema() and load() functions. (load() of relations, of course)
+(DONE)	- With SqlDbBackend save 1-1 relations to only one of the tables. This means modifying the createSchema() and load() functions. (load() of relations, of course)
+
+	- Improve enums support. Provide the list of options and whether it's a set or not. Improve enums support for ui too, creating a ComboBox when it's not a set, and a list with multiple selection when it is.
+
+	- Define with UML naming and add the missing types of relations. e.g. aggregate, composite, etc.
+
