@@ -114,9 +114,9 @@ const ClassInfo* RelationInfo::parentClassInfo() const
 }
 
 /*!
-Obtains whether the relation was designed to be browsable. That is, there is a 
-declaration in the the definition of the class parentClassInfo() that points to 
-relatedClassInfo(). Otherwise, the relation exists only in the declaration from 
+Obtains whether the relation was designed to be browsable. That is, there is a
+declaration in the the definition of the class parentClassInfo() that points to
+relatedClassInfo(). Otherwise, the relation exists only in the declaration from
 relatedClassInfo().
 @return True if it was designed to be browsable, false otherwise.
 */
@@ -235,7 +235,7 @@ Object* ClassInfo::create( Manager* manager ) const
 {
 	Object *object = m_function();
 	assert( object );
-	// This has been introduced for DynamicObject to let them know which 
+	// This has been introduced for DynamicObject to let them know which
 	// ClassInfo they should use.
 	object->setClassInfo( this );
 	// ^^^
@@ -250,7 +250,7 @@ Object* ClassInfo::create( const OidType& oid, Manager* manager, bool create ) c
 	if ( create ) {
 		Object *object = m_function();
 		assert( object );
-		// This has been introduced for DynamicObject to let them know which 
+		// This has been introduced for DynamicObject to let them know which
 		// ClassInfo they should use.
 		object->setClassInfo( this );
 		// ^^^
@@ -320,7 +320,12 @@ void ClassInfo::createProperties()
 	Object* obj = createInstance();
 	for ( int i = 0; i < obj->metaObject()->numProperties(); ++i ) {
 		const QMetaProperty *meta = obj->metaObject()->property( i );
-		PropertyInfo *p = new PropertyInfo( meta->name(),  QVariant::nameToType( meta->type() ), ! meta->writable() );
+		// TODO: Improve enums support.
+		PropertyInfo *p;
+		if ( meta->isEnumType() )
+			p = new PropertyInfo( meta->name(),  QVariant::ULongLong, ! meta->writable() );
+		else
+			p = new PropertyInfo( meta->name(),  QVariant::nameToType( meta->type() ), ! meta->writable() );
 		m_properties.insert( meta->name(), p );
 	}
 }
@@ -450,7 +455,7 @@ void ClassInfo::addMetaInfo( const QString& name, QObject *object )
 
 QObject* ClassInfo::metaInfo( const QString& name ) const
 {
-	if ( m_metaInfo.contains( name ) ) 
+	if ( m_metaInfo.contains( name ) )
 		return m_metaInfo[ name ];
 	else
 		return 0;
@@ -476,7 +481,7 @@ CreateRelationsFunction TmpClass::createRelations() const
 
 /* Classes */
 /*!
-Ends all the configuration required for browsing through class relations. 
+Ends all the configuration required for browsing through class relations.
 Should be used at the very begining of each application.
 */
 void Classes::setup()
@@ -512,7 +517,7 @@ void Classes::setupRelations()
 	// Browse all relations and collections.
 	// And add new non-browsable collections where needed.
 	QValueVector<QStringList> list;
-	
+
 	ClassInfoConstIterator it2( Classes::begin() );
 	ClassInfoConstIterator end2( Classes::end() );
 	ClassInfo *classInfo;
