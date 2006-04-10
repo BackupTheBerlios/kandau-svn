@@ -30,43 +30,51 @@
 PropertyWidget::PropertyWidget( QWidget *parent ) : QWidget( parent )
 {
 	m_widget = 0;
-	//m_layout = new QVBoxLayout( this );
-	//m_layout->setAutoAdd( true );
-	//setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
-	setPaletteBackgroundColor( "black" );
+	m_layout = new QVBoxLayout( this );
+	setBackgroundOrigin( ParentOrigin );
+	setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
 }
 
 PropertyWidget::PropertyWidget( const Property& property, QWidget *parent ) : QWidget( parent )
 {
 	m_widget = 0;
-	//m_layout = new QVBoxLayout( this );
-	//m_layout->setAutoAdd( true );
-	//setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
-	setProperty( property.value() );
-	setPaletteBackgroundColor( "black" );
+	m_layout = new QVBoxLayout( this );
+	setBackgroundOrigin( ParentOrigin );
+	setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
+	setProperty( property );
 }
 
-QVariant PropertyWidget::property() const
+/*QVariant PropertyWidget::property() const
 {
 //	Property p = m_property;
 //	p.setValue( value() );
 	return m_value;
 }
-
-void PropertyWidget::setProperty( const QVariant& property )
+*/
+void PropertyWidget::setProperty( const Property& property )
 {
 	if ( m_value.type() != property.type() ) {
 		delete m_widget;
 		m_widget = 0;
 	}
-	m_value = property;
+	m_value = property.value();
+	m_readOnly = property.readOnly();
 	if ( ! m_widget ) {
 		m_widget = createWidget();
 		m_widget->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
-		//m_layout->addWidget( m_widget );
-		//layout()->addWidget( m_widget );
+		m_layout->addWidget( m_widget );
 	} else
-		setValue( property );
+		setValue( property.value() );
+}
+
+void PropertyWidget::setReadOnly( bool readOnly )
+{
+	m_readOnly = readOnly;
+}
+
+bool PropertyWidget::readOnly() const
+{
+	return m_readOnly;
 }
 
 QWidget* PropertyWidget::createWidget()
@@ -77,7 +85,7 @@ QWidget* PropertyWidget::createWidget()
 			KLineEdit *line = new KLineEdit( this );
 			line->setText( m_value.toString() );
 			widget = line;
-			break;	
+			break;
 		}
 		case QVariant::LongLong:
 		case QVariant::ULongLong:
@@ -115,17 +123,18 @@ QWidget* PropertyWidget::createWidget()
 			break;
 		}
 	}
-	//widget->setEnabled( ! m_property.readOnly() );
+	widget->setEnabled( ! m_readOnly );
 	return widget;
 }
 
 void PropertyWidget::setValue( const QVariant& value )
 {
-	switch ( property().type() ) {
+	switch ( m_value.type() ) {
+		case QVariant::CString:
 		case QVariant::String: {
 			KLineEdit *line = static_cast<KLineEdit*>( m_widget );
 			line->setText( value.toString() );
-			break;	
+			break;
 		}
 		case QVariant::LongLong:
 		case QVariant::ULongLong:

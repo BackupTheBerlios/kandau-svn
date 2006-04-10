@@ -30,21 +30,29 @@
 class PropertyWidget : public QWidget
 {
 	Q_OBJECT
+
 public:
 	PropertyWidget( QWidget *parent = 0 );
 	PropertyWidget( const Property& property, QWidget *parent = 0 );
 
-	void setProperty( const QVariant& property );
-	QVariant property() const;
+//	void setProperty( const QVariant& property );
+//	QVariant property() const;
+
+	void setProperty( const Property& property );
+
+	void setReadOnly( bool readOnly );
+	bool readOnly() const;
+
+	virtual void setValue( const QVariant& value );
+	virtual QVariant value() const;
 
 protected:
 	virtual QWidget* createWidget();
-	virtual void setValue( const QVariant& value );
-	virtual QVariant value() const;
 	QWidget *widget() const;
 
 private:
 	QVariant m_value;
+	bool m_readOnly;
 	QWidget *m_widget;
 	QVBoxLayout *m_layout;
 };

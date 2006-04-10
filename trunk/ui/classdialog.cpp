@@ -250,7 +250,7 @@ void ClassDialog::slotOkClicked()
 	QMapConstIterator<QString,PropertyWidget*> end( m_mapProperties.constEnd() );
 	for ( ; it!=end; ++it ) {
 		if ( m_object->containsProperty( it.key() ) ) {
-			m_object->property( it.key() ).setValue( it.data()->property() );
+			m_object->property( it.key() ).setValue( it.data()->value() );
 		}
 	}
 }
