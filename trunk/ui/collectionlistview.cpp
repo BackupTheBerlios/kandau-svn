@@ -22,7 +22,7 @@
 
 #include "collectionlistview.h"
 
-CollectionListView::CollectionListView( const ClassInfo *classInfo, QWidget *parent ) : 
+CollectionListView::CollectionListView( const ClassInfo *classInfo, QWidget *parent ) :
 	KListView(parent),
 	m_classInfo(classInfo)
 {
@@ -33,6 +33,9 @@ CollectionListView::CollectionListView( const ClassInfo *classInfo, QWidget *par
 void CollectionListView::fill()
 {
 	clear();
+	while (  columns() > 0 )
+		removeColumn( 0 );
+
 	if ( ! m_classInfo )
 		return;
 	PropertiesInfoConstIterator it( m_classInfo->propertiesBegin() );
@@ -62,5 +65,5 @@ const ClassInfo* CollectionListView::classInfo() const
 {
 	return m_classInfo;
 }
-	
+
 #include "collectionlistview.moc"
