@@ -24,6 +24,9 @@
 #include <ktimewidget.h>
 #include <kdatewidget.h>
 #include <kdatetimewidget.h>
+#include <kurlrequester.h>
+#include <kio/netaccess.h>
+#include <ktempfile.h>
 
 #include "propertywidget.h"
 
@@ -81,6 +84,7 @@ QWidget* PropertyWidget::createWidget()
 {
 	QWidget *widget;
 	switch ( m_value.type() ) {
+		case QVariant::CString:
 		case QVariant::String: {
 			KLineEdit *line = new KLineEdit( this );
 			line->setText( m_value.toString() );
@@ -117,6 +121,16 @@ QWidget* PropertyWidget::createWidget()
 		case QVariant::Double: {
 			KDoubleNumInput *input = new KDoubleNumInput( this );
 			input->setValue( m_value.toDouble() );
+			widget = input;
+			break;
+		}
+		case QVariant::ByteArray: {
+			KURLRequester *input = new KURLRequester( this );
+			KTempFile tmpFile( "kandauui", "data" );
+			QFile *file = tmpFile.file();
+			file->writeBlock( m_value.toByteArray().data(), m_value.toByteArray().size() );
+			input->setURL( m_value.toString() );
+			widget = input;
 			break;
 		}
 		default: {
@@ -164,9 +178,13 @@ void PropertyWidget::setValue( const QVariant& value )
 			input->setValue( value.toDouble() );
 			break;
 		}
-		default: {
+		case QVariant::ByteArray: {
+			KURLRequester *input = static_cast<KURLRequester*>( m_widget );
+			input->setURL( value.toString() );
 			break;
 		}
+		default:
+			break;
 	}
 }
 
@@ -185,6 +203,26 @@ QVariant PropertyWidget::value() const
 		return ( static_cast<KDateWidget*>( m_widget ) )->date();
 	} else if ( className == "KDateTimeWidget" ) {
 		return ( static_cast<KDateTimeWidget*>( m_widget ) )->dateTime();
+	} else if ( className == "KURLRequester" ) {
+		KURL url = ( static_cast<KURLRequester*>( m_widget ) )->url();
+		QString fileName;
+		if ( url.isLocalFile() ) {
+			fileName = url.path();
+		} else {
+			QString tmpFile;
+			if ( ! KIO::NetAccess::download( url, tmpFile, 0 ) )
+				return QByteArray();
+			fileName = tmpFile;
+		}
+		QFile file( fileName );
+		file.open( IO_ReadOnly );
+		QByteArray data = file.readAll();
+		file.close();
+		if ( ! url.isLocalFile() ) {
+			KIO::NetAccess::removeTempFile( fileName );
+		}
+		return data;
+		//return ( static_cast<KURLRequester*>( m_widget ) )->url() );
 	} else {
 		return QVariant();
 	}
