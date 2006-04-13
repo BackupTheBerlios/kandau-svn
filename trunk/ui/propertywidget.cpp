@@ -125,11 +125,13 @@ QWidget* PropertyWidget::createWidget()
 			break;
 		}
 		case QVariant::ByteArray: {
+			kdDebug() << k_funcinfo << "ByteArray" << endl;
 			KURLRequester *input = new KURLRequester( this );
-			KTempFile tmpFile( "kandauui", "data" );
+			KTempFile tmpFile( "/tmp/kandauui", ".data" );
 			QFile *file = tmpFile.file();
 			file->writeBlock( m_value.toByteArray().data(), m_value.toByteArray().size() );
-			input->setURL( m_value.toString() );
+			//input->setURL( m_value.toString() );
+			input->setURL( tmpFile.name() );
 			widget = input;
 			break;
 		}
@@ -180,7 +182,13 @@ void PropertyWidget::setValue( const QVariant& value )
 		}
 		case QVariant::ByteArray: {
 			KURLRequester *input = static_cast<KURLRequester*>( m_widget );
-			input->setURL( value.toString() );
+
+			KTempFile tmpFile( "/tmp/kandauui", ".data" );
+			QFile *file = tmpFile.file();
+			file->writeBlock( m_value.toByteArray().data(), m_value.toByteArray().size() );
+			input->setURL( tmpFile.name() );
+
+			//input->setURL( value.toString() );
 			break;
 		}
 		default:
