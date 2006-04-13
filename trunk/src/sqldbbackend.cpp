@@ -860,7 +860,6 @@ bool SqlDbBackend::load( Collection* collection, const QString& query )
 		newQuery += tokenizer.tail();
 	}
 	kdDebug() << k_funcinfo << "FINAL QUERY: " << newQuery << endl;
-	collection->clear();
 	QSqlSelectCursor cursor( newQuery );
 	cursor.select();
 	while ( cursor.next() ) {
