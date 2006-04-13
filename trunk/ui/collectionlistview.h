@@ -22,6 +22,8 @@
 
 #include <klistview.h>
 
+#include <qmap.h>
+
 class ClassInfo;
 
 /**
@@ -30,14 +32,22 @@ class ClassInfo;
 class CollectionListView : public KListView
 {
 Q_OBJECT
+
 public:
 	CollectionListView( const ClassInfo *classInfo = 0, QWidget *parent = 0 );
 	void setClassInfo( const ClassInfo *classInfo );
 	const ClassInfo* classInfo() const;
 	void fill();
 
+	int column( const QString& property );
+	QString propertyName( int column );
+	QString propertyName( const QString& columnName );
+
 private:
 	const ClassInfo *m_classInfo;
+
+	 QMap<QString, QString> m_map;
+	 QMap<QString, QString> m_map2;
 };
 
 #endif

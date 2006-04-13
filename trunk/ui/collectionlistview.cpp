@@ -19,7 +19,7 @@
  ***************************************************************************/
 #include <classes.h>
 #include <collection.h>
-
+#include <labelsmetainfo.h>
 #include "collectionlistview.h"
 
 CollectionListView::CollectionListView( const ClassInfo *classInfo, QWidget *parent ) :
@@ -33,25 +33,37 @@ CollectionListView::CollectionListView( const ClassInfo *classInfo, QWidget *par
 void CollectionListView::fill()
 {
 	clear();
-	while (  columns() > 0 )
+
+	while ( columns() > 0 )
 		removeColumn( 0 );
 
 	if ( ! m_classInfo )
 		return;
+
 	PropertiesInfoConstIterator it( m_classInfo->propertiesBegin() );
 	PropertiesInfoConstIterator end( m_classInfo->propertiesEnd() );
+	
+	LabelsMetaInfo *labels = dynamic_cast<LabelsMetaInfo*>( m_classInfo->metaInfo( "labels" ) );
 	addColumn( "oid" );
+	QString name;
 	for ( ; it != end; ++it ) {
-		addColumn( it.data()->name() );
+		if ( labels )
+			name = labels->label( it.data()->name() );
+		else
+			name = it.data()->name();
+		addColumn( name );
+		m_map.insert( name, it.data()->name() );
+		m_map2.insert( it.data()->name(), name );
 	}
+
 	Collection col( m_classInfo->name() );
 	CollectionIterator it2( col.begin() );
 	CollectionIterator end2( col.end() );
-	for (; it2 != end2; ++it2 ) {
+	for ( ; it2 != end2; ++it2 ) {
 		QListViewItem *item = new QListViewItem( this );
 		item->setText( 0, oidToString( it2.data()->oid() ) );
-		for ( int i = 0; i < columns(); ++i ) {
-			item->setText( i + 1, it2.data()->property( columnText( i + 1 ) ).value().toString() );
+		for ( int i = 1; i < columns(); ++i ) {
+			item->setText( i, it2.data()->property( propertyName( i ) ).value().toString() );
 		}
 	}
 }
@@ -64,6 +76,31 @@ void CollectionListView::setClassInfo( const ClassInfo *classInfo )
 const ClassInfo* CollectionListView::classInfo() const
 {
 	return m_classInfo;
+}
+
+int CollectionListView::column( const QString& property )
+{
+	if ( m_map2.contains( property ) ) {
+		QString mapEntry = m_map2[ property ];
+		for ( int i = 0; i < columns(); i++ ) {
+			if ( mapEntry == columnText( i ) )
+				return i;
+		}
+	}
+	return -1;
+}
+
+QString CollectionListView::propertyName( int column )
+{
+	return propertyName( columnText( column ) );
+}
+
+QString CollectionListView::propertyName( const QString& columnName )
+{
+	if ( m_map.contains( columnName ) )
+		return m_map[ columnName ];
+	else
+		return QString::null;
 }
 
 #include "collectionlistview.moc"
