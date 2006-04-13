@@ -53,7 +53,7 @@ ClassDialog::ClassDialog( Object *object, QWidget *parent) :
 {
 	m_object = object;
 	setModal( false );
-	setCaption( object->classInfo()->name() + "(" + oidToString(object->oid()) + ")" );
+
 	showButtonOK( true );
 	showButtonCancel( true );
 	showButtonApply( false );
@@ -70,10 +70,17 @@ ClassDialog::ClassDialog( Object *object, QWidget *parent) :
 	label = new QLabel( widget );
 	label->setAlignment( Qt::AlignCenter );
 	if ( labels )
-		label->setText( labels->label( object->classInfo()->name() ) );
+		label->setText( "<b>"  + labels->label( object->classInfo()->name() ) + "</b>" );
 	else
-		label->setText( object->classInfo()->name() );
+		label->setText( "<b>" + object->classInfo()->name() + "</b>" );
+
+	if ( labels )
+		setCaption( labels->label( object->classInfo()->name() )  + " (" + oidToString(object->oid()) + ")" );
+	else
+		setCaption( object->classInfo()->name() + " (" + oidToString(object->oid()) + ")" );
+
 	layout->addWidget( label );
+	layout->addSpacing( 10 );
 
 	QGridLayout *gridLayout = new QGridLayout( layout, object->numProperties() + object->numObjects() + object->numCollections(), 2, 5 );
 
