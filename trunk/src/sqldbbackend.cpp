@@ -606,9 +606,9 @@ bool SqlDbBackend::createSchema()
 
 QString SqlDbBackend::sqlType( QVariant::Type type )
 {
-	// TODO: Repassar els tipus enters sense signe. El mapejat
-	// de tipus és incorrecte
+	// TODO: Take a look at the unsigned integer types. The mapping isn't correct.
 	switch ( type ) {
+		case QVariant::CString:
 		case QVariant::String:
 			return "VARCHAR";
 		case QVariant::UInt:
