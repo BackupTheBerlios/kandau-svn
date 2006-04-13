@@ -37,15 +37,16 @@ public:
 
 signals:
 	void objectSelected( Object* object );
+	void okClicked( Object* object );
+	void cancelClicked( Object* object );
 
 protected:
-//	static QWidget* createInput( QWidget* parent, const Property& property );
-//	static QVariant readInput( QWidget* widget );
 	static void updateObjectLabel( KURLLabel *objLabel, const Object *obj );
+	void slotOk();
+	void slotCancel();
 
 private slots:
 	void slotObjectSelected( const QString& oid );
-	void slotOkClicked();
 	void slotChangeClicked();
 	void slotObjectModified( const ClassInfo* classInfo, const OidType& object, const PropertyInfo *property, const QVariant& newValue );
 

@@ -60,7 +60,7 @@ ClassDialog::ClassDialog( Object *object, QWidget *parent) :
 
 	QWidget *widget = new QWidget( this );
 	setMainWidget( widget );
-	connect( this, SIGNAL(okClicked()), SLOT(slotOkClicked()) );
+	//connect( this, SIGNAL(okClicked()), SLOT(slotOkClicked()) );
 
 	QVBoxLayout *layout = new QVBoxLayout( widget );
 
@@ -138,58 +138,6 @@ Object* ClassDialog::object() const
 {
 	return m_object;
 }
-/*
-QWidget* ClassDialog::createInput( QWidget* parent, const Property& property )
-{
-	QWidget *widget;
-	switch ( property.type() ) {
-		case QVariant::CString:
-		case QVariant::String: {
-			KLineEdit *line = new KLineEdit( parent );
-			line->setText( property.value().toString() );
-			widget = line;
-			break;
-		}
-		case QVariant::LongLong:
-		case QVariant::ULongLong:
-		case QVariant::Int:
-		case QVariant::UInt: {
-			KIntNumInput *input = new KIntNumInput( parent );
-			input->setValue( property.value().toLongLong() );
-			widget = input;
-			break;
-		}
-		case QVariant::Date: {
-			KDateWidget *date = new KDateWidget( parent );
-			date->setDate( property.value().toDate() );
-			widget = date;
-			break;
-		}
-		case QVariant::Time: {
-			KTimeWidget *time = new KTimeWidget( parent );
-			time->setTime( property.value().toTime() );
-			widget = time;
-			break;
-		}
-		case QVariant::DateTime: {
-			KDateTimeWidget *dateTime = new KDateTimeWidget( parent );
-			dateTime->setDateTime( property.value().toDateTime() );
-			widget = dateTime;
-			break;
-		}
-		case QVariant::Double: {
-			KDoubleNumInput *input = new KDoubleNumInput( parent );
-			input->setValue( property.value().toDouble() );
-			break;
-		}
-		default: {
-			break;
-		}
-	}
-	widget->setEnabled( ! property.readOnly() );
-	return widget;
-}
-*/
 
 void ClassDialog::updateObjectLabel( KURLLabel *objLabel, const Object *obj )
 {
@@ -207,31 +155,6 @@ void ClassDialog::updateObjectLabel( KURLLabel *objLabel, const Object *obj )
 	}
 }
 
-/*
-QVariant ClassDialog::readInput( QWidget* widget )
-{
-	QString className = widget->className();
-	if ( className == "KLineEdit" ) {
-		return ( static_cast<KLineEdit*>( widget ) )->text();
-	} else if ( className == "KIntNumInput" ) {
-		return ( static_cast<KIntNumInput*>( widget ) )->value();
-	} else if ( className == "KTimeWidget" ) {
-		return ( static_cast<KTimeWidget*>( widget ) )->time();
-	} else if ( className == "KDoubleNumInput" ) {
-		return ( static_cast<KDoubleNumInput*>( widget ) )->value();
-	} else if ( className == "KDateWidget" ) {
-		return ( static_cast<KDateWidget*>( widget ) )->date();
-	} else if ( className == "KDateTimeWidget" ) {
-		return ( static_cast<KDateTimeWidget*>( widget ) )->dateTime();
-	} else if ( className == "" ) {
-		return QVariant();
-	} else if ( className == "" ) {
-		return QVariant();
-	} else {
-		return QVariant();
-	}
-}
-*/
 
 void ClassDialog::slotObjectSelected( const QString& oid )
 {
@@ -251,7 +174,7 @@ void ClassDialog::slotObjectSelected( const QString& oid )
 	kdDebug() << k_funcinfo << "Object " << oid << " not found" << endl;
 }
 
-void ClassDialog::slotOkClicked()
+void ClassDialog::slotOk()
 {
 	QMapConstIterator<QString,PropertyWidget*> it( m_mapProperties.constBegin() );
 	QMapConstIterator<QString,PropertyWidget*> end( m_mapProperties.constEnd() );
@@ -260,6 +183,14 @@ void ClassDialog::slotOkClicked()
 			m_object->property( it.key() ).setValue( it.data()->value() );
 		}
 	}
+	emit okClicked( m_object );
+	KDialogBase::slotOk();
+}
+
+void ClassDialog::slotCancel()
+{
+	emit cancelClicked( m_object );
+	KDialogBase::slotCancel();
 }
 
 void ClassDialog::slotChangeClicked()
@@ -279,7 +210,6 @@ void ClassDialog::slotChangeClicked()
 
 void ClassDialog::slotObjectModified( const ClassInfo* /*classInfo*/, const OidType& object, const PropertyInfo */*property*/, const QVariant& /*newValue*/ )
 {
-//	KMessageBox::information( this, "Class: " + classInfo->name() + ", Oid: " + oidToString( object ) + ", Property: " + property->name() + ", NewValue: " + newValue.toString(), "Object Modified" );
 	ObjectsIterator it( m_object->objectsBegin() );
 	ObjectsIterator end( m_object->objectsEnd() );
 	for ( ; it != end; ++it ) {
