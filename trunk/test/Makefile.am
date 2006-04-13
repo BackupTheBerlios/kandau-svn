@@ -14,9 +14,9 @@ kunittest_LDADD = $(top_builddir)/src/libkandau.la $(LIB_KDECORE)
 check: kunittest
 	@./kunittest 2>&1 | grep "tests:"
 noinst_HEADERS = article.h customer.h testbackendtest.h sqlbackendtest.h \
-		xmlbackendtest.h dcopiface.h objectaccess.h customerorder.h inmemorysqlbackendtest.h \
-		multiplebackendstest.h dynamicobjectstest.h metainfotest.h desktopconfigbackendtest.h \
-	notificationstest.h
+			xmlbackendtest.h dcopiface.h objectaccess.h customerorder.h inmemorysqlbackendtest.h \
+			multiplebackendstest.h dynamicobjectstest.h metainfotest.h desktopconfigbackendtest.h \
+		notificationstest.h document.h
 
 
 bin_PROGRAMS = dcoptester uitester
@@ -26,8 +26,9 @@ dcoptester_SOURCES = dcoptester.cpp objectaccess.cpp dcopiface.skel article.cpp 
 	customer.cpp customerorder.cpp
 uitester_LDFLAGS = $(all_libraries) $(KDE_RPATH)
 uitester_LDADD = $(top_builddir)/ui/libkandauui.la \
-	$(top_builddir)/src/libkandau.la $(LIB_KDECORE) $(LIB_KDEUI)
-uitester_SOURCES = article.cpp customer.cpp customerorder.cpp uitester.cpp
+	$(top_builddir)/src/libkandau.la $(LIB_KIO) $(LIB_KDECORE) $(LIB_KDEUI)
+uitester_SOURCES = article.cpp customer.cpp customerorder.cpp uitester.cpp \
+	document.cpp
 kunittest_DEPENDENCIES = ../src
 uitester_DEPENDENCIES = ../ui
 dcoptester_DEPENDENCIES = ../src
