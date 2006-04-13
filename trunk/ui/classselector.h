@@ -3,63 +3,47 @@
  *   albertca@hotpop.com                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Library General Public License as published by  *
+ *   it under the terms of the GNU General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
  *   (at your option) any later version.                                   *
  *                                                                         *
  *   This program is distributed in the hope that it will be useful,       *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
- *   GNU Library General Public License for more details.                          *
+ *   GNU General Public License for more details.                          *
  *                                                                         *
- *   You should have received a copy of the GNU Library General Public License     *
+ *   You should have received a copy of the GNU General Public License     *
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#ifndef CLASSMAINWINDOW_H
-#define CLASSMAINWINDOW_H
+#ifndef CLASSSELECTOR_H
+#define CLASSSELECTOR_H
 
-#include <kmainwindow.h>
+#include <qtoolbox.h>
+#include <qvaluevector.h>
 
-class ClassDialog;
-class ClassSelector;
-class CollectionListView;
-class KListViewSearchLine;
 class ClassInfo;
-class QListViewItem;
 
 /**
-	@author Albert Cervera Areny <albertca@hotpop.com>
+@author Àngel Àlvarez Serra
 */
-class ClassMainWindow : public KMainWindow
+class ClassSelector : public QToolBox
 {
 	Q_OBJECT
 public:
-	ClassMainWindow(QWidget *parent = 0, const char *name = 0);
+	ClassSelector( QWidget *parent );
 
-protected:
-	void initGUI();
-	void fillListView();
+	const ClassInfo* currentClass() const;
+
+signals:
+	void classSelected( const ClassInfo *classInfo );
 
 protected slots:
-	void slotObjectSelected( Object *object );
-	void slotDialogFinished();
-	void slotDoubleClicked ( QListViewItem *item, const QPoint &, int );
-	void slotCurrentClassChanged( const ClassInfo* );
-	void slotSave();
-
-private slots:
-	void slotSetup();
+	void slotCurrentChanged( int index );
 
 private:
-	QMap<OidType,ClassDialog*> m_mapDialogs;
-	QWidget *m_centralWidget;
-	ClassSelector *m_classSelector;
-	CollectionListView *m_listView;
-	KListViewSearchLine *m_listViewSearchLine;
-
-	ClassInfo *m_currentClass;
+	QValueVector<const ClassInfo*> m_classes;
 };
 
 #endif

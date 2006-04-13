@@ -42,7 +42,7 @@ void CollectionListView::fill()
 
 	PropertiesInfoConstIterator it( m_classInfo->propertiesBegin() );
 	PropertiesInfoConstIterator end( m_classInfo->propertiesEnd() );
-	
+
 	LabelsMetaInfo *labels = dynamic_cast<LabelsMetaInfo*>( m_classInfo->metaInfo( "labels" ) );
 	addColumn( "oid" );
 	QString name;
