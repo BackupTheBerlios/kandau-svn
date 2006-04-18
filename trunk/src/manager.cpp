@@ -48,7 +48,6 @@ ObjectHandler::ObjectHandler( Object* object )
 {
 	m_object = object;
 	m_valid = true;
-	m_removed = false;
 }
 
 void ObjectHandler::setValid( bool valid )
@@ -354,7 +353,7 @@ bool Manager::remove( Object* object )
 	assert( object );
 	assert( object->oid() );
 	assert( m_objects.count() > 0 );
-//	uint num = m_objects.count() - 1;
+	uint num = m_objects.count() - 1;
 	if ( ! m_objects.contains( object->oid() ) )
 		return false;
 	//Backend hook
@@ -365,7 +364,7 @@ bool Manager::remove( Object* object )
 	//m_objects[ object->oid() ].setObject( 0 );
 	delete object;
 	object = 0;
-//	assert( m_objects.count() == num );
+	assert( m_objects.count() == num );
 	checkObjects();
 	return true;
 }
@@ -381,6 +380,8 @@ bool Manager::load( Collection* collection, const QString& query )
 	// Add all the objects already loaded of className query to
 	// the collection
 	checkObjects();
+	bool ret;
+
 	ManagerObjectIterator it( m_objects.begin() );
 	ManagerObjectIterator end( m_objects.end() );
 	QString className = query.lower();
@@ -392,7 +393,15 @@ bool Manager::load( Collection* collection, const QString& query )
 			collection->simpleAdd( obj->oid() );
 		}
 	}
-	return m_dbBackend->load( collection, query );
+	ret = m_dbBackend->load( collection, query );
+
+	// Discard uncommited removes from the collection
+	QValueListConstIterator<OidType> it2( m_removedOids.constBegin() );
+	QValueListConstIterator<OidType> end2( m_removedOids.constEnd() );
+	for ( ; it2 != end2; ++it2 ) {
+		collection->simpleRemove( *it2 );
+	}
+	return ret;
 }
 
 /*!

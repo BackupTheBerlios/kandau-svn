@@ -118,7 +118,7 @@ private:
 	*/
 	QString m_name;
 
-	/*! 
+	/*!
 	Pointer to the parent ClassInfo
 	*/
 	const ClassInfo *m_parentClassInfo;
@@ -127,7 +127,7 @@ private:
 	Contains the cached ClassInfo of the related class
 	*/
 	const ClassInfo *m_childrenClassInfo;
-	
+
 	/*!
 	Contains whether the relation is N-1 or N-M.
 	*/
@@ -192,7 +192,7 @@ public:
 	@param function The pointer to the function that can create objects.
 	*/
 	void addObject( const QString& className, const QString& relationName, CreateObjectFunction function );
-	
+
 	/*!
 	Adds a relation to the class. Indicates that the class has a N-1 or N-N relation. Called only inside the COLLECTION and COLLECTIONN macros in object.h
 	@param className The name of the related class
@@ -209,7 +209,7 @@ public:
 	Used internally. This function fills in the classInfo properties structure from the QObject information. The function is called from Classes::setup() as if it is called from the ClassInfo::addClass() function and a property is of type QPixmap, Qt will abort because a QPaintDevice is created before a QApplication. That's why Classes::setup() sould be called after creating a QApplication object.
 	*/
 	void createProperties();
-	
+
 	/*!
 	Gets the name of the class.
 	@return The name of the class
@@ -259,13 +259,13 @@ public:
 	@return The number of 1-to-1 relations.
 	*/
 	int objectsCount() const;
-	
+
 	/*!
 	Gets the number of 1-to-1 relations
 	@return The number of 1-to-1 relations.
 	*/
 	int numObjects() const;
-	
+
 	/*!
 	Gets the beggining of the list of related collections. This is the const version.
 	@return An iterator pointing to the first position of the list of related collections.
@@ -276,13 +276,13 @@ public:
 	@return An iterator pointing to the first position of the list of related collections.
 	*/
 	CollectionInfosConstIterator collectionsEnd() const;
-	
+
 	/*!
 	Gets the beggining of the list of related collections.
 	@return An iterator pointing to the first position of the list of related collections.
 	*/
 	CollectionInfosIterator collectionsBegin();
-	
+
 	/*!
 	Gets the last entry of the list of related objects.
 	@return An iterator pointing to the first position of the list of related collections.
@@ -295,7 +295,7 @@ public:
 	@return true, if the class contains such a relation. false otherwise.
 	*/
 	bool containsCollection( const QString& name ) const;
-	
+
 	/*!
 	Returns the CollectionInfo for a given 1-to-1 relation.
 	@param name Name of the relation to look for.
@@ -308,7 +308,7 @@ public:
 	@return The number of N-to-1 or N-to-N relations.
 	*/
 	int collectionsCount() const;
-	
+
 	/*!
 	Gets the number of N-to-1 or N-to-N relations
 	@return The number of N-to-1 or N-to-N relations.
@@ -384,6 +384,16 @@ public:
 	static ClassInfoIterator end();
 
 	/*!
+	Returns a const iterator pointing to the first class
+	*/
+	static ClassInfoConstIterator constBegin();
+
+	/*!
+	Returns a const iterator pointing to the last class
+	*/
+	static ClassInfoConstIterator constEnd();
+
+	/*!
 	Checks if the given class exists.
 	@param name The name of the class to search for.
 	@return true if the class exists, false otherwise.
@@ -401,7 +411,7 @@ public:
 	Creates an instance of the given class, optionally specifing its oid.
 	@param name The name of the class type for the new object.
 	@param oid Optional. The oid for the newly created object.
-	@return The pointer to the newly created object. 0 if it could not be created.	
+	@return The pointer to the newly created object. 0 if it could not be created.
 	*/
 //	static Object* create( const QString& name, const OidType& oid = 0 );
 

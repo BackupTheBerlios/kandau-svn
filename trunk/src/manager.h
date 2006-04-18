@@ -49,13 +49,9 @@ public:
 	void setObject( Object* object );
 	Object* object() const;
 
-//	void setRemoved( bool removed );
-//	bool isRemoved() const;
-
 private:
 	bool m_valid;
 	Object* m_object;
-	bool m_removed;
 };
 
 class RelationHandler
@@ -89,10 +85,10 @@ class CollectionHandler
 public:
 	CollectionHandler();
 	CollectionHandler( Collection *collection );
-	
+
 	void setValid( bool valid );
 	bool isValid() const;
-	
+
 	void setCollection( Collection* collection );
 	Collection* collection() const;
 private:
@@ -106,16 +102,16 @@ public:
 	Reference();
 	Reference( const Reference& reference );
 	Reference( const OidType& oid, const QString& name );
-	
+
 	bool operator==( const Reference& reference ) const;
 	bool operator<( const Reference& reference ) const;
 
 	void setOid( const OidType& oid );
 	const OidType& oid() const;
-	
+
 	void setName( const QString& name );
 	const QString& name() const;
-	
+
 private:
 	OidType m_oid;
 	QString m_name;
@@ -151,6 +147,7 @@ public:
 	DbBackendIface *backend() const;
 	
 	static Manager* self();
+	DbBackendIface* backend() const;
 
 	void setCachePolicy( CachePolicy policy );
 	CachePolicy cachePolicy() const;
@@ -174,12 +171,12 @@ public:
 	ManagerObjectMap& objects();
 	ManagerRelationMap& relations();
 	ManagerCollectionMap& collections();
-	
+
 	/* Relation management functions */
 	void setRelation( const OidType& oid, const ClassInfo* classInfo, const QString& relation, const OidType& oidRelated, bool recursive = true );
 	void addRelation( const OidType& oid, const CollectionInfo* collection, const OidType& oidRelated, bool recursive = true );
 	void removeRelation( const OidType& oid, const CollectionInfo* collection, const OidType& oidRelated, bool recursive = true );
-	
+
 	OidType relation( const OidType& oid, const RelationInfo* related );
 	OidType relation( const Object* object, const QString& related );
 	Collection* collection( const OidType& oid, const CollectionInfo* related );
@@ -187,7 +184,7 @@ public:
 	bool notifyPropertyModified( const Object* object, const QString& function, const QVariant& value = QVariant() );
 	void setNotificationHandler( NotificationHandler* handler );
 	NotificationHandler* notificationHandler() const;
-	
+
 
 	bool commit();
 	bool rollback();
@@ -197,7 +194,7 @@ public:
 	void reset();
 
 	void copyTo( Manager* manager );
-	
+
 	static const Q_ULLONG Unlimited = ULONG_MAX;
 protected:
 	void ensureUnderMaxObjects();
@@ -225,7 +222,7 @@ private:
 	Mantains the relation between objects
 	*/
 	ManagerRelationMap m_relations;
-	
+
 	/*!
 	Mantains the collections of objects
 	*/
@@ -256,7 +253,7 @@ private:
 	The object that is called when an event occurrs
 	*/
 	NotificationHandler *m_notificationHandler;
-	
+
 	/*!
 	The current cache policy
 	*/

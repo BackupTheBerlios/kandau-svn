@@ -598,6 +598,22 @@ ClassInfoIterator Classes::end()
 	return m_classes->end();
 }
 
+ClassInfoConstIterator Classes::constBegin()
+{
+	 if ( ! m_classes )
+		m_classes = new ClassInfoMap();
+
+	return m_classes->constBegin();
+}
+
+ClassInfoConstIterator Classes::constEnd()
+{
+	 if ( ! m_classes )
+		m_classes = new ClassInfoMap();
+
+	return m_classes->constEnd();
+}
+
 bool Classes::contains( const QString& name )
 {
 	return m_classes->contains( name );
