@@ -145,9 +145,8 @@ public:
 	~Manager();
 
 	DbBackendIface *backend() const;
-	
+
 	static Manager* self();
-	DbBackendIface* backend() const;
 
 	void setCachePolicy( CachePolicy policy );
 	CachePolicy cachePolicy() const;

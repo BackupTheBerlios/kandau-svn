@@ -382,6 +382,7 @@ bool Manager::load( Collection* collection, const QString& query )
 	checkObjects();
 	bool ret;
 
+	// Add cached objects to the collection
 	ManagerObjectIterator it( m_objects.begin() );
 	ManagerObjectIterator end( m_objects.end() );
 	QString className = query.lower();
@@ -393,6 +394,8 @@ bool Manager::load( Collection* collection, const QString& query )
 			collection->simpleAdd( obj->oid() );
 		}
 	}
+
+	// Load objects from the backend
 	ret = m_dbBackend->load( collection, query );
 
 	// Discard uncommited removes from the collection
