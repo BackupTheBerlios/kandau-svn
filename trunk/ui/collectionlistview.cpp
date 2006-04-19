@@ -45,6 +45,8 @@ void CollectionListView::fill()
 
 	LabelsMetaInfo *labels = dynamic_cast<LabelsMetaInfo*>( m_classInfo->metaInfo( "labels" ) );
 	addColumn( "oid" );
+	m_map.insert( "oid", "oid" );
+	m_map2.insert( "oid", "oid" );
 	QString name;
 	for ( ; it != end; ++it ) {
 		if ( labels )
