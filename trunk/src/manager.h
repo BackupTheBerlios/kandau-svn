@@ -70,7 +70,7 @@ public:
 	bool isModified() const;
 
 	void setRelationInfo( const RelationInfo* relation );
-	const RelationInfo* relationInfo();
+	const RelationInfo* relationInfo() const;
 
 private:
 	OidType m_oid;
@@ -184,6 +184,7 @@ public:
 	void setNotificationHandler( NotificationHandler* handler );
 	NotificationHandler* notificationHandler() const;
 
+	bool modified();
 
 	bool commit();
 	bool rollback();

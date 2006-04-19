@@ -70,17 +70,6 @@ Object* ObjectHandler::object() const
 	return m_object;
 }
 
-/*
-void ObjectHandler::setRemoved( bool removed )
-{
-	m_removed = removed;
-}
-
-bool ObjectHandler::isRemoved() const
-{
-	return m_removed;
-}
-*/
 
 /* RelationHandler */
 
@@ -135,7 +124,7 @@ void RelationHandler::setRelationInfo( const RelationInfo* relation )
 	m_relationInfo = relation;
 }
 
-const RelationInfo* RelationHandler::relationInfo()
+const RelationInfo* RelationHandler::relationInfo() const
 {
 	return m_relationInfo;
 }
@@ -405,6 +394,32 @@ bool Manager::load( Collection* collection, const QString& query )
 		collection->simpleRemove( *it2 );
 	}
 	return ret;
+}
+
+bool Manager::modified()
+{
+	if ( m_removedOids.size() > 0 )
+		return true;
+
+	ManagerObjectConstIterator oit( m_objects.constBegin() );
+	ManagerObjectConstIterator oend( m_objects.constEnd() );
+	for ( ; oit != oend; ++oit )
+		if ( (*oit).object()->isModified() )
+			return true;
+
+	ManagerRelationConstIterator rit( m_relations.constBegin() );
+	ManagerRelationConstIterator rend( m_relations.constEnd() );
+	for ( ; rit != rend; ++rit )
+		if ( (*rit).isModified() )
+			return true;
+
+	ManagerCollectionConstIterator cit( m_collections.constBegin() );
+	ManagerCollectionConstIterator cend( m_collections.constEnd() );
+	for ( ; cit != cend; ++cit )
+		if ( (*cit).collection()->modified() )
+			return true;
+
+	return false;
 }
 
 /*!
