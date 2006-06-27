@@ -44,6 +44,7 @@
 #include "widgethandler.h"
 #include "tablehandler.h"
 #include "defaultpropertymetainfo.h"
+#include "comboboxhandler.h"
 
 
 QMap<QString,QString> UiForm::m_properties;
@@ -75,6 +76,7 @@ UiForm::UiForm(QWidget *parent, const char *name)
 		m_properties[ "KDateWidget" ] = "date";
 	}
 	if ( m_relationHandlerFactories.isEmpty() ) {
+		m_relationHandlerFactories[ "QComboBox" ] = new ComboBoxHandlerFactory();
 	}
 	if ( m_collectionHandlerFactories.isEmpty() ) {
 		m_collectionHandlerFactories[ "QTable" ] = new TableHandlerFactory();
@@ -152,30 +154,21 @@ void UiForm::fillForm( )
 				kdDebug() << k_funcinfo << "Widget type: '" << QString( m->className() ) << "', inherits '" << QString( m->superClassName() ) << "'" << endl;
 			}
 		} else if ( existsRelation( QWhatsThis::textFor( w ) ) ) {
-			if ( m->inherits( "QComboBox" ) ) {
-				Object *rel = relation( QWhatsThis::textFor( w ) );
-				QComboBox *e = static_cast<QComboBox*>( w );
-				e->clear();
-				if ( rel ) {
-					DefaultPropertyMetaInfo *defaultProperty = dynamic_cast<DefaultPropertyMetaInfo*>( rel->classInfo()->metaInfo( "defaultProperty" ) );
-
-					Collection col( rel->classInfo()->name() );
-					CollectionIterator it( col.begin() );
-					CollectionIterator end( col.end() );
-					Object *obj;
-					int item;
-					for ( ; it != end; ++it ) {
-						obj = *it;
-						if ( defaultProperty )
-							e->insertItem( defaultProperty->defaultPropertyValue( obj ) );
-						else
-							e->insertItem( oidToString( obj->oid() ) );
-
-						if ( obj->oid() == rel->oid() )
-							item = e->count() - 1;
-					}
-					e->setCurrentItem( item );
+			QMapConstIterator<QString,WidgetHandlerFactory*> it( m_relationHandlerFactories.constBegin() );
+			QMapConstIterator<QString,WidgetHandlerFactory*> end( m_relationHandlerFactories.constEnd() );
+			for ( ; it != end; ++it ) {
+				if ( m->inherits( it.key() ) ) {
+					WidgetHandler* handler = it.data()->create( w );
+					m_relationHandlers[ w ] = handler;
+					handler->setWidget( w );
+					handler->setObject( m_object );
+					handler->load();
+					connect( handler, SIGNAL(destroyed(QObject*)), SLOT(handlerDestroyed(QObject*)) );
+					break;
 				}
+			}
+			if ( it == end ) {
+				kdDebug() << k_funcinfo << "Widget type: '" << QString( m->className() ) << "', inherits '" << QString( m->superClassName() ) << "'" << endl;
 			}
 		} else if ( existsCollection( QWhatsThis::textFor( w ) ) ) {
 			QMapConstIterator<QString,WidgetHandlerFactory*> it( m_collectionHandlerFactories.constBegin() );
@@ -229,30 +222,11 @@ void UiForm::save( )
 				kdDebug() << k_funcinfo << "Widget type: '" << QString( m->className() ) << "', inherits '" << QString( m->superClassName() ) << "'" << endl;
 			}
 		} else if ( existsRelation( QWhatsThis::textFor( w ) ) ) {
-			if ( m->inherits( "QComboBox" ) ) {
-				Object *rel = relation( QWhatsThis::textFor( w ) );
-				QComboBox *e = static_cast<QComboBox*>( w );
-				e->clear();
-				if ( rel ) {
-					DefaultPropertyMetaInfo *defaultProperty = dynamic_cast<DefaultPropertyMetaInfo*>( rel->classInfo()->metaInfo( "defaultProperty" ) );
-
-					Collection col( rel->classInfo()->name() );
-					CollectionIterator it( col.begin() );
-					CollectionIterator end( col.end() );
-					Object *obj;
-					int item;
-					for ( ; it != end; ++it ) {
-						obj = *it;
-						if ( defaultProperty )
-							e->insertItem( defaultProperty->defaultPropertyValue( obj ) );
-						else
-							e->insertItem( oidToString( obj->oid() ) );
-
-						if ( obj->oid() == rel->oid() )
-							item = e->count() - 1;
-					}
-					e->setCurrentItem( item );
-				}
+			if ( m_relationHandlers.contains( w ) ) {
+				WidgetHandler *handler = m_relationHandlers[ w ];
+				handler->save();
+			} else {
+				kdDebug() << k_funcinfo << "Widget type: '" << QString( m->className() ) << "', inherits '" << QString( m->superClassName() ) << "'" << endl;
 			}
 		} else if ( existsCollection( QWhatsThis::textFor( w ) ) ) {
 			if ( m_collectionHandlers.contains( w ) ) {
