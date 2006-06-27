@@ -279,7 +279,7 @@ void Collection::setQuery( const QString& query, Manager* manager )
 Collection& Collection::operator=( const Collection& col )
 {
 	m_objectsClassName = col.m_objectsClassName;
-	m_collection = col.m_collection;	
+	m_collection = col.m_collection;
 	m_collectionInfo = col.m_collectionInfo;
 	m_parent = col.m_parent;
 	m_nToOneSet = col.m_nToOneSet;
@@ -354,7 +354,7 @@ bool Collection::contains( const OidType& oid )
 }
 
 /*!
-Returns a pointer to the first object in the collection whose property "property" 
+Returns a pointer to the first object in the collection whose property "property"
 equals "value".
 */
 Object* Collection::find( const QString& property, const QVariant& value )
@@ -473,14 +473,26 @@ int Collection::numObjects()
 }
 
 /*!
-Removes all items from the collection. Right now only removes the items from the
-map, doesn't call the remove function to remove the objects from the database.
-TODO: I should think about that...
+Removes all items from the collection.
 */
 void Collection::clear()
 {
+	QMapConstIterator<OidType,bool> it( m_collection.constBegin() );
+	QMapConstIterator<OidType,bool> end( m_collection.constEnd() );
+	for ( ; it != end; ++it ) {
+		remove( it.key() );
+	}
 	m_collection.clear();
 }
+
+/*!
+Removes all items from the collection.
+*/
+void Collection::simpleClear()
+{
+	m_collection.clear();
+}
+
 
 /*!
 Returns a pointer to the object the collection is in.

@@ -31,35 +31,47 @@ class ClassInfo;
 class Manager;
 class Classes;
 
-//typedef QMap<QString, Object *(*)(void)> ClassMap;
-//typedef QMapIterator<QString, Object *(*)(void)> ClassIterator;
-//typedef QMapConstIterator<QString, Object *(*)(void)> ClassConstIterator;
 
 /**
 @author Albert Cervera Areny
 */
 
+/*!
+\brief This class contains information about a class' property.
+
+The most obvious meta-information about a class' property are name and type. But it
+also contains wheather it's read-only or read-write, and inherited or not.
+
+\see ClassInfo
+*/
 class PropertyInfo
 {
 public:
 	PropertyInfo() {}
-	PropertyInfo( const QString& name, QVariant::Type type, bool readOnly );
+	PropertyInfo( const QString& name, QVariant::Type type, bool readOnly, bool inherited );
 	QVariant::Type type() const;
 	const QString& name() const;
 	bool readOnly() const;
+	bool inherited() const;
 
 private:
 	QString m_name;
 	QVariant::Type m_type;
 	bool m_readOnly;
+	bool m_inherited;
 };
 
 
 /*!
-Stores the information of a relation to an object. Mainly stores the name of the relation and a pointer to a function that allows the creation of an object of the related class type.
+\brief This class contains information about a class' relation.
 
+Stores the information of a relation to a class. Mainly stores the name 
+of the relation and a pointer to a function that allows the creation of 
+an object of the related class type.
 
 The constructor is only called from the addObject function in ClassInfo which is called in the OBJECT macro in object.h
+
+\see ClassInfo
 */
 class RelationInfo
 {
@@ -70,6 +82,7 @@ public:
 	const ClassInfo* relatedClassInfo() const;
 	const ClassInfo* parentClassInfo() const;
 	bool browsable() const;
+	bool inherited() const;
 
 private:
 	// This allows Classes to call setBrowsable & setOneToOne
@@ -77,10 +90,12 @@ private:
 
 	void setOneToOne( bool oneToOne );
 	void setBrowsable( bool browsable );
+	void setInherited( bool inherited );
 
 	QString m_name;
 	bool m_oneToOne;
 	bool m_browsable;
+	bool m_inherited;
 
 	// Pointer to the parent ClassInfo
 	const ClassInfo *m_parentClassInfo;
@@ -92,9 +107,15 @@ private:
 
 
 /*!
-Stores the information of a relation to collection of objects. Mainly stores the name of the relation and a pointer to a function that allows the creation of an object of the related class type.
+\brief This class contains information about a class' collection.
+
+Stores the information of a relation to collection of objects. Mainly stores the 
+name of the relation and a pointer to a function that allows the creation of 
+an object of the related class type.
 
 The constructor is only called from the addCollection function in ClassInfo which is called by COLLECTION and COLLECTIONN macros in object.h
+
+\see ClassInfo
 */
 class CollectionInfo
 {
@@ -105,6 +126,7 @@ public:
 	const ClassInfo* childrenClassInfo() const;
 	const ClassInfo* parentClassInfo() const;
 	bool browsable() const;
+	bool inherited() const;
 
 private:
 	// This allows Classes to call setBrowsable & setNToOne
@@ -112,6 +134,7 @@ private:
 
 	void setNToOne( bool nToOne );
 	void setBrowsable( bool browsable );
+	void setInherited( bool inherited );
 
 	/*!
 	Name of the relation
@@ -136,11 +159,12 @@ private:
 	Contains whether the collection is browsable or not
 	*/
 	bool m_browsable;
+	bool m_inherited;
 };
 
 
 typedef QMap<QString,PropertyInfo*> PropertiesInfo;
-//typedef QMapIterator<QString,PropertyInfo*> PropertiesInfoIterator;
+typedef QMapIterator<QString,PropertyInfo*> PropertiesInfoIterator;
 typedef QMapConstIterator<QString,PropertyInfo*> PropertiesInfoConstIterator;
 
 typedef QMap<QString,RelationInfo*> RelationInfos;
@@ -151,169 +175,100 @@ typedef QMap<QString,CollectionInfo*> CollectionInfos;
 typedef QMapIterator<QString,CollectionInfo*> CollectionInfosIterator;
 typedef QMapConstIterator<QString,CollectionInfo*> CollectionInfosConstIterator;
 
+typedef QValueList<const ClassInfo*> ChildrenInfo;
+typedef QValueListConstIterator<const ClassInfo*> ChildrenInfoConstIterator;
+
 
 /*!
-Contains information regarding the structure of a class that subclasses Object.
+\brief This class contains information regarding the structure of a class, its properties and relations.
+
+ClassInfo provides functions to iterate through a class' properties and relations
+without a need to instantiate an object of the desired type.
+
+To create an instance of a class you may choose between let the Manager held the 
+the reference, and thus be managed by the persistency system, or manage the reference
+yourself.
+
+To create a persistent object you could: 
+
+\code
+ClassInfo *info = Classes::classInfo( "MyObject" );
+if ( info ) {
+	ObjectRef<Object> obj = info->create();
+	...
+	Manager::self()->commit();
+}
+\endcode
+
+If you want a non-persistent object, you'll have to manage the pointer yourself:
+\code
+ClassInfo *info = Classes::classInfo( "MyObject" );
+if ( info ) {
+	Object* obj = info->createInstance();
+	...
+	delete obj;
+}
+\endcode
+
+If you wish to create new classes dynamically without a need for a physical C++ 
+object, refer to DynamicObject class documentation or the Kandau manual.
+
+\see Classes
 */
 class ClassInfo
 {
 public:
-	/*!
-	@param name Name of the class
-	@param function Pointer to the function that can create an instance of an object of "class" type
-	*/
 	ClassInfo( const QString& name, CreateObjectFunction function );
 
 	Object* create( Manager* manager = 0 ) const;
-	/*!
-	Creates an instance of the class type given by name().
-	@param oid Oid for the newly created/loaded object
-	@param manager Optional manager that will hold the object (Manager::self() will be used if not specified)
-	@param create Optional create the object instead of try to load it.
-	@return The pointer to the newly created object
-	*/
 	Object* create( const OidType& oid, Manager* manager = 0, bool create = false ) const;
 
-	/*!
-	Creates an instance of the class type given by name() without assigning an oid nor adding the object to the manager. Equivalent to 'createObjectFunction()()'
-	@return The pointer to the newly created object
-	*/
 	Object* createInstance() const;
 
-	/*!
-	Returns a pointer to the function that can create new objects of this type.
-	*/
 	CreateObjectFunction createObjectFunction() const;
 
-	/*!
-	Adds a relation to the class. Indicates that the class has a 1-1 relation. Called only inside the OBJECT macro in object.h
-	@param className The name of the related class
-	@param relationName The name of the relation. If QString::null, the name will be calculated by concatenating both class names in alphabetical order.
-	@param function The pointer to the function that can create objects.
-	*/
 	void addObject( const QString& className, const QString& relationName, CreateObjectFunction function );
 
-	/*!
-	Adds a relation to the class. Indicates that the class has a N-1 or N-N relation. Called only inside the COLLECTION and COLLECTIONN macros in object.h
-	@param className The name of the related class
-	@param relationName The name of the relation. If QString::null, the name will be calculated by concatenating both class names in alphabetical order.
-	@param function The pointer to the function that can create objects.
-	@param nToOne Specifies if the relation is N to One, or N to N. This is a hint only and only needed if in the related class there is no declaration.
-	@param definitiveName true if the name of the relation shouldn't be calculated by the function. If false, the function will, create a relation name using the name of both classes (concatenated in alphabetical order).
-	*/
 	void addCollection( const QString& className, const QString& relationName, bool nToOne = true);
+	void addProperty( const QString& name, QVariant::Type type, bool readOnly = false, bool inherited = false );
 
-	void addProperty( const QString& name, QVariant::Type type, bool readOnly = false );
-
-	/*!
-	Used internally. This function fills in the classInfo properties structure from the QObject information. The function is called from Classes::setup() as if it is called from the ClassInfo::addClass() function and a property is of type QPixmap, Qt will abort because a QPaintDevice is created before a QApplication. That's why Classes::setup() sould be called after creating a QApplication object.
-	*/
 	void createProperties();
 
-	/*!
-	Gets the name of the class.
-	@return The name of the class
-	*/
 	const QString& name() const;
 
-	/*!
-	Gets the beggining of the list of related objects. This is the const version.
-	@return An iterator pointing to the first position of the list of related objects.
-	*/
 	RelationInfosConstIterator relationsBegin() const;
-
-	/*!
-	Gets the last item of the list of related objects. This is the const version.
-	@return An iterator pointing to the last position of the list of related objects.
-	*/
 	RelationInfosConstIterator relationsEnd() const;
-
-	/*!
-	Gets the beggining of the list of related objects.
-	@return An iterator pointing to the first position of the list of related objects.
-	*/
 	RelationInfosIterator relationsBegin();
-
-	/*!
-	Gets the beggining of the list of related objects.
-	@return An iterator pointing to the first position of the list of related objects.
-	*/
 	RelationInfosIterator relationsEnd();
 
-	/*!
-	Searches if the object contains a 1-to-1 relation with the given name.
-	@param name Name of the relation to look for.
-	@return true, if the class contains such a relation. false otherwise.
-	*/
 	bool containsObject( const QString& name ) const;
-
-	/*!
-	Returns the RelationInfo for a given 1-to-1 relation.
-	@param name Name of the relation to look for.
-	@return The RelationInfo.
-	*/
 	RelationInfo* object( const QString& name ) const;
 
-	/*!
-	Gets the number of 1-to-1 relations
-	@return The number of 1-to-1 relations.
-	*/
 	int objectsCount() const;
 
-	/*!
-	Gets the number of 1-to-1 relations
-	@return The number of 1-to-1 relations.
-	*/
 	int numObjects() const;
 
-	/*!
-	Gets the beggining of the list of related collections. This is the const version.
-	@return An iterator pointing to the first position of the list of related collections.
-	*/
 	CollectionInfosConstIterator collectionsBegin() const;
-	/*!
-	Gets the last entry of the list of related objects. This is the const version.
-	@return An iterator pointing to the first position of the list of related collections.
-	*/
 	CollectionInfosConstIterator collectionsEnd() const;
 
-	/*!
-	Gets the beggining of the list of related collections.
-	@return An iterator pointing to the first position of the list of related collections.
-	*/
 	CollectionInfosIterator collectionsBegin();
-
-	/*!
-	Gets the last entry of the list of related objects.
-	@return An iterator pointing to the first position of the list of related collections.
-	*/
 	CollectionInfosIterator collectionsEnd();
 
-	/*!
-	Searches if the class contains a N-to-1 or N-to-N relation with the given name.
-	@param name Name of the relation to look for.
-	@return true, if the class contains such a relation. false otherwise.
-	*/
 	bool containsCollection( const QString& name ) const;
 
-	/*!
-	Returns the CollectionInfo for a given 1-to-1 relation.
-	@param name Name of the relation to look for.
-	@return The CollectionInfo.
-	*/
 	CollectionInfo* collection( const QString& name ) const;
 
-	/*!
-	Gets the number of N-to-1 or N-to-N relations
-	@return The number of N-to-1 or N-to-N relations.
-	*/
 	int collectionsCount() const;
 
-	/*!
-	Gets the number of N-to-1 or N-to-N relations
-	@return The number of N-to-1 or N-to-N relations.
-	*/
 	int numCollections() const;
+
+	const ClassInfo* parent() const;
+	void setParent( const ClassInfo* parent );
+	const ChildrenInfo& children() const;
+	void addChild( const ClassInfo* child );
+	bool inherits( const QString& className ) const;
+	bool inherits( const ClassInfo* classInfo ) const;
+	QStringList ancestors() const;
 
 	static QString relationName( const QString& relation, const QString& className );
 
@@ -327,6 +282,8 @@ public:
 	QObject* metaInfo( const QString& name ) const;
 
 private:
+	const ClassInfo *m_parent;
+	ChildrenInfo m_children;
 	QString m_name;
 	CreateObjectFunction m_function;
 
@@ -358,67 +315,43 @@ typedef QMapIterator<QString, TmpClass*> TmpClassIterator;
 typedef QMapConstIterator<QString, TmpClass*> TmpClassConstIterator;
 
 
+/*!
+@brief This class provides the starting point for class introspection within Kandau.
+
+Kandau introspection mechanism allows the programmer to access properties and 
+relations associated to a class. The class has to have been properly defined by
+inheriting Object, and needs to have the DCLASS( ClassName ) and ICLASS( ClassName )
+declarations.
+
+Before starting to use the introspection facilities, Classes::setup() has to be called,
+and thus should be one of the first function calls in an application.
+
+After that, one can iterate through the list of classes or check their availability.
+
+\see ClassInfo
+*/
 class Classes
 {
 public:
 
 	static void setup();
 	static void setupRelations();
+	static void setupHierarchy();
+	static void setupRelationsHierarchy();
+	static QStringList parentsFirst();
 
-	/*!
-	Registers a new class to the list of known classes. This function is used by DeclareClass.
-	@param name The name of the class.
-	@param createInstance The pointer to the function that allows the creation of objects of the type class given by name.
-	@param createRelations The pointer to the function that creates the relations of the class.
-	*/
 	static void addClass( const QString& name, CreateObjectFunction createInstance, CreateRelationsFunction createRelations );
 
-	/*!
-	Returns an iterator pointing to the first class
-	*/
 	static ClassInfoIterator begin();
-
-	/*!
-	Returns an iterator pointing to the last class
-	*/
 	static ClassInfoIterator end();
 
-	/*!
-	Returns a const iterator pointing to the first class
-	*/
 	static ClassInfoConstIterator constBegin();
-
-	/*!
-	Returns a const iterator pointing to the last class
-	*/
 	static ClassInfoConstIterator constEnd();
 
-	/*!
-	Checks if the given class exists.
-	@param name The name of the class to search for.
-	@return true if the class exists, false otherwise.
-	*/
 	static bool contains( const QString& name );
 
-	/*!
-	Gets the information of a given class.
-	@param name The name of the class to search for.
-	@return A pointer to the ClassInfo structure of the given class.
-	*/
 	static ClassInfo* classInfo( const QString& name );
 
-	/*!
-	Creates an instance of the given class, optionally specifing its oid.
-	@param name The name of the class type for the new object.
-	@param oid Optional. The oid for the newly created object.
-	@return The pointer to the newly created object. 0 if it could not be created.
-	*/
-//	static Object* create( const QString& name, const OidType& oid = 0 );
-
-	/*!
-	Gets the current class which is being created. This is a convenience class used by the OBJECT, COLLECTION and COLLECTIONN macros.
-	@return The pointer to the class which is being created.
-	*/
 	static ClassInfo* currentClass();
 
 private:

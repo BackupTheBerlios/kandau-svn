@@ -199,7 +199,8 @@ void TestBackendTest::setObjectObjects()
 
 void TestBackendTest::modified()
 {
-//	kdDebug() << "TestBackendTest::modified" << endl;
+	kdDebug() << k_funcinfo << endl;
+
 	QVariant value;
 
 	ClassInfoIterator cit( Classes::begin() );
@@ -218,6 +219,7 @@ void TestBackendTest::modified()
 		for ( ; pit != pend; ++pit ) {
 			if ( (*pit).readOnly() )
 				continue;
+			value = (*pit).value();
 			(*pit).setValue( value );
 			if ( ! object->isModified() )
 				kdDebug() << "Class: '" << cit.key() << "', Property: '" << (*pit).name() << "' misses the MODIFIED macro." << endl;
@@ -324,7 +326,13 @@ void TestBackendTest::references()
 	CHECK( o2->order(), (CustomerOrder*)0 );
 	CHECK( o1->order(), (CustomerOrder*)0 );
 
+	o2->setOrder( o1 );
+	CHECK( o1->order()->oid(), 2 );
+	CHECK( o2->order()->oid(), 1 );
+
 	Manager::self()->remove( o1 );
+	CHECK( o2->order(), (CustomerOrder*)0 );
+	CHECK( Manager::self()->objects().count(), 1 );
 	Manager::self()->remove( o2 );
 	CHECK( Manager::self()->objects().count(), 0 );
 }

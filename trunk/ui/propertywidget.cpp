@@ -130,12 +130,13 @@ QWidget* PropertyWidget::createWidget()
 			KTempFile tmpFile( "/tmp/kandauui", ".data" );
 			QFile *file = tmpFile.file();
 			file->writeBlock( m_value.toByteArray().data(), m_value.toByteArray().size() );
-			//input->setURL( m_value.toString() );
 			input->setURL( tmpFile.name() );
 			widget = input;
 			break;
 		}
 		default: {
+			kdDebug() << k_funcinfo << " Can't handle QVariant type: " << m_value.typeName() << endl;
+			assert( false );
 			break;
 		}
 	}
@@ -187,8 +188,8 @@ void PropertyWidget::setValue( const QVariant& value )
 			QFile *file = tmpFile.file();
 			file->writeBlock( m_value.toByteArray().data(), m_value.toByteArray().size() );
 			input->setURL( tmpFile.name() );
-
-			//input->setURL( value.toString() );
+		}
+		default: {
 			break;
 		}
 		default:
@@ -211,7 +212,7 @@ QVariant PropertyWidget::value() const
 		return ( static_cast<KDateWidget*>( m_widget ) )->date();
 	} else if ( className == "KDateTimeWidget" ) {
 		return ( static_cast<KDateTimeWidget*>( m_widget ) )->dateTime();
-	} else if ( className == "KURLRequester" ) {
+       } else if ( className == "KURLRequester" ) {
 		KURL url = ( static_cast<KURLRequester*>( m_widget ) )->url();
 		QString fileName;
 		if ( url.isLocalFile() ) {
@@ -230,7 +231,6 @@ QVariant PropertyWidget::value() const
 			KIO::NetAccess::removeTempFile( fileName );
 		}
 		return data;
-		//return ( static_cast<KURLRequester*>( m_widget ) )->url() );
 	} else {
 		return QVariant();
 	}

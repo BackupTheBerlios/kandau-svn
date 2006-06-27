@@ -17,33 +17,25 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#ifndef CLASSSELECTOR_H
-#define CLASSSELECTOR_H
+#include "classaa.h"
 
-#include <qtoolbox.h>
-#include <qvaluevector.h>
+#include "classab.h"
 
-class ClassInfo;
+ICLASS( ClassAA );
 
-/**
-@author Àngel Àlvarez Serra
-*/
-class ClassSelector : public QToolBox
+void ClassAA::createRelations()
 {
-	Q_OBJECT
-public:
-	ClassSelector( QWidget *parent );
+	OBJECT( ClassAB );
+}
 
-	const ClassInfo* currentClass() const;
+const QString& ClassAA::stringAA() const
+{
+	return m_stringAA;
+}
 
-signals:
-	void classSelected( const ClassInfo *classInfo );
+void ClassAA::setStringAA( const QString& string )
+{
+	m_stringAA = string;
+}
 
-protected slots:
-	void slotCurrentChanged( int index );
-
-private:
-	QValueVector<const ClassInfo*> m_classes;
-};
-
-#endif
+#include "classaa.moc"

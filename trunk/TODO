@@ -95,7 +95,17 @@ There are lots of things to think about. Here are some of them:
 	
 (DONE)	- With SqlDbBackend save 1-1 relations to only one of the tables. This means modifying the createSchema() and load() functions. (load() of relations, of course)
 
-	- Improve enums support. Provide the list of options and whether it's a set or not. Improve enums support for ui too, creating a ComboBox when it's not a set, and a list with multiple selection when it is.
-
+	- Improve transaction support mainly with SQL backend, allowing queries to see the modifications made until the moment.
+	
+	- Declare Object relations in a UML style using: 
 	- Define with UML naming and add the missing types of relations. e.g. aggregate, composite, etc.
+	
+	- Provide inheritance information in ClassInfo.
+	
+	- Test subclassing and resolve the problem of loading an object or a subclass manually (without the help of PostgreSQL).
+	
+	- Use inheritance information in ClassInfo to create inherited tables.
+	
+	- Allow DynamicObjects inherit from existing (dynamic or not) classes.
 
+	- Improve enums support. Provide the list of options and whether it's a set or not. Improve enums support for ui too, creating a ComboBox when it's not a set, and a list with multiple selection when it is.

@@ -28,11 +28,12 @@ TmpClassMap* Classes::m_tmpClasses = 0;
 
 /* PropertyInfo */
 
-PropertyInfo::PropertyInfo( const QString& name, QVariant::Type type, bool readOnly )
+PropertyInfo::PropertyInfo( const QString& name, QVariant::Type type, bool readOnly, bool inherited )
 {
 	m_name = name;
 	m_type = type;
 	m_readOnly = readOnly;
+	m_inherited = inherited;
 }
 
 QVariant::Type PropertyInfo::type() const
@@ -48,6 +49,11 @@ const QString& PropertyInfo::name() const
 bool PropertyInfo::readOnly() const
 {
 	return m_readOnly;
+}
+
+bool PropertyInfo::inherited() const
+{
+	return m_inherited;
 }
 
 /* RelationInfo */
@@ -143,6 +149,24 @@ void RelationInfo::setBrowsable( bool browsable )
 	m_browsable = browsable;
 }
 
+/*!
+Obtains whether the relation has been inherited or not.
+@return True if the relation has been inherited, false otherwise.
+*/
+bool RelationInfo::inherited() const
+{
+	return m_inherited;
+}
+
+/*!
+Establishes whether the relation has been inherited or not.
+@param inherited True if the relation has been inherited, false otherwise.
+*/
+void RelationInfo::setInherited( bool inherited )
+{
+	m_inherited = inherited;
+}
+
 /* CollectionInfo */
 
 /*!
@@ -223,12 +247,36 @@ void CollectionInfo::setBrowsable( bool browsable )
 	m_browsable = browsable;
 }
 
+/*!
+Obtains whether the relation has been inherited or not.
+@return True if the relation has been inherited, false otherwise.
+*/
+bool CollectionInfo::inherited() const
+{
+	return m_inherited;
+}
+
+/*!
+Establishes whether the relation has been inherited or not.
+@param inherited True if the relation has been inherited, false otherwise.
+*/
+void CollectionInfo::setInherited( bool inherited )
+{
+	m_inherited = inherited;
+}
+
+
 /* ClassInfo */
 
+/*!
+@param name Name of the class
+@param function Pointer to the function that can create an instance of an object of "class" type
+*/
 ClassInfo::ClassInfo( const QString& name, CreateObjectFunction function )
 {
 	m_name = name;
 	m_function = function;
+	m_parent = 0;
 }
 
 Object* ClassInfo::create( Manager* manager ) const
@@ -245,6 +293,13 @@ Object* ClassInfo::create( Manager* manager ) const
 	return object;
 }
 
+/*!
+Creates an instance of the class type given by name().
+@param oid Oid for the newly created/loaded object
+@param manager Optional manager that will hold the object (Manager::self() will be used if not specified)
+@param create Optional create the object instead of try to load it.
+@return The pointer to the newly created object
+*/
 Object* ClassInfo::create( const OidType& oid, Manager* manager, bool create ) const
 {
 	if ( create ) {
@@ -267,21 +322,38 @@ Object* ClassInfo::create( const OidType& oid, Manager* manager, bool create ) c
 	}
 }
 
+/*!
+Creates an instance of the class type given by name() without assigning an oid nor adding the object to the manager. Equivalent to 'createObjectFunction()()'
+@return The pointer to the newly created object
+*/
 Object* ClassInfo::createInstance() const
 {
 	return m_function();
 }
 
+/*!
+Returns a pointer to the function that can create new objects of this type.
+*/
 CreateObjectFunction ClassInfo::createObjectFunction() const
 {
 	return m_function;
 }
 
+/*!
+Gets the name of the class.
+@return The name of the class
+*/
 const QString& ClassInfo::name() const
 {
 	return m_name;
 }
 
+/*!
+Adds a relation to the class. Indicates that the class has a 1-1 relation. Called only inside the OBJECT macro in object.h
+@param className The name of the related class
+@param relationName The name of the relation. If QString::null, the name will be calculated by concatenating both class names in alphabetical order.
+@param function The pointer to the function that can create objects.
+*/
 void ClassInfo::addObject( const QString& className, const QString& relationName, CreateObjectFunction function )
 {
 	QString name;
@@ -296,6 +368,14 @@ void ClassInfo::addObject( const QString& className, const QString& relationName
 	m_objects.insert( name, new RelationInfo( this, name, function ) );
 }
 
+/*!
+Adds a relation to the class. Indicates that the class has a N-1 or N-N relation. Called only inside the COLLECTION and COLLECTIONN macros in object.h
+@param className The name of the related class
+@param relationName The name of the relation. If QString::null, the name will be calculated by concatenating both class names in alphabetical order.
+@param function The pointer to the function that can create objects.
+@param nToOne Specifies if the relation is N to One, or N to N. This is a hint only and only needed if in the related class there is no declaration.
+@param definitiveName true if the name of the relation shouldn't be calculated by the function. If false, the function will, create a relation name using the name of both classes (concatenated in alphabetical order).
+*/
 void ClassInfo::addCollection( const QString& className, const QString& relationName, bool nToOne )
 {
 	QString name;
@@ -309,67 +389,116 @@ void ClassInfo::addCollection( const QString& className, const QString& relation
 	m_collections.insert( name, new CollectionInfo( this, name, Classes::classInfo( className ), nToOne ) );
 }
 
-void ClassInfo::addProperty( const QString& name, QVariant::Type type, bool readOnly )
+void ClassInfo::addProperty( const QString& name, QVariant::Type type, bool readOnly, bool inherited )
 {
-	m_properties.insert( name, new PropertyInfo( name, type, readOnly ) );
+	m_properties.insert( name, new PropertyInfo( name, type, readOnly, inherited ) );
 }
 
+/*!
+Used internally. This function fills in the classInfo properties structure 
+from the QObject information. The function is called from Classes::setup() 
+as if it is called from the ClassInfo::addClass() function and a property 
+is of type QPixmap, Qt will abort because a QPaintDevice is created before 
+a QApplication. That's why Classes::setup() sould be called after creating 
+a QApplication object.
+*/
 void ClassInfo::createProperties()
 {
 	// Fill in the Properties Map
 	Object* obj = createInstance();
-	for ( int i = 0; i < obj->metaObject()->numProperties(); ++i ) {
-		const QMetaProperty *meta = obj->metaObject()->property( i );
+	for ( int i = 0; i < obj->metaObject()->numProperties( true ); ++i ) {
+		const QMetaProperty *meta = obj->metaObject()->property( i, true );
+		// We look if it's inherited or not
+		bool inherited = obj->metaObject()->findProperty( meta->name() ) == -1 ? true : false;
 		// TODO: Improve enums support.
 		PropertyInfo *p;
 		if ( meta->isEnumType() )
-			p = new PropertyInfo( meta->name(),  QVariant::ULongLong, ! meta->writable() );
+			p = new PropertyInfo( meta->name(),  QVariant::ULongLong, ! meta->writable(), inherited );
 		else
-			p = new PropertyInfo( meta->name(),  QVariant::nameToType( meta->type() ), ! meta->writable() );
+			p = new PropertyInfo( meta->name(),  QVariant::nameToType( meta->type() ), ! meta->writable(), inherited );
 		m_properties.insert( meta->name(), p );
 	}
+	delete obj;
 }
 
+/*!
+Gets the beggining of the list of related objects. This is the const version.
+@return An iterator pointing to the first position of the list of related objects.
+*/
 RelationInfosConstIterator ClassInfo::relationsBegin() const
 {
 	return m_objects.begin();
 }
 
+/*!
+Gets the last item of the list of related objects. This is the const version.
+@return An iterator pointing to the last position of the list of related objects.
+*/
 RelationInfosConstIterator ClassInfo::relationsEnd() const
 {
 	return m_objects.end();
 }
 
+/*!
+Gets the beggining of the list of related objects.
+@return An iterator pointing to the first position of the list of related objects.
+*/
 RelationInfosIterator ClassInfo::relationsBegin()
 {
 	return m_objects.begin();
 }
 
+/*!
+Gets the beggining of the list of related objects.
+@return An iterator pointing to the first position of the list of related objects.
+*/
 RelationInfosIterator ClassInfo::relationsEnd()
 {
 	return m_objects.end();
 }
 
+/*!
+Searches if the object contains a 1-to-1 relation with the given name.
+@param name Name of the relation to look for.
+@return true, if the class contains such a relation. false otherwise.
+*/
 bool ClassInfo::containsObject( const QString& name ) const
 {
 	return m_objects.contains( name );
 }
 
+/*!
+Returns the RelationInfo for a given 1-to-1 relation.
+@param name Name of the relation to look for.
+@return The RelationInfo.
+*/
 RelationInfo* ClassInfo::object( const QString& name ) const
 {
 	return m_objects[ name ];
 }
 
+/*!
+Gets the number of 1-to-1 relations
+@return The number of 1-to-1 relations.
+*/
 int ClassInfo::objectsCount() const
 {
 	return m_objects.count();
 }
 
+/*!
+Gets the number of 1-to-1 relations
+@return The number of 1-to-1 relations.
+*/
 int ClassInfo::numObjects() const
 {
 	return m_objects.count();
 }
 
+/*!
+Gets the beggining of the list of related collections. This is the const version.
+@return An iterator pointing to the first position of the list of related collections.
+*/
 CollectionInfosConstIterator ClassInfo::collectionsBegin() const
 {
 	return m_collections.begin();
@@ -380,31 +509,57 @@ CollectionInfosConstIterator ClassInfo::collectionsEnd() const
 	return m_collections.end();
 }
 
+/*!
+Gets the beggining of the list of related collections.
+@return An iterator pointing to the first position of the list of related collections.
+*/
 CollectionInfosIterator ClassInfo::collectionsBegin()
 {
 	return m_collections.begin();
 }
 
+/*!
+Gets the last entry of the list of related objects.
+@return An iterator pointing to the first position of the list of related collections.
+*/
 CollectionInfosIterator ClassInfo::collectionsEnd()
 {
 	return m_collections.end();
 }
 
+/*!
+Searches if the class contains a N-to-1 or N-to-N relation with the given name.
+@param name Name of the relation to look for.
+@return true, if the class contains such a relation. false otherwise.
+*/
 bool ClassInfo::containsCollection( const QString& name ) const
 {
 	return m_collections.contains( name );
 }
 
+/*!
+Returns the CollectionInfo for a given 1-to-1 relation.
+@param name Name of the relation to look for.
+@return The CollectionInfo.
+*/
 CollectionInfo* ClassInfo::collection( const QString& name ) const
 {
 	return m_collections[ name ];
 }
 
+/*!
+Gets the number of N-to-1 or N-to-N relations
+@return The number of N-to-1 or N-to-N relations.
+*/
 int ClassInfo::collectionsCount() const
 {
 	return m_collections.count();
 }
 
+/*!
+Gets the number of N-to-1 or N-to-N relations
+@return The number of N-to-1 or N-to-N relations.
+*/
 int ClassInfo::numCollections() const
 {
 	return m_collections.count();
@@ -461,6 +616,61 @@ QObject* ClassInfo::metaInfo( const QString& name ) const
 		return 0;
 }
 
+const ClassInfo* ClassInfo::parent() const
+{
+	return m_parent;
+}
+
+void ClassInfo::setParent( const ClassInfo* parent )
+{
+	m_parent = parent;
+}
+
+const QValueList<const ClassInfo*>& ClassInfo::children() const
+{
+	return m_children;
+}
+
+void ClassInfo::addChild( const ClassInfo* child )
+{
+	m_children.append( child );
+}
+
+/*!
+@param classInfo 
+@return True if the class inherits classInfo
+*/
+bool ClassInfo::inherits( const ClassInfo* classInfo ) const
+{
+	if ( parent() == 0 )
+		return false;
+	if ( parent() == classInfo )
+		return true;
+	return parent()->inherits( classInfo );
+}
+
+/*!
+This function is provided for convenience only and behaves like the above function.
+@param className Name of the class to look for.
+@return True if the class inherits className
+*/
+bool ClassInfo::inherits( const QString& className ) const
+{
+	return inherits( Classes::classInfo( className ) );
+}
+
+/*!
+Obtains a list with all the ancestors of the class.
+@return StringList with the names of all the ancestors of the class.
+*/
+QStringList ClassInfo::ancestors( ) const
+{
+	QStringList list;
+	for ( const ClassInfo *info = parent(); info != 0; info = info->parent() )
+		list.append( info->name() );
+	return list;
+}
+
 /* TmpClass */
 
 TmpClass::TmpClass( const QString &name, CreateRelationsFunction createRelations )
@@ -505,8 +715,86 @@ void Classes::setup()
 	delete m_tmpClasses;
 	m_tmpClasses = 0;
 
+	setupHierarchy();
 	setupRelations();
+	setupRelationsHierarchy();
 }
+
+/*!
+Returns a list with all class names. There is no order except that it guarantees 
+that any given class will be before any of its children.
+@return StringList with all class names.
+*/
+QStringList Classes::parentsFirst()
+{
+	QStringList list;
+	ClassInfoConstIterator it( Classes::begin() );
+	ClassInfoConstIterator end( Classes::end() );
+	const ClassInfo *info;
+	for ( ; it != end; ++it ) {
+		info = *it;
+		if ( info->parent() == 0 ) {
+			list.append( info->name() );
+			continue;
+		}
+		QStringList::iterator it2( list.begin() );
+		QStringList::iterator end2( list.end() );
+		for ( ; it2 != end2; ++it2 ) {
+			if ( info->inherits( *it2 ) ) {
+				list.insert( it2, info->name() );
+				break;
+			}
+		}	
+	}
+	QStringList ret;
+	QStringList::iterator it3( list.begin() );
+	QStringList::iterator end3( list.end() );
+	for ( ; it3 != end3; ++it3 ) {
+		ret.prepend( *it3 );
+	}
+	return ret;
+}
+
+void Classes::setupRelationsHierarchy()
+{
+	QStringList list = parentsFirst();
+	QStringList::const_iterator it( list.constBegin() );
+	QStringList::const_iterator end( list.constEnd() );
+	ClassInfo *info;
+	for ( ; it != end; ++it ) {
+		info = Classes::classInfo( *it );
+		if ( ! info->parent() )
+			continue;
+		
+		QStringList ancestors = info->ancestors();
+		QStringList::const_iterator ait( ancestors.constBegin() );
+		QStringList::const_iterator aend( ancestors.constEnd() );
+		ClassInfo *ancestor;
+		for ( ; ait != aend; ++ait ) {
+			ancestor = Classes::classInfo( *ait );
+			RelationInfosConstIterator rit( ancestor->relationsBegin() );
+			RelationInfosConstIterator rend( ancestor->relationsEnd() );
+			RelationInfo *relinfo;
+			for ( ; rit != rend; ++rit ) {
+				relinfo = rit.data();
+				if ( ! info->containsObject( relinfo->name() ) ) {
+					info->addObject( relinfo->relatedClassInfo()->name(), relinfo->name(), relinfo->relatedClassInfo()->createObjectFunction() );
+				}
+			}
+
+			CollectionInfosConstIterator cit( ancestor->collectionsBegin() );
+			CollectionInfosConstIterator cend( ancestor->collectionsEnd() );
+			CollectionInfo *colinfo;
+			for ( ; cit != cend; ++cit ) {
+				colinfo = cit.data();
+				if ( ! info->containsCollection( colinfo->name() ) ) {
+					info->addCollection( colinfo->childrenClassInfo()->name(), colinfo->name(), colinfo->childrenClassInfo()->createObjectFunction() );
+				}
+			}
+		}
+	}
+}
+
 
 /*!
 Called by Classes::setup(). You should make sure you call it after creating new classes
@@ -571,6 +859,36 @@ void Classes::setupRelations()
 	}
 }
 
+/*!
+Called by Classes::setup(). You should make sure you call it after creating new classes
+(using DynamicObjects).
+Creates the class hierarchy.
+*/
+void Classes::setupHierarchy()
+{
+	ClassInfoConstIterator it( Classes::begin() );
+	ClassInfoConstIterator end( Classes::end() );
+	ClassInfo *classInfo;
+	for ( ; it != end; ++it ) {
+		classInfo = *it;
+		Object* obj = classInfo->createInstance();
+		if ( obj->metaObject()->superClassName() ) {
+			QString super = obj->metaObject()->superClassName();
+			if ( Classes::contains( super ) ) {
+				classInfo->setParent( Classes::classInfo( super ) );
+				Classes::classInfo( super )->addChild( classInfo );
+			}
+		}
+		delete obj;
+	}
+}
+
+/*!
+Registers a new class to the list of known classes. This function is used by DeclareClass.
+@param name The name of the class.
+@param createInstance The pointer to the function that allows the creation of objects of the type class given by name.
+@param createRelations The pointer to the function that creates the relations of the class.
+*/
 void Classes::addClass( const QString &name, CreateObjectFunction createInstance, CreateRelationsFunction createRelations )
 {
 	if ( ! m_classes ) {
@@ -582,6 +900,9 @@ void Classes::addClass( const QString &name, CreateObjectFunction createInstance
 		m_tmpClasses->insert( name, new TmpClass( name, createRelations ) );
 }
 
+/*!
+Returns an iterator pointing to the first class
+*/
 ClassInfoIterator Classes::begin()
 {
 	if ( ! m_classes )
@@ -590,6 +911,9 @@ ClassInfoIterator Classes::begin()
 	return m_classes->begin();
 }
 
+/*!
+Returns an iterator pointing to the last class
+*/
 ClassInfoIterator Classes::end()
 {
 	 if ( ! m_classes )
@@ -614,17 +938,32 @@ ClassInfoConstIterator Classes::constEnd()
 	return m_classes->constEnd();
 }
 
+/*!
+Checks if the given class exists.
+@param name The name of the class to search for.
+@return true if the class exists, false otherwise.
+*/
 bool Classes::contains( const QString& name )
 {
 	return m_classes->contains( name );
 }
 
+/*!
+Gets the information of a given class.
+@param name The name of the class to search for.
+@return A pointer to the ClassInfo structure of the given class.
+*/
 ClassInfo* Classes::classInfo( const QString& name )
 {
 	return (*m_classes)[ name ];
 }
 
+/*!
+Gets the current class which is being created. This is a convenience class used by the OBJECT, COLLECTION and COLLECTIONN macros.
+@return The pointer to the class which is being created.
+*/
 ClassInfo* Classes::currentClass()
 {
 	return m_currentClass;
 }
+

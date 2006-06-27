@@ -74,11 +74,11 @@
   <kdevdebugger>
     <general>
       <dbgshell>libtool</dbgshell>
-      <programargs/>
-      <gdbpath/>
-      <configGdbScript/>
-      <runShellScript/>
-      <runGdbScript/>
+      <programargs></programargs>
+      <gdbpath></gdbpath>
+      <configGdbScript></configGdbScript>
+      <runShellScript></runShellScript>
+      <runGdbScript></runGdbScript>
       <breakonloadinglibs>true</breakonloadinglibs>
       <separatetty>false</separatetty>
       <floatingtoolbar>false</floatingtoolbar>
@@ -112,7 +112,7 @@
     <run>
       <directoryradio>custom</directoryradio>
       <customdirectory>/home/albert/kandau/test/</customdirectory>
-      <mainprogram>/home/albert/kandau/test/kunittest</mainprogram>
+      <mainprogram>/home/albert/kandau/test/uitester </mainprogram>
       <programargs/>
       <terminal>false</terminal>
       <autocompile>true</autocompile>
@@ -120,18 +120,18 @@
       <runarguments>
         <dcoptester/>
         <books/>
-        <uitester/>
+        <uitester></uitester>
         <kunittest/>
       </runarguments>
     </run>
     <general>
       <useconfiguration>default</useconfiguration>
-      <activetarget>test/kunittest</activetarget>
+      <activetarget>test/uitester</activetarget>
     </general>
     <configurations>
       <default>
         <envvars/>
-        <configargs>--enable-debug=full --prefix=/opt/kde3</configargs>
+        <configargs>--enable-debug=full</configargs>
         <builddir/>
         <topsourcedir/>
         <cppflags>-DDEBUG</cppflags>
@@ -169,7 +169,7 @@
     </codecompletion>
     <references/>
     <creategettersetter>
-      <prefixGet/>
+      <prefixGet></prefixGet>
       <prefixSet>set</prefixSet>
       <prefixVariable>m_,_</prefixVariable>
       <parameterName>theValue</parameterName>
@@ -191,8 +191,8 @@
   </kdevdocumentation>
   <kdevvisualadvance>
     <emulator>VisualBoyAdvance</emulator>
-    <binary/>
-    <addOptions/>
+    <binary></binary>
+    <addOptions></addOptions>
     <terminal>false</terminal>
     <fullscreen>false</fullscreen>
     <graphicFilter>-f0</graphicFilter>

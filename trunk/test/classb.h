@@ -17,45 +17,26 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
+#ifndef CLASSB_H
+#define CLASSB_H
 
-#include <collection.h>
-#include <labelsmetainfo.h>
+#include <object.h>
 
-#include "classselector.h"
-
-ClassSelector::ClassSelector( QWidget *parent ) : QToolBox( parent )
+/**
+	@author Albert Cervera Areny <albertca@hotpop.com>
+*/
+class ClassB : public Object
 {
-	ClassInfoConstIterator it( Classes::begin() );
-	ClassInfoConstIterator end( Classes::end() );
-	for ( ; it != end; ++it ) {
-		ClassInfo *info = it.data();
+	Q_OBJECT
+	Q_PROPERTY( QString stringB READ stringB WRITE setStringB )
+public:
+	DCLASS( ClassB );
 
-		int i = m_classes.size();
-		m_classes.resize( i + 1 );
-		m_classes[ i ] = info;
+	const QString& stringB() const;
+	void setStringB( const QString& string );
 
-		LabelsMetaInfo *labels = dynamic_cast<LabelsMetaInfo*>( info->metaInfo( "labels" ) );
-		if ( labels )
-			addItem( new QWidget( this ), labels->label( info->name() ) );
-		else
-			addItem( new QWidget(this), info->name() );
-	}
-	connect( this, SIGNAL(currentChanged(int)), SLOT(slotCurrentChanged(int)) );
-}
+private:
+	QString m_stringB;
+};
 
-const ClassInfo* ClassSelector::currentClass() const
-{
-	int index = currentIndex();
-	if ( index < 0 || index >= m_classes.size() )
-		return 0;
-	return m_classes[ index ];
-}
-
-void ClassSelector::slotCurrentChanged( int index )
-{
-	if ( index < 0 || index >= m_classes.size() )
-		return;
-	emit classSelected( m_classes[ index ] );
-}
-
-#include "classselector.moc"
+#endif

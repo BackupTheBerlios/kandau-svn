@@ -32,6 +32,7 @@
 #include <klocale.h>
 #include <kurllabel.h>
 #include <kmessagebox.h>
+#include <ktabwidget.h>
 
 #include <object.h>
 #include <labelsmetainfo.h>
@@ -41,6 +42,7 @@
 #include "classdialog.h"
 #include "chooseobjectdialog.h"
 #include "propertywidget.h"
+#include "collectionchooser.h"
 
 /**
  *
@@ -58,8 +60,13 @@ ClassDialog::ClassDialog( Object *object, QWidget *parent) :
 	showButtonCancel( true );
 	showButtonApply( false );
 
+	m_tab = new KTabWidget( this );
+	setMainWidget( m_tab );
 	QWidget *widget = new QWidget( this );
-	setMainWidget( widget );
+	
+	m_tab->addTab( widget, object->classInfo()->name() );
+	
+	
 	//connect( this, SIGNAL(okClicked()), SLOT(slotOkClicked()) );
 
 	QVBoxLayout *layout = new QVBoxLayout( widget );
@@ -95,7 +102,6 @@ ClassDialog::ClassDialog( Object *object, QWidget *parent) :
 		else
 			label->setText( p.name() );
 		gridLayout->addWidget( label, row, 0 );
-		//QWidget *tmp = createInput( widget, p );
 		PropertyWidget *tmp = new PropertyWidget( p, widget );
 		m_mapProperties.insert( p.name(), tmp );
 		gridLayout->addWidget( tmp, row, 1 );
@@ -129,8 +135,18 @@ ClassDialog::ClassDialog( Object *object, QWidget *parent) :
 		lay->addWidget( but );
 
 		Notifier *notifier = dynamic_cast<Notifier*>( Manager::self()->notificationHandler() );
-		if ( notifier && obj )
-			notifier->registerSlot( this, SLOT( slotObjectModified(const ClassInfo*,const OidType&,const PropertyInfo*,const QVariant&) ), 0, obj->oid() );
+//		if ( notifier && obj )
+//			notifier->registerSlot( this, SLOT( slotObjectModified(const ClassInfo*,const OidType&,const PropertyInfo*,const QVariant&) ), 0, obj->oid() );
+	}
+	
+	CollectionInfosConstIterator it3( classInfo->collectionsBegin() );
+	CollectionInfosConstIterator end3( classInfo->collectionsEnd() );
+	for ( ; it3 != end3; ++it3 ) {
+		const CollectionInfo *info = it3.data();
+		CollectionChooser *chooser = new CollectionChooser( m_tab );
+		chooser->setObject( m_object );
+		chooser->setCollectionName( info->name() );
+		m_tab->addTab( chooser, info->name() );
 	}
 }
 
@@ -154,7 +170,6 @@ void ClassDialog::updateObjectLabel( KURLLabel *objLabel, const Object *obj )
 		objLabel->setEnabled( false );
 	}
 }
-
 
 void ClassDialog::slotObjectSelected( const QString& oid )
 {
@@ -210,6 +225,8 @@ void ClassDialog::slotChangeClicked()
 
 void ClassDialog::slotObjectModified( const ClassInfo* /*classInfo*/, const OidType& object, const PropertyInfo */*property*/, const QVariant& /*newValue*/ )
 {
+	return;
+//	KMessageBox::information( this, "Class: " + classInfo->name() + ", Oid: " + oidToString( object ) + ", Property: " + property->name() + ", NewValue: " + newValue.toString(), "Object Modified" );
 	ObjectsIterator it( m_object->objectsBegin() );
 	ObjectsIterator end( m_object->objectsEnd() );
 	for ( ; it != end; ++it ) {

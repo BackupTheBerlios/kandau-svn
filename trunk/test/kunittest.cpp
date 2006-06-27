@@ -35,6 +35,7 @@
 #include "metainfotest.h" 
 #include "desktopconfigbackendtest.h"
 #include "notificationstest.h"
+#include "inheritancetest.h"
 #include "qtester.h"
 #include "tester.h"
 
@@ -52,6 +53,7 @@ void KUnitTest::registerTests()
 	ADD_TEST( MetaInfoTest );
 	ADD_TEST( DesktopConfigBackendTest );
 	ADD_TEST( NotificationsTest );
+	ADD_TEST( InheritanceTest );
 }
 
 KUnitTest::KUnitTest()

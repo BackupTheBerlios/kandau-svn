@@ -34,14 +34,42 @@
 #include "object.h"
 #include "tokenizer.h"
 
-SqlDbBackend::SqlDbBackend( QSqlDatabase *db )
+SqlDbBackend::SqlDbBackend( QSqlDatabase *db, IsolationLevel isolationLevel )
 {
 	assert( db );
 	m_db = db;
+	setIsolationLevel( isolationLevel );
+	m_oidFieldName = "dboid";
+	m_sequenceFieldName = "dbseq";
+	m_preloadCollections = true;
 }
 
 SqlDbBackend::~SqlDbBackend()
 {
+}
+
+void SqlDbBackend::setIsolationLevel( IsolationLevel isolationLevel )
+{
+	m_isolationLevel = isolationLevel;
+	switch ( m_isolationLevel ) {
+		case ReadUncommited:
+			m_db->exec( "SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL READ UNCOMMITED" );
+			break;
+		case ReadCommited:
+			m_db->exec( "SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL READ COMMITED" );
+			break;
+		case RepeatableRead:
+			m_db->exec( "SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL REPEATABLE READ" );
+			break;
+		case Serializable:
+			m_db->exec( "SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL SERIALIZABLE" );
+			break;
+	}
+}
+
+SqlDbBackend::IsolationLevel SqlDbBackend::isolationLevel() const
+{
+	return m_isolationLevel;
 }
 
 QSqlDatabase* SqlDbBackend::database( )
@@ -58,6 +86,25 @@ void SqlDbBackend::shutdown()
 {
 }
 
+const ClassInfo* SqlDbBackend::findObject( const OidType& oid, const ClassInfo *classInfo, QSqlCursor& cursor )
+{
+	const ChildrenInfo& children = classInfo->children();
+	const ClassInfo* info;
+	ChildrenInfoConstIterator it( children.constBegin() );
+	ChildrenInfoConstIterator end( children.constEnd() );
+	for ( ; it != end; ++it ) {
+		cursor.setName( (*it)->name() );
+		cursor.select( "to_number( " + oidFieldName() + ", '9999999999G0') = " + oidToString( oid ) );
+		if ( cursor.next() )
+			return *it;
+
+		info = findObject( oid, *it, cursor );
+		if ( info )
+			return info;
+	}
+	return 0;
+}
+
 bool SqlDbBackend::load( const OidType& oid, Object *object )
 {
 	assert( object );
@@ -65,9 +112,16 @@ bool SqlDbBackend::load( const OidType& oid, Object *object )
 		ERROR( "Oid cannot be zero" );
 	object->setOid( 0 );
 	QSqlCursor cursor( object->classInfo()->name() );
-	cursor.select( "to_number( dboid, '9999999999G0') = " + oidToString( oid ) );
-	if ( ! cursor.next() )
-		ERROR( "Oid not found" );
+	cursor.select( "to_number( " + oidFieldName() + ", '9999999999G0') = " + oidToString( oid ) );
+
+	if ( ! cursor.next() ) {
+		const ClassInfo* info = findObject( oid, object->classInfo(), cursor );
+		if ( ! info )
+			ERROR( "Oid not found" );
+		// delete object;
+		// object = info->createInstance();
+	}
+
 	return load( cursor, object );
 }
 
@@ -75,8 +129,8 @@ bool SqlDbBackend::load( const QSqlCursor &cursor, Object *object )
 {
 	assert( object );
 	Property prop;
-	object->setOid( variantToOid( cursor.value( "dboid" ) ) );
-	object->setSeq( variantToSeq( cursor.value( "dbseq" ) ) );
+	object->setOid( variantToOid( cursor.value( oidFieldName() ) ) );
+	object->setSeq( variantToSeq( cursor.value( sequenceFieldName() ) ) );
 
 	PropertiesIterator pIt( object->propertiesBegin() );
 	PropertiesIterator pEnd( object->propertiesEnd() );
@@ -137,17 +191,17 @@ bool SqlDbBackend::load( OidType* relatedOid, const OidType& oid, const Relation
 		QString parent = relationInfo->parentClassInfo()->name();
 		if ( related >= parent ) {
 			searchTable = parent;
-			searchField = "dboid";
+			searchField = oidFieldName();
 			resultField = relationInfo->name();
 		} else {
 			searchTable = related;
 			searchField = relationInfo->name();
-			resultField = "dboid";
+			resultField = oidFieldName();
 		}
 	} else {
 		//cursor = new QSqlCursor( relationInfo->parentClassInfo()->name() );
 		searchTable = relationInfo->parentClassInfo()->name();
-		searchField = "dboid";
+		searchField = oidFieldName();
 		resultField = relationInfo->name();
 	}
 
@@ -165,7 +219,7 @@ bool SqlDbBackend::load( OidType* relatedOid, const OidType& oid, const Relation
 
 /*
 	QSqlCursor cursor( relationInfo->parentClassInfo()->name() );
-	cursor.select( "to_number( dboid, '9999999999G0') = " + oidToString( oid ) );
+	cursor.select( "to_number( " + oidFieldName() + ", '9999999999G0') = " + oidToString( oid ) );
 	if ( ! cursor.next() ) {
 		*relatedOid = 0;
 		return false;
@@ -186,11 +240,11 @@ bool SqlDbBackend::load( Collection *collection )
 	QString searchField;
 	QString resultField;
 
-	collection->clear();
+	collection->simpleClear();
 
 	if ( collection->collectionInfo()->isNToOne() ) {
 		searchTable = collection->collectionInfo()->parentClassInfo()->name();
-		searchField = "dboid";
+		searchField = oidFieldName();
 		resultField = collection->collectionInfo()->name();
 	} else {
 		searchTable = collection->collectionInfo()->name();
@@ -224,7 +278,7 @@ bool SqlDbBackend::save( Object *object )
 		record = cursor.primeInsert();
 		update = false;
 	} else {
-		cursor.select( "to_number( dboid, '9999999999G0') = " + oidToString( object->oid() ) );
+		cursor.select( "to_number( " + oidFieldName() + ", '9999999999G0') = " + oidToString( object->oid() ) );
 		if ( ! cursor.next() ) {
 			cursor.select();
 			record = cursor.primeInsert();
@@ -244,10 +298,10 @@ bool SqlDbBackend::save( Object *object )
 		record->setGenerated( i, false );
 	}
 
-	record->setValue( "dboid", object->oid() );
-	record->setGenerated( "dboid", true );
-	record->setValue( "dbseq", newSeq() );
-	record->setGenerated( "dbseq", true );
+	record->setValue( oidFieldName(), object->oid() );
+	record->setGenerated( oidFieldName(), true );
+	record->setValue( sequenceFieldName(), newSeq() );
+	record->setGenerated( sequenceFieldName(), true );
 
 	PropertiesIterator pIt( object->propertiesBegin() );
 	PropertiesIterator pEnd( object->propertiesEnd() );
@@ -331,7 +385,7 @@ bool SqlDbBackend::save( const OidType& oid, const RelationInfo* relationInfo, c
 		record = cursor.primeInsert();
 		update = false;
 	} else {
-		cursor.select( "to_number( dboid, '9999999999G0') = " + oidToString( searchOid ) );
+		cursor.select( "to_number( " + oidFieldName() + ", '9999999999G0') = " + oidToString( searchOid ) );
 		if ( ! cursor.next() ) {
 			cursor.select();
 			record = cursor.primeInsert();
@@ -351,10 +405,10 @@ bool SqlDbBackend::save( const OidType& oid, const RelationInfo* relationInfo, c
 		record->setGenerated( i, false );
 	}
 
-	record->setValue( "dboid", searchOid );
-	record->setGenerated( "dboid", true );
-	record->setValue( "dbseq", newSeq() );
-	record->setGenerated( "dbseq", true );
+	record->setValue( oidFieldName(), searchOid );
+	record->setGenerated( oidFieldName(), true );
+	record->setValue( sequenceFieldName(), newSeq() );
+	record->setGenerated( sequenceFieldName(), true );
 
 	if ( setOid != 0 )
 		record->setValue( relationInfo->name(), setOid );
@@ -398,7 +452,7 @@ bool SqlDbBackend::save( Collection *collection )
 		record = cursor.primeInsert();
 		record->setValue( collection->collectionInfo()->parentClassInfo()->name(), collection->parentOid() );
 		record->setValue( collection->collectionInfo()->childrenClassInfo()->name(), (*it)->oid() );
-		record->setValue( "dbseq", newSeq() );
+		record->setValue( sequenceFieldName(), newSeq() );
 		cursor.insert();
 	}
 	return true;
@@ -412,7 +466,7 @@ bool SqlDbBackend::remove( Object *object )
 		ERROR( "Oid = 0" );
 
 	QSqlQuery query;
-	query.prepare( "DELETE FROM " + object->classInfo()->name().lower() + " WHERE to_number( dboid, '9999999999G0') = " + oidToString( object->oid() ) );
+	query.prepare( "DELETE FROM " + object->classInfo()->name().lower() + " WHERE to_number( " + oidFieldName() + ", '9999999999G0') = " + oidToString( object->oid() ) );
 	query.exec();
 
 	if ( query.numRowsAffected() > 0 ) {
@@ -463,7 +517,7 @@ QString SqlDbBackend::idFieldName( const CollectionInfo *collection ) const
 {
 	assert( collection );
 	if ( collection->isNToOne() )
-		return "dboid";
+		return oidFieldName();
 	else
 		return collection->childrenClassInfo()->name();
 }
@@ -505,14 +559,17 @@ bool SqlDbBackend::createSchema()
 	// This sequence is incremented every time a record is created or modified and is used in the dbseq field that will be created in each table.
 	m_db->exec( "CREATE SEQUENCE seq_dbseq;" );
 
-	// Create the tables
-	ClassInfoIterator it ( Classes::begin() );
-	ClassInfoIterator end ( Classes::end() );
+	// Create the tables. Iterate creating the classes that
+	// have inheritance first.
+	QStringList classList( Classes::parentsFirst() );
+	QStringList::const_iterator it( classList.constBegin() );
+	QStringList::const_iterator end( classList.constEnd() );
 	ClassInfo *currentClass;
 	for ( ; it != end; ++it ) {
-		currentClass = *it;
+		currentClass = Classes::classInfo( *it );
 
-		exec = "CREATE TABLE " +  currentClass->name().lower() + " ( dboid BIGINT PRIMARY KEY, dbseq BIGINT NOT NULL, ";
+
+		exec = "CREATE TABLE " +  currentClass->name().lower() + " ( " + oidFieldName() + " BIGINT PRIMARY KEY, " + sequenceFieldName() + " BIGINT NOT NULL, ";
 
 		// Create properties fields
 		PropertiesInfoConstIterator pIt( currentClass->propertiesBegin() );
@@ -534,7 +591,7 @@ bool SqlDbBackend::createSchema()
 			// needs to be >= to consider cases where the parent and related class(table) are the same
 			if ( ! rObj->isOneToOne() || rObj->relatedClassInfo()->name() >= rObj->parentClassInfo()->name() ) {
 				exec += rObj->name().lower() + " BIGINT DEFAULT NULL, ";
-				constraints << currentClass->name().lower() + "-" + rObj->name().lower() + "-" + rObj->relatedClassInfo()->name().lower();
+				constraints << currentClass->name() + "-" + rObj->name() + "-" + rObj->relatedClassInfo()->name();
 			}
 		}
 
@@ -549,9 +606,9 @@ bool SqlDbBackend::createSchema()
 			CollectionInfo *rCol;
 			for ( ; colIt != colEnd; ++colIt ) {
 				rCol = *colIt;
-				if ( rCol->childrenClassInfo()->name() == currentClass->name() && rCol->isNToOne() && constraints.grep( rCol->name().lower() ).count() == 0 ) {
+				if ( rCol->childrenClassInfo()->name() == currentClass->name() && rCol->isNToOne() && constraints.grep( rCol->name() ).count() == 0 ) {
 					exec += rCol->name().lower() + " BIGINT DEFAULT NULL, ";
-					constraints << currentClass->name().lower() + "-" + rCol->name().lower() + "-" + rCol->parentClassInfo()->name().lower();
+					constraints << currentClass->name() + "-" + rCol->name() + "-" + rCol->parentClassInfo()->name();
 				}
 			}
 		}
@@ -561,14 +618,17 @@ bool SqlDbBackend::createSchema()
 		CollectionInfo *col;
 		for ( ; colIt != colEnd; ++colIt ) {
 			col = *colIt;
-			if ( ! tables.grep( col->name().lower() ).count() > 0 && ! col->isNToOne() ) {
-				tables << col->name().lower() + "-"  + filterFieldName( col ).lower() + "-" + idFieldName( col ).lower();
+			if ( ! tables.grep( col->name() ).count() > 0 && ! col->isNToOne() ) {
+				tables << col->name() + "-"  + filterFieldName( col ) + "-" + idFieldName( col );
 			}
 		}
 
 		// Take off the colon and space
 		exec = exec.left( exec.length() - 2 );
-		exec += ");";
+		exec += ")";
+		if ( currentClass->parent() != 0 )
+			exec += " INHERITS ( " + currentClass->parent()->name() + ")";
+
 		m_db->exec( exec );
 
 		if ( m_db->lastError().type() != QSqlError::None ) {
@@ -577,12 +637,22 @@ bool SqlDbBackend::createSchema()
 		}
 	}
 
-	// Creem les taules de relacions
+	/*
+	As PostgreSQL doesn't properly support foreign keys to inherited tables we will create
+	foreign keys (references) only when the refered class hasn't any inherited classes.
+	*/
+
+	// Create relation tables (for N-M relations)
 	QStringList list;
 	for ( i = 0; i < tables.count(); ++i ) {
 		list = QStringList::split( QString( "-" ), tables[ i ] );
-		kdDebug() << "Creant taula... " << list[0] << endl;
-   		exec = "CREATE TABLE " + list[ 0 ] + " ( " + list[ 1 ] + " BIGINT NOT NULL REFERENCES " + list[ 1 ] + " DEFERRABLE INITIALLY DEFERRED, "+ list[ 2 ] + " BIGINT NOT NULL REFERENCES " + list[2] + " DEFERRABLE INITIALLY DEFERRED, dbseq BIGINT NOT NULL , PRIMARY KEY( "+ list[1] +" , " + list[2] + " ) );";
+		exec = "CREATE TABLE " + list[ 0 ].lower() + " ( " + list[ 1 ].lower() + " BIGINT NOT NULL ";
+		if ( Classes::classInfo( list[ 1 ] )->children().count() == 0 )
+			exec += " REFERENCES " + list[ 1 ].lower() + " DEFERRABLE INITIALLY DEFERRED";
+		exec += ", " + list[ 2 ].lower() + " BIGINT NOT NULL ";
+		if ( Classes::classInfo( list[2] )->children().count() == 0 )
+			exec += " REFERENCES " + list[ 2 ].lower() + " DEFERRABLE INITIALLY DEFERRED";
+		exec += ", " + sequenceFieldName() + " BIGINT NOT NULL , PRIMARY KEY( " + list[1].lower() + " , " + list[2].lower() + " ) );";
 
 		m_db->exec( exec );
 		if ( m_db->lastError().type() != QSqlError::None ) {
@@ -591,10 +661,16 @@ bool SqlDbBackend::createSchema()
 		}
 	}
 
+	// Create foreign keys in class tables
 	for ( i = 0; i < constraints.count(); ++i ) {
 		list = QStringList::split( QString( "-" ), constraints[ i ] );
-		exec = "ALTER TABLE " + list[ 0 ] + " ADD FOREIGN KEY (" + list[ 1 ] + ") REFERENCES " + list[ 2 ] + "( dboid ) DEFERRABLE INITIALLY DEFERRED";
-
+		// If the related class  doesn't have children we can use a normal
+		// foreign key in PostgreSQL. Otherwise we have to use our own trigger.
+		kdDebug() << k_funcinfo << "'" << list[ 2 ] << "'" << endl;
+		if ( Classes::classInfo( list[ 2 ] )->children().count() == 0 )
+			exec = "ALTER TABLE " + list[ 0 ].lower() + " ADD FOREIGN KEY (" + list[ 1 ].lower() + ") REFERENCES " + list[ 2 ].lower() + "( " + oidFieldName() + " ) DEFERRABLE INITIALLY DEFERRED";
+		//else
+		//	exec = "CREATE DDL!!!";
 		m_db->exec( exec );
 		if ( m_db->lastError().type() != QSqlError::None ) {
 			kdDebug() << k_funcinfo << " -> " << exec << endl;
@@ -609,6 +685,7 @@ QString SqlDbBackend::sqlType( QVariant::Type type )
 	// TODO: Take a look at the unsigned integer types. The mapping isn't correct.
 	switch ( type ) {
 		case QVariant::CString:
+			return "VARCHAR";
 		case QVariant::String:
 			return "VARCHAR";
 		case QVariant::UInt:
@@ -642,7 +719,7 @@ QString SqlDbBackend::sqlType( QVariant::Type type )
 
 bool SqlDbBackend::hasChanged( Object * object )
 {
-	QSqlSelectCursor cursor( "SELECT dbseq FROM " + object->classInfo()->name() + " WHERE to_number( dboid, '9999999999G0') = " + oidToString( object->oid() ) );
+	QSqlSelectCursor cursor( "SELECT " + sequenceFieldName() + " FROM " + object->classInfo()->name() + " WHERE to_number( " + oidFieldName() + ", '9999999999G0') = " + oidToString( object->oid() ) );
 
 	// Has it been deleted?
 	if ( ! cursor.next() )
@@ -674,7 +751,7 @@ bool SqlDbBackend::commit()
 	QValueVector< QPair<QString, OidType> >::const_iterator rit( m_removedObjects.begin() );
 	QValueVector< QPair<QString, OidType> >::const_iterator rend( m_removedObjects.end() );
 	for ( ; rit != rend; ++rit ) {
-		m_db->exec( "DELETE FROM " + (*rit).first + " WHERE dboid=" + oidToString( (*rit).second ) );
+		m_db->exec( "DELETE FROM " + (*rit).first + " WHERE " + oidFieldName() + "=" + oidToString( (*rit).second ) );
 	}
 
 	commitObjects();
@@ -766,7 +843,7 @@ QString SqlDbBackend::expandDots( const QString& msg )
 	if ( Classes::classInfo( curClass )->containsObject( element ) ) {
 		relatedClassName = Classes::classInfo( curClass )->object( element )->childrenClassInfo()->name();
 
-		curClass + "." + element + " = " + relatedClassName + ".dboid AND " + relatedClassName;
+		curClass + "." + element + " = " + relatedClassName + "." + oidFieldName() + " AND " + relatedClassName;
 	} else if ( Classes::classInfo( curClass )->containsCollection( element ) ) {
 
 	}
@@ -794,24 +871,24 @@ QString SqlDbBackend::expandDotsString( const QString& string )
 			RelationInfo *rel = classInfo->object( relationName );
 			if ( rel->isOneToOne() ) {
 				expanded += className + "." + relationName + "=";
-				expanded += rel->relatedClassInfo()->name() + ".dboid AND ";
+				expanded += rel->relatedClassInfo()->name() + "." + oidFieldName() + " AND ";
 				className=rel->relatedClassInfo()->name();
 			} else {
 				expanded += className + "." + relationName + "=";
-				expanded += rel->relatedClassInfo()->name() + ".dboid AND ";
+				expanded += rel->relatedClassInfo()->name() + "." + oidFieldName() + " AND ";
 				className=rel->relatedClassInfo()->name();
 			}
 		} else if ( classInfo->containsCollection( relationName ) ) {
 			CollectionInfo *rel = classInfo->collection( relationName );
 			if ( rel->isNToOne() ) {
-				expanded += className + ".dboid=";
+				expanded += className + "." + oidFieldName() + "=";
 				expanded += rel->childrenClassInfo()->name() + "." + relationName + " AND ";
 				className=rel->childrenClassInfo()->name();
 			} else {
-				expanded += className + ".dboid=";
+				expanded += className + "." + oidFieldName() + "=";
 				expanded += relationName + "." + className + " AND ";
 				expanded += relationName + "." + rel->childrenClassInfo()->name() + "=";
-				expanded += rel->childrenClassInfo()->name() + ".dboid AND ";
+				expanded += rel->childrenClassInfo()->name() + "." + oidFieldName() + "AND ";
 				className = rel->childrenClassInfo()->name();
 			}
 		} else {
@@ -863,7 +940,41 @@ bool SqlDbBackend::load( Collection* collection, const QString& query )
 	QSqlSelectCursor cursor( newQuery );
 	cursor.select();
 	while ( cursor.next() ) {
-		collection->simpleAdd( variantToOid( cursor.value( "dboid" ) ) );
+		collection->simpleAdd( variantToOid( cursor.value( oidFieldName() ) ) );
 	}
 	return true;
+}
+
+void SqlDbBackend::setOidFieldName( const QString & name )
+{
+	m_oidFieldName = name;
+}
+
+const QString & SqlDbBackend::oidFieldName( ) const
+{
+	return m_oidFieldName;
+}
+
+void SqlDbBackend::setSequenceFieldName( const QString & name )
+{
+	m_sequenceFieldName;
+}
+
+const QString & SqlDbBackend::sequenceFieldName( ) const
+{
+	return m_sequenceFieldName;
+}
+
+/*!
+Allows to ensure collection objects are loaded at the same time the collection is loaded, thus speeding up things.
+TODO: Well, it's currently unimplemented :)
+*/
+void SqlDbBackend::setPreloadCollections( bool preload )
+{
+	m_preloadCollections = preload;
+}
+
+bool SqlDbBackend::preloadCollections( ) const
+{
+	return m_preloadCollections;
 }

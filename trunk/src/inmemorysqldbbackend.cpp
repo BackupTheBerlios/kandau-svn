@@ -287,7 +287,6 @@ bool InMemorySqlDbBackend::createSchema()
 	QStringList list;
 	for ( i = 0; i < tables.count(); ++i ) {
 		list = QStringList::split( QString( "-" ), tables[ i ] );
-		kdDebug() << "Creant taula... " << list[0] << endl;
    		exec = "CREATE TABLE " + list[ 0 ] + " ( " + list[ 1 ] + " BIGINT NOT NULL REFERENCES " + list[ 1 ] + " DEFERRABLE INITIALLY DEFERRED, "+ list[ 2 ] + " BIGINT NOT NULL REFERENCES " + list[2] +" DEFERRABLE INITIALLY DEFERRED, PRIMARY KEY( "+ list[1] +" , " + list[2] + " ) );";
 
 		m_db->exec( exec );
@@ -382,6 +381,8 @@ QString InMemorySqlDbBackend::sqlType( QVariant::Type type )
 {
 	// TODO: Review the unsigned integer. Type mapping might be incorrect.
 	switch ( type ) {
+		case QVariant::CString:
+			return "VARCHAR";
 		case QVariant::String:
 			return "VARCHAR";
 		case QVariant::UInt:

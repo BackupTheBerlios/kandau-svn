@@ -140,6 +140,10 @@ public:
 		FreeAllOnLoad, ///< Frees the whole invalid cache every time a new object is loaded in memory.
 		FreeAllOnTransaction ///< Frees the whole invalid cache on commit() and rollback() only.
 	};
+	enum TransactionMode {
+		Unsynchronized = 1, ///<
+		Synchronized,
+	};
 
 	Manager( DbBackendIface *backend, NotificationHandler *handler = 0 );
 	~Manager();
@@ -154,6 +158,8 @@ public:
 	/* Functions related to object cache management */
 	void setMaxObjects( Q_ULLONG max );
 	Q_ULLONG maxObjects() const;
+
+	void freeCache();
 
 	void status() const;
 
@@ -184,7 +190,7 @@ public:
 	void setNotificationHandler( NotificationHandler* handler );
 	NotificationHandler* notificationHandler() const;
 
-	bool modified();
+	bool modified() const;
 
 	bool commit();
 	bool rollback();

@@ -63,9 +63,10 @@ int main( int argc, char** argv )
 		kdDebug() << "Failed to open database: " << db->lastError().text() << endl;
 		return 0;
 	}
-	Notifier *notifier = new Notifier();
+	//Notifier *notifier = new Notifier();
 	DbBackendIface *backend = new SqlDbBackend( db );
-	Manager *manager = new Manager( backend, notifier );
+	//Manager *manager = new Manager( backend, notifier );
+	Manager *manager = new Manager( backend );
 	manager->setMaxObjects( 1000 );
 	Collection col( "CustomerOrder" );
 	CollectionIterator it( col.begin() );

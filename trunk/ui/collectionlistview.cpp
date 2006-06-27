@@ -17,17 +17,20 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
+#include <qdragobject.h>
+
 #include <classes.h>
 #include <collection.h>
 #include <labelsmetainfo.h>
 #include "collectionlistview.h"
 
 CollectionListView::CollectionListView( const ClassInfo *classInfo, QWidget *parent ) :
-	KListView(parent),
-	m_classInfo(classInfo)
+	KListView(parent)
 {
 	setAllColumnsShowFocus( true );
 	setAlternateBackground( QColor(40, 40, 40) );
+	setClassInfo( classInfo );
+	m_manager = 0;
 }
 
 void CollectionListView::fill()
@@ -62,17 +65,41 @@ void CollectionListView::fill()
 	CollectionIterator it2( col.begin() );
 	CollectionIterator end2( col.end() );
 	for ( ; it2 != end2; ++it2 ) {
-		QListViewItem *item = new QListViewItem( this );
-		item->setText( 0, oidToString( it2.data()->oid() ) );
-		for ( int i = 1; i < columns(); ++i ) {
-			item->setText( i, it2.data()->property( propertyName( i ) ).value().toString() );
-		}
+		add( it2.data() );
 	}
+}
+
+void CollectionListView::add( const Object* object )
+{
+	QListViewItem *item = new QListViewItem( this );
+	item->setDropEnabled( true );
+	item->setDragEnabled( true );
+	item->setText( 0, oidToString( object->oid() ) );
+	for ( int i = 1; i < columns() - 1; ++i ) {
+		item->setText( i, object->property( columnText( i ) ).value().toString() );
+	}
+}
+
+void CollectionListView::remove( const OidType& oid )
+{
+	delete findItem( oidToString( oid ), 0 );
 }
 
 void CollectionListView::setClassInfo( const ClassInfo *classInfo )
 {
 	m_classInfo = classInfo;
+
+	while (  columns() > 0 )
+		removeColumn( 0 );
+
+	if ( m_classInfo ) {
+		PropertiesInfoConstIterator it( m_classInfo->propertiesBegin() );
+		PropertiesInfoConstIterator end( m_classInfo->propertiesEnd() );
+		addColumn( "oid" );
+		for ( ; it != end; ++it ) {
+			addColumn( it.data()->name() );
+		}
+	}
 }
 
 const ClassInfo* CollectionListView::classInfo() const
@@ -80,29 +107,39 @@ const ClassInfo* CollectionListView::classInfo() const
 	return m_classInfo;
 }
 
-int CollectionListView::column( const QString& property )
+/*!
+Obtains a pointer to the Object refered by the currently selected item.
+*/
+Object * CollectionListView::currentObject() const
 {
-	if ( m_map2.contains( property ) ) {
-		QString mapEntry = m_map2[ property ];
-		for ( int i = 0; i < columns(); i++ ) {
-			if ( mapEntry == columnText( i ) )
-				return i;
-		}
-	}
-	return -1;
-}
+	if ( ! currentItem() )
+		return 0;
 
-QString CollectionListView::propertyName( int column )
-{
-	return propertyName( columnText( column ) );
-}
-
-QString CollectionListView::propertyName( const QString& columnName )
-{
-	if ( m_map.contains( columnName ) )
-		return m_map[ columnName ];
+	if ( m_manager )
+		return m_classInfo->create( stringToOid( currentItem()->text( 0 ) ), m_manager );
 	else
-		return QString::null;
+		return m_classInfo->create( stringToOid( currentItem()->text( 0 ) ) );
+}
+
+/*!
+Obtains the Oid of the currently selected item.
+*/
+OidType CollectionListView::currentOid() const
+{
+	if ( currentItem() )
+		return stringToOid( currentItem()->text( 0 ) );
+	else
+		return 0;
+}
+
+QDragObject * CollectionListView::dragObject()
+{
+	if ( ! currentItem() )
+		return 0;
+
+	QTextDrag *text = new QTextDrag();
+	text->setText( oidToString( currentOid() ) );
+	return text;
 }
 
 #include "collectionlistview.moc"

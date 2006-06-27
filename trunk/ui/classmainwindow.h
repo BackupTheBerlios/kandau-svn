@@ -22,12 +22,12 @@
 
 #include <kmainwindow.h>
 
-class ClassDialog;
 class ClassSelector;
 class CollectionListView;
 class KListViewSearchLine;
 class ClassInfo;
 class QListViewItem;
+class KDialog;
 
 /**
 	@author Albert Cervera Areny <albertca@hotpop.com>
@@ -53,7 +53,7 @@ private slots:
 	void slotSetup();
 
 private:
-	QMap<OidType,ClassDialog*> m_mapDialogs;
+	QMap<OidType,KDialog*> m_mapDialogs;
 	QWidget *m_centralWidget;
 	ClassSelector *m_classSelector;
 	CollectionListView *m_listView;

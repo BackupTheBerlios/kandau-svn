@@ -29,6 +29,7 @@
 class QSqlCursor;
 class QSqlDatabase;
 class CollectionInfo;
+class ClassInfo;
 
 /**
 @author Albert Cervera Areny
@@ -42,10 +43,23 @@ class CollectionInfo;
 class SqlDbBackend : public DbBackendIface
 {
 public:
-	SqlDbBackend( QSqlDatabase *db );
+	/*!
+	All four isolation levels considered in SQL Standard. Though PostgreSQL, implements only ReadCommited and Serialiable.
+	*/
+	enum IsolationLevel {
+		ReadUncommited,
+		ReadCommited,
+		RepeatableRead,
+		Serializable
+	};
+
+	SqlDbBackend( QSqlDatabase *db, IsolationLevel isolationLevel = ReadCommited );
 	virtual ~SqlDbBackend();
 
 	QSqlDatabase *database();
+
+	void setIsolationLevel( IsolationLevel isolationLevel );
+	IsolationLevel isolationLevel() const;
 
 	void setup( Manager* m_manager );
 	void shutdown();
@@ -62,18 +76,28 @@ public:
 	OidType newOid();
 	void reset() {};
 
+	void setOidFieldName( const QString& name );
+	const QString& oidFieldName() const;
+
+	void setSequenceFieldName( const QString& name );
+	const QString& sequenceFieldName() const;
+
+	void setPreloadCollections( bool preload );
+	bool preloadCollections() const;
+
 	// Callbacks
 	void afterRollback();
 	void beforeRemove( Object* object );
 
 protected:
+	virtual const ClassInfo* findObject( const OidType& oid, const ClassInfo *classInfo, QSqlCursor& cursor );
 	virtual bool remove( Object *object );
 	virtual bool remove( Collection *collection, const OidType& oid );
 	virtual bool save( Object *object );
 	virtual bool save( const OidType& oid, const RelationInfo* relationInfo, const OidType& relatedOid );
 	virtual bool save( Collection *collection );
 	virtual bool load( const QSqlCursor &cursor, Object *object );
-	
+
 	void commitObjects();
 	void commitRelations();
 	void commitCollections();
@@ -92,8 +116,16 @@ protected:
 	QValueVector<QPair<QString,OidType> > m_removedObjects;
 	// The first OidType (key) stores the Object that references the second OidType
 	QMap<OidType, QMap<QString,OidType> > m_removedRelations;
-	
+
+private:
+	QString m_oidFieldName;
+	QString m_sequenceFieldName;
+	bool m_preloadCollections;
+
 	Manager *m_manager;
+
+	IsolationLevel m_isolationLevel;
+
 };
 
 #endif

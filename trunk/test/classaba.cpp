@@ -17,22 +17,22 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#include "document.h"
+#include "classaba.h"
 
-ICLASS( Document );
+ICLASS( ClassABA );
 
-void Document::createRelations()
+void ClassABA::createRelations()
 {
 }
 
-void Document::setData( const QByteArray& data )
+const QString& ClassABA::stringABA() const
 {
-	m_data = data;
+	return m_stringABA;
 }
 
-const QByteArray& Document::data() const
+void ClassABA::setStringABA( const QString& string )
 {
-	return m_data;
+	m_stringABA = string;
 }
 
-#include "document.moc"
+#include "classaba.moc"

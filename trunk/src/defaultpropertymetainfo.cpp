@@ -33,8 +33,6 @@ QString DefaultPropertyMetaInfo::defaultPropertyValue( const Object *object )
 	assert( object );
 	QString ret = m_defaultProperty;
 	QRegExp ex( "(\\{\\w+\\})" );
-	//ex.search( m_defaultProperty );
-	//QStringList list = ex.capturedTexts();
 	int pos = 0;
 	QString item;
 	while ( (pos = ex.search( m_defaultProperty, pos ) ) != -1 ) {
@@ -42,7 +40,6 @@ QString DefaultPropertyMetaInfo::defaultPropertyValue( const Object *object )
 		item = *(ex.capturedTexts().begin());
 		item.remove( "{" );
 		item.remove( "}" );
-		kdDebug() << k_funcinfo << "Current pos: " << QString::number( pos ) << ", Item: " << item << endl;
 		if ( ! object->containsProperty( item ) ) {
 			kdDebug() << k_funcinfo << "Warning: property '" << item << "' not found." << endl;
 			continue;
@@ -50,23 +47,7 @@ QString DefaultPropertyMetaInfo::defaultPropertyValue( const Object *object )
 		ret.replace( *(ex.capturedTexts().begin()), object->property( item ).value().toString() );
 		pos += ex.matchedLength();
 	}
-/*	QStringList::Iterator it( list.begin() );
-	QStringList::Iterator end( list.end() );
-	QString item;
-	kdDebug() << k_funcinfo << "LIST: " << list.join( " | " ) << endl;
-	for ( ; it != end; ++it ) {
-		item = *it;
-		item.remove( "{" );
-		item.remove( "}" );
-		if ( ! object->containsProperty( item ) ) {
-			kdDebug() << k_funcinfo << "Warning: property '" << item << "' not found." << endl;
-			continue;
-		}
-		ret.replace( *it, object->property( item ).value().toString() );
-	}
-*/	
 	return ret;
-//	return object->property( m_defaultProperty ).value().toString();
 }
 
 #include "defaultpropertymetainfo.moc"

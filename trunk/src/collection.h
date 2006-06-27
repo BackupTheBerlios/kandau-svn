@@ -100,7 +100,7 @@ public:
 	bool remove( const OidType& oid );
 
 	bool contains( const OidType& oid );
-	
+
 	Object* find( const QString& property, const QVariant& value );
 
 	bool modified() const;
@@ -126,11 +126,13 @@ public:
 	Object* parent() const;
 	OidType parentOid() const;
 	const ClassInfo *childrenClassInfo() const;
-	
+
 	Manager* manager() const;
 
 	bool simpleAdd( const OidType& oid );
 	void simpleRemove( const OidType& oid );
+	void simpleClear();
+
 protected:
 //	CreateObjectFunction createObjectFunction();
 
@@ -139,7 +141,7 @@ private:
 	// contains. It is used like a cache, so it is filled the first time the objectsClassName()
 	// function is called.
 	QString m_objectsClassName;
-	
+
 	// Map containing all oids and a boolean that indicates whether the relation has been modified or not
 	QMap<OidType,bool> m_collection;
 	//CreateObjectFunction m_createObjectFunction;
@@ -158,7 +160,7 @@ private:
 
 //	CreateObjectFunction m_createObjectFunction;
 	const ClassInfo *m_classInfo;
-	
+
 	Manager* m_manager;
 };
 
@@ -172,7 +174,7 @@ public:
 		m_manager = 0;
 		m_collectionInfo = 0;
 	}
-	
+
 	CollectionRef( T* collection )
 	{
 		if ( collection ) {
@@ -193,7 +195,7 @@ public:
 			m_collection = 0;
 		}
 	}
-	
+
 	CollectionRef<T>& operator=( T* collection )
 	{
 		if ( collection ) {

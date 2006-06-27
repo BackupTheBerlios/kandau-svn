@@ -70,7 +70,6 @@ Object* ObjectHandler::object() const
 	return m_object;
 }
 
-
 /* RelationHandler */
 
 RelationHandler::RelationHandler()
@@ -281,6 +280,22 @@ Q_ULLONG Manager::maxObjects() const
 }
 
 /*!
+Frees the cache of unmodified objects, relations and collections. This function is useful
+on functions that require lots of object reads. Use freeCache() to avoid memory exhaustion while
+without commiting/rolling back the current transaction. Note that some objects should be freed and
+thus you have to ensure no pointer will be used after this function (nor iterators of that object).
+You could probably use the object again if you used ObjectRef<> though. Use it carefully.
+*/
+void Manager::freeCache()
+{
+	// TODO: Doesn't work properly because of the first condition
+	// in ensureUnderMaxObjects, and relations and collections probably too.
+	ensureUnderMaxObjects();
+	ensureUnderMaxRelations();
+	ensureUnderMaxCollections();
+}
+
+/*!
 This function prints with kdDebug() some information about the current status of the Manager. It is used for debugging purposes.
 Shown information includes:
 	* Number of objects kept in memory
@@ -328,7 +343,9 @@ bool Manager::add( Object* object )
 	if ( m_cachePolicy == FreeMaxOnLoad || m_cachePolicy == FreeAllOnLoad )
 		ensureUnderMaxObjects();
 	m_objects.insert( object->oid(), ObjectHandler( object ) );
+#ifdef DEBUG
 	checkObjects();
+#endif
 	return true;
 }
 
@@ -342,40 +359,61 @@ bool Manager::remove( Object* object )
 	assert( object );
 	assert( object->oid() );
 	assert( m_objects.count() > 0 );
-	uint num = m_objects.count() - 1;
 	if ( ! m_objects.contains( object->oid() ) )
 		return false;
+
+	// Remove relations of the object before removing the object itself
+	ObjectsIterator oit( object->objectsBegin() );
+	ObjectsIterator oend( object->objectsEnd() );
+	for ( ; oit != oend; ++oit )
+		object->setObject( oit.key(), static_cast<Object*>( 0 ) );
+
+	CollectionsIterator cit( object->collectionsBegin() );
+	CollectionsIterator cend( object->collectionsEnd() );
+	for ( ; cit != cend; ++cit )
+		cit.data()->clear();
+
+	uint num = m_objects.count() - 1;
 	//Backend hook
 	m_dbBackend->beforeRemove( object );
+
 	m_objects.remove( object->oid() );
 	m_removedOids.append( object->oid() );
-	//m_objects[ object->oid() ].setRemoved( true );
-	//m_objects[ object->oid() ].setObject( 0 );
+
 	delete object;
 	object = 0;
 	assert( m_objects.count() == num );
+#ifdef DEBUG
 	checkObjects();
+#endif
 	return true;
 }
 
 bool Manager::load( Collection* collection )
 {
+#ifdef DEBUG
 	checkObjects();
+#endif
 	return m_dbBackend->load( collection );
 }
 
 bool Manager::load( Collection* collection, const QString& query )
 {
+#ifdef DEBUG
+	checkObjects();
+#endif
+	bool ret;
+
+	collection->simpleClear();
+
 	// Add all the objects already loaded of className query to
 	// the collection
-	checkObjects();
 	bool ret;
 
 	// Add cached objects to the collection
 	ManagerObjectIterator it( m_objects.begin() );
 	ManagerObjectIterator end( m_objects.end() );
 	QString className = query.lower();
-	collection->clear();
 	Object *obj;
 	for ( ; it != end; ++it ) {
 		obj = it.data().object();
@@ -383,15 +421,16 @@ bool Manager::load( Collection* collection, const QString& query )
 			collection->simpleAdd( obj->oid() );
 		}
 	}
-
 	// Load objects from the backend
 	ret = m_dbBackend->load( collection, query );
 
 	// Discard uncommited removes from the collection
-	QValueListConstIterator<OidType> it2( m_removedOids.constBegin() );
-	QValueListConstIterator<OidType> end2( m_removedOids.constEnd() );
-	for ( ; it2 != end2; ++it2 ) {
-		collection->simpleRemove( *it2 );
+	QValueListConstIterator<OidType> rit( m_removedOids.constBegin() );
+	QValueListConstIterator<OidType> rend( m_removedOids.constEnd() );
+	for ( ; rit != rend; ++rit ) {
+		if ( collection->contains( *rit ) ) {
+			collection->simpleRemove( *rit );
+		}
 	}
 	return ret;
 }
@@ -428,16 +467,23 @@ Commits the current transaction
 */
 bool Manager::commit()
 {
+#ifdef DEBUG
 	checkObjects();
+#endif
 	if ( m_dbBackend->commit() ) {
 		setEverythingUnmodified();
 		ensureUnderMaxObjects();
 		ensureUnderMaxRelations();
 		ensureUnderMaxCollections();
+		m_removedOids.clear();
+#ifdef DEBUG
 		checkObjects();
+#endif
 		return true;
 	}
+#ifdef DEBUG
 	checkObjects();
+#endif
 	return false;
 }
 
@@ -541,7 +587,9 @@ Object* Manager::load( OidType oid, const ClassInfo* info )
 	if ( oid == 0 )
 		return 0;
 	assert( info );
+#ifdef DEBUG
 	checkObjects();
+#endif
 	Object *object;
 	if ( m_objects.contains( oid ) ) {
 		// If object has been loaded in this transaction return it
@@ -577,7 +625,9 @@ Object* Manager::load( OidType oid, const ClassInfo* info )
 	if ( m_cachePolicy == FreeMaxOnLoad || m_cachePolicy == FreeAllOnLoad )
 		ensureUnderMaxObjects();
 	m_objects.insert( oid, ObjectHandler( object ) );
+#ifdef DEBUG
 	checkObjects();
+#endif
 	return object;
 }
 
@@ -594,16 +644,17 @@ Object* Manager::load( OidType oid, CreateObjectFunction f )
 	// there too. So let's put a TODO
 	// The problem exists with TestBackend because always returns true, but
 	// with other backends it would simply be suboptimal/inefficient
-
 	if ( oid == 0 )
 		return 0;
+#ifdef DEBUG
 	checkObjects();
+#endif
 	Object *object;
 	assert( f );
 	if ( m_objects.contains( oid ) ) {
 		// If object has been loaded in this transaction return it
 		if ( m_objects[ oid ].isValid() ) {
-			// Note that it can retur a pointer to zero if the object has been removed
+			// Note that it can return a pointer to zero if the object has been removed
 			return m_objects[ oid ].object();
 		}
 		object = m_objects[ oid ].object();
@@ -659,12 +710,11 @@ void Manager::checkObjects()
 
 /*!
 Ensures the total number of objects stays under maxObjects() as long as there
-are unmodified objects. Right now the parameter isn't used anywhere as we call this
-function before adding the object to the map. We'll see if it's necessary somewhere
-in the future, we could remove the parameter if isn't useful.
+are unmodified objects.
 */
 void Manager::ensureUnderMaxObjects()
 {
+// TODO: Should we put this, or a similar condition?
 	if ( m_objects.count() < m_maxObjects )
 		return;
 
@@ -693,7 +743,9 @@ void Manager::ensureUnderMaxObjects()
 		m_objects.remove( *vIt );
 		assert( ! m_objects.contains( *vIt ) );
 	}
+#ifdef DEBUG
 	checkObjects();
+#endif
 }
 
 void Manager::ensureUnderMaxRelations()
@@ -760,8 +812,10 @@ void Manager::setRelation( const OidType& oid, const ClassInfo* classInfo, const
 	if ( oldOid != 0 ) {
 		if ( oldOid != oidRelated ) {
 			if ( classInfo->object( relstr )->isOneToOne() ) {
-				if ( classInfo->object( relstr )->relatedClassInfo() != classInfo ) {
-					// We test that we're not modifying the same class
+				//if ( classInfo->object( relstr )->relatedClassInfo() != classInfo ) {
+				//	// We test that we're not modifying the same class
+				if ( oldOid != oid ) {
+					// We test that we're not modifying the same object
 					Reference ref( oldOid, relstr );
 					m_relations[ ref ].setOid( 0 );
 					m_relations[ ref ].setModified( true );
@@ -804,17 +858,6 @@ void Manager::addRelation( const OidType& oid, const CollectionInfo* relcol, con
 			setRelation( oidRelated, relcol->childrenClassInfo(), relation, oid, false );
 		else
 			addRelation( oidRelated, relcol->childrenClassInfo()->collection( relation ), oid, false );
-
-	/*
-		if ( Classes::classInfo( relcol->childrenClassInfo()->name() )->containsObject( relation ) ) {
-			setRelation( oidRelated, relcol->childrenClassInfo(), relation, oid, false );
-		} else if ( Classes::classInfo( relcol->childrenClassInfo()->name() )->containsCollection( relation ) ) {
-			addRelation( oidRelated, relcol->childrenClassInfo()->collection( relation ), oid, false );
-		} else {
-			// It is not browseable from the other object
-			return;
-		}
-	*/
 	}
 }
 
@@ -830,16 +873,6 @@ void Manager::removeRelation( const OidType& oid, const CollectionInfo* relcol, 
 			setRelation( oidRelated, relcol->childrenClassInfo(), 0, false );
 		else
 			removeRelation( oidRelated, relcol->childrenClassInfo()->collection( relation ), oid, false );
-	/*
-		if ( Classes::classInfo( relcol->childrenClassInfo()->name() )->containsObject( relation ) ) {
-			setRelation( oidRelated, relcol->childrenClassInfo(), 0, false );
-		} else if ( Classes::classInfo( relcol->childrenClassInfo()->name() )->containsCollection( relation ) ) {
-			removeRelation( oidRelated, relcol->childrenClassInfo()->collection( relation ), oid, false );
-		} else {
-			// It is not browseable from the other object
-			return;
-		}
-	*/
 	}
 }
 
@@ -942,6 +975,14 @@ void Manager::copyTo( Manager* manager )
 		dstObj->setModified( true );
 	}
 
+	ManagerRelationIterator rit( m_relations.begin() );
+	ManagerRelationIterator rend( m_relations.end() );
+	RelationHandler rel;
+	for ( ; rit != rend; ++rit ) {
+		rel = rit.data();
+		manager->m_relations.insert( rit.key(), RelationHandler( rel.oid(), rel.relationInfo(), true ) );
+	}
+
 	ManagerCollectionIterator cit( m_collections.begin() );
 	ManagerCollectionIterator cend( m_collections.end() );
 	Collection *col, *srcCol;
@@ -994,4 +1035,30 @@ void Manager::setNotificationHandler( NotificationHandler* handler )
 NotificationHandler* Manager::notificationHandler() const
 {
 	return m_notificationHandler;
+}
+
+bool Manager::modified( ) const
+{
+	if ( m_removedOids.size() > 0 )
+		return true;
+
+	ManagerObjectConstIterator oit( m_objects.constBegin() );
+	ManagerObjectConstIterator oend( m_objects.constEnd() );
+	for ( ; oit != oend; ++oit )
+		if ( (*oit).object()->isModified() )
+			return true;
+
+	ManagerRelationConstIterator rit( m_relations.constBegin() );
+	ManagerRelationConstIterator rend( m_relations.constEnd() );
+	for ( ; rit != rend; ++rit )
+		if ( (*rit).isModified() )
+			return true;
+
+	ManagerCollectionConstIterator cit( m_collections.constBegin() );
+	ManagerCollectionConstIterator cend( m_collections.constEnd() );
+	for ( ; cit != cend; ++cit )
+		if ( (*cit).collection()->modified() )
+			return true;
+
+	return false;
 }

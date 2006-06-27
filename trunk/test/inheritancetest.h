@@ -17,27 +17,24 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#ifndef DOCUMENT_H
-#define DOCUMENT_H
+#ifndef INHERITANCETEST_H
+#define INHERITANCETEST_H
 
-#include <object.h>
+#include <tester.h>
+
+class Manager;
 
 /**
-@author Albert Cervera Areny
+	@author Albert Cervera Areny <albertca@hotpop.com>
 */
-class Document : public Object
+class InheritanceTest : public Tester
 {
-	Q_OBJECT
-	Q_PROPERTY( QByteArray data WRITE setData READ data );
-
 public:
-	DCLASS( Document );
-
-	void setData( const QByteArray& data );
-	const QByteArray& data() const;
-
+	void browsing();
+	void sql();
+	void allTests();
 private:
-	QByteArray m_data;
+	Manager *m_manager;
 };
 
 #endif

@@ -47,10 +47,10 @@ void MultipleBackendsTest::xml2xml()
 	manager2->createSchema();
 	manager1->copyTo( manager2 );
 	manager2->commit();
-	
+
 	delete manager2;
 	delete manager1;
-	
+
 	QFile file;
 	QByteArray a1, a2;
 	file.setName( "database.xml" );

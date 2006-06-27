@@ -3,61 +3,57 @@
  *   albertca@hotpop.com                                                   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU Library General Public License as published by  *
+ *   it under the terms of the GNU General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
  *   (at your option) any later version.                                   *
  *                                                                         *
  *   This program is distributed in the hope that it will be useful,       *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
- *   GNU Library General Public License for more details.                          *
+ *   GNU General Public License for more details.                          *
  *                                                                         *
- *   You should have received a copy of the GNU Library General Public License     *
+ *   You should have received a copy of the GNU General Public License     *
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#ifndef CLASSDIALOG_H
-#define CLASSDIALOG_H
+#ifndef WIDGETHANDLER_H
+#define WIDGETHANDLER_H
 
-#include <kdialogbase.h>
+#include <qobject.h>
+
 #include <object.h>
 
-class PropertyWidget;
-class KTabWidget;
-
 /**
-	@author Albert Cervera Areny <albertca@hotpop.com>
+@author Albert Cervera Areny
 */
-class ClassDialog : public KDialogBase
+class WidgetHandler : public QObject
 {
 	Q_OBJECT
 public:
-	ClassDialog( Object* object, QWidget *parent = 0 );
-
+	WidgetHandler( QObject *object = 0, const char* name = 0 );
+	void setObject( Object* object );
 	Object* object() const;
+	void setWidget( QWidget *widget );
+	QWidget* widget() const;
+	virtual void load() = 0;
+	virtual void save() = 0;
 
-signals:
-	void objectSelected( Object* object );
-	void okClicked( Object* object );
-	void cancelClicked( Object* object );
+	Object* relation( const QString& path );
+	bool existsRelation( const QString& path );
 
-protected:
-	static void updateObjectLabel( KURLLabel *objLabel, const Object *obj );
-	void slotOk();
-	void slotCancel();
-
-private slots:
-	void slotObjectSelected( const QString& oid );
-	void slotChangeClicked();
-	void slotObjectModified( const ClassInfo* classInfo, const OidType& object, const PropertyInfo *property, const QVariant& newValue );
+	Collection* collection( const QString& path );
+	bool existsCollection( const QString& path );
 
 private:
-	QMap<QString,PropertyWidget*> m_mapProperties;
-	QMap<QString,KURLLabel*> m_mapObjects;
-	QMap<const QWidget*,RelationInfo*> m_mapChangeButtons;
 	ObjectRef<Object> m_object;
-	KTabWidget *m_tab;
+	QWidget *m_widget;
+};
+
+class WidgetHandlerFactory
+{
+public:
+	virtual WidgetHandler* create( QWidget *widget ) const = 0;
 };
 
 #endif

@@ -26,6 +26,9 @@
 
 // Property
 
+/*!
+Constructor for Property. Typically used by Object only.
+*/
 Property::Property( Object *obj, const QString& name )
 {
 	m_object = obj;
@@ -33,6 +36,9 @@ Property::Property( Object *obj, const QString& name )
 	m_name = name;
 }
 
+/*!
+Constructor for Property. Typically used by const Object only.
+*/
 Property::Property( const Object *obj, const QString& name )
 {
 	m_object = 0;
@@ -40,27 +46,42 @@ Property::Property( const Object *obj, const QString& name )
 	m_name = name;
 }
 
+/*!
+Obtains the data type of the property.
+*/
 QVariant::Type Property::type() const
 {
 	return m_constObject->classInfo()->property( m_name )->type();
 }
 
+/*!
+Obtains the value of the property.
+*/
 QVariant Property::value() const
 {
 	return m_constObject->propertyValue( m_name.ascii() );
 }
 
+/*!
+Sets the value of the property.
+*/
 void Property::setValue( const QVariant& value )
 {
 	if ( m_object->setProperty( m_name, value ) )
 		m_object->setModified( true );
 }
 
+/*!
+Obtains the name of the property.
+*/
 const QString& Property::name() const
 {
 	return m_name;
 }
 
+/*!
+Returns true if the property is read-only. False if it's read-write.
+*/
 bool Property::readOnly() const
 {
 	return m_constObject->classInfo()->property( m_name )->readOnly();
@@ -68,59 +89,108 @@ bool Property::readOnly() const
 
 // PropertiesIterator
 
+/*!
+Class constructor. Typically used Object class only.
+\param object Object that holds the values of the properties to iterate.
+\param it PropertiesInfoConstIterator that holds the properties info to iterate.
+*/
 PropertiesIterator::PropertiesIterator( Object *object, PropertiesInfoConstIterator it )
 {
 	m_object = object;
 	m_it = it;
 }
 
+/*!
+Obtains the property associated with the current iterator.
+*/
 Property PropertiesIterator::data()
 {
 	return Property( m_object, (*m_it)->name() );
 }
+
+/*!
+Obtains the const property associated with the current iterator.
+*/
 const Property PropertiesIterator::data() const
 {
 	return Property( m_object, (*m_it)->name() );
 }
+
+/*!
+Increase by one the current iterator position.
+*/
 PropertiesIterator& PropertiesIterator::operator++()
 {
 	m_it++;
 	return *this;
 }
+
+/*!
+Decrease by one the current iterator position.
+*/
 PropertiesIterator& PropertiesIterator::operator--()
 {
 	m_it--;
 	return *this;
 }
+
+/*!
+Increase by one the current iterator position.
+*/
 PropertiesIterator PropertiesIterator::operator++(int)
 {
 	PropertiesIterator tmp = *this;
 	m_it++;
 	return tmp;
 }
+
+/*!
+Decrease by one the current iterator position.
+*/
 PropertiesIterator PropertiesIterator::operator--(int)
 {
 	PropertiesIterator tmp = *this;
 	m_it--;
 	return tmp;
 }
+
+/*!
+Compares two PropertiesIterator. Returns true if they're the same, false otherwise.
+*/
 bool PropertiesIterator::operator==( const PropertiesIterator& it ) const
 {
 	return m_it == it.m_it && m_object == it.m_object;
 }
+
+/*!
+Compares two PropertiesIterator. Returns true if they're different, false otherwise.
+*/
 bool PropertiesIterator::operator!=( const PropertiesIterator& it ) const
 {
 	return m_it != it.m_it || m_object != it.m_object;
 }
+
+/*!
+Obtains the property of the current position of the iterator. If the
+iterator is in an invalid position, the behaviour is undefined.
+*/
 Property PropertiesIterator::operator*()
 {
 	return Property( m_object, (*m_it)->name() );
 }
+
+/*!
+Obtains the const property of the current position of the iterator. If the
+iterator is in an invalid position, the behaviour is undefined.
+*/
 const Property PropertiesIterator::operator*() const
 {
 	return Property( m_object, (*m_it)->name() );
 }
 
+/*!
+Establishes the position of the iterator to be the same as the it iterator.
+*/
 PropertiesIterator& PropertiesIterator::operator=(const PropertiesIterator& it)
 {
 	m_object = it.m_object;
@@ -130,52 +200,91 @@ PropertiesIterator& PropertiesIterator::operator=(const PropertiesIterator& it)
 
 
 // PropertiesConstIterator
-
+/*!
+Class constructor. Typically used Object class only.
+\param object Object that holds the values of the properties to iterate.
+\param it PropertiesInfoConstIterator that holds the properties info to iterate.
+*/
 PropertiesConstIterator::PropertiesConstIterator( const Object *object, PropertiesInfoConstIterator it ) 
 {
 	m_object = object;
 	m_it = it;
 }
 	
+/*!
+Obtains the property associated with the current iterator.
+*/
 const Property PropertiesConstIterator::data() const
 {
 	return Property( m_object, (*m_it)->name() );
 }
 
+/*!
+Increase by one the current iterator position.
+*/
 PropertiesConstIterator& PropertiesConstIterator::operator++()
 {
 	m_it++;
 	return *this;
 }
+
+/*!
+Decrease by one the current iterator position.
+*/
 PropertiesConstIterator& PropertiesConstIterator::operator--()
 {
 	m_it--;
 	return *this;
 }
+
+/*!
+Increase by one the current iterator position.
+*/
 PropertiesConstIterator PropertiesConstIterator::operator++(int)
 {
 	PropertiesConstIterator tmp = *this;
 	m_it++;
 	return tmp;
 }
+
+/*!
+Decrease by one the current iterator position.
+*/
 PropertiesConstIterator PropertiesConstIterator::operator--(int)
 {
 	PropertiesConstIterator tmp = *this;
 	m_it--;
 	return tmp;
 }
+
+/*!
+Compares two PropertiesIterator. Returns true if they're the same, false otherwise.
+*/
 bool PropertiesConstIterator::operator==( const PropertiesConstIterator& it ) const
 {
 	return m_it == it.m_it && m_object == it.m_object;
 }
+
+/*!
+Compares two PropertiesIterator. Returns true if they're different, false otherwise.
+*/
 bool PropertiesConstIterator::operator!=( const PropertiesConstIterator& it ) const
 {
 	return m_it != it.m_it || m_object != it.m_object;
 }
+
+/*!
+Obtains the property of the current position of the iterator. If the
+iterator is in an invalid position, the behaviour is undefined.
+*/
 const Property PropertiesConstIterator::operator*() const
 {
 	return Property( m_object, (*m_it)->name() );
 }
+
+/*!
+Establishes the position of the iterator to be the same as the it iterator.
+*/
 PropertiesConstIterator& PropertiesConstIterator::operator=(const PropertiesConstIterator& it)
 {
 	m_object = it.m_object;
@@ -470,6 +579,10 @@ void Object::setModified( bool value )
 	m_modified = value;
 }
 
+/*!
+This function initializes all object properties to a default/sane value. Note 
+that an object is NOT reset when instantiated.
+*/
 void Object::reset()
 {
 	PropertiesIterator it( propertiesBegin() );

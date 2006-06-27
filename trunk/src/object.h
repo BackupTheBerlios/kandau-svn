@@ -147,6 +147,18 @@ const QString& classTypeTestFunction( const QString&, Object* );
 #endif
 */
 
+/*!
+\brief This class provides access to the value and data type of a property in an Object.
+
+This class will be returned by the Object class and permits setting and obtaining
+a property's value. You can also obtain the data type and weather it's read-only or
+read-write.
+
+To know about class properties without the need of creating an instance look at the
+PropertyInfo class. Property is similar to PropertyInfo but also holds the value.
+
+\see PropertyInfo, Object
+*/
 class Property
 {
 public:
@@ -165,6 +177,11 @@ private:
 	QString m_name;
 };
 
+/*!
+\brief This class provides an iterator for the properties in an Object.
+
+\see Property, Object
+*/
 class PropertiesIterator
 {
 public:
@@ -186,6 +203,11 @@ private:
 	PropertiesInfoConstIterator m_it;
 };
 
+/*!
+\brief This class provides a const iterator for the properties in an Object.
+
+\see Property, Object
+*/
 class PropertiesConstIterator
 {
 public:
@@ -254,16 +276,27 @@ private:
 
 
 /*!
-Any object that is to be persistent must inherit from this class, declare de class with DCLASS in the header and implement it with ICLASS (see example below)
+\brief This class provides easy introspection as well as persistency capabilities.
 
-Data which has to be saved needs to be a Qt property (see http://doc.trolltech.com/3.3/properties.html) and relations of objects
+Any object that is to be persistent must inherit from this class, declare the class 
+with DCLASS in the header and implement it with ICLASS (see example below).
 
-Related objects (that is 1-1 relations), have to be declared with the OBJECT() macro in the void OurNewPersistentClass::createRelations() function.
+Data which has to be saved needs to be a Qt property 
+(see http://doc.trolltech.com/3.3/properties.html).
 
-Related collections (that is N-N or N-1 relations) have to be declared COLLECTION() macro in the createRelations() function, as well.
+Related objects (that is 1-1, N-1 relations), have to be declared with the OBJECT() 
+macro in the void OurNewPersistentClass::createRelations() function.
+
+Related collections (that is N-N or 1-N relations) have to be declared with the
+COLLECTION() macro in the createRelations() function, as well.
+
+Every object inherited from Object has an Oid assigned by the manager which uniquely
+identifies the object in the objects pool.
+
 
 Example:
-<code>
+
+\code
 // Header: example.h
 
 class Example : public Object
@@ -328,7 +361,9 @@ Collection* Example::moreExamples()
 }
 
 #include "example.moc"
-</code>
+\endcode
+
+\see DynamicObject, ClassInfo
 */
 
 class Object : public QObject
@@ -408,8 +443,11 @@ protected:
 	// m_modified is protected because the MODIFIED macro needs it,
 	// is it a good solution?
 	bool m_modified;
+	
 	Manager *m_manager;
+	
 	// Used as a cache. It is calculated the first time the classInfo() (non-const) function is called and used from there on
+	// TODO: Explain better the use of this var, it's not only cache but also used by Dynamic Objects.
 	const ClassInfo *m_classInfo;
 
 private:

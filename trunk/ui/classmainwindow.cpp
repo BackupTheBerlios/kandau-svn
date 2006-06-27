@@ -20,6 +20,7 @@
 #include <qtimer.h>
 #include <qtoolbox.h>
 #include <qlayout.h>
+#include <qfile.h>
 
 #include <klistviewsearchline.h>
 #include <kstdaction.h>
@@ -30,6 +31,7 @@
 #include "collectionlistview.h"
 #include "classmainwindow.h"
 #include "classdialog.h"
+#include "uiclassdialog.h"
 #include "classselector.h"
 
 ClassMainWindow::ClassMainWindow(QWidget *parent, const char *name)
@@ -53,6 +55,22 @@ void ClassMainWindow::initGUI()
 	QVBoxLayout *vlayout = new QVBoxLayout( layout );
 	m_listView = new CollectionListView( 0, m_centralWidget );
 	m_listView->setClassInfo( m_classSelector->currentClass() );
+
+	ClassInfoIterator it( Classes::begin() );
+	ClassInfoIterator end( Classes::end() );
+	if ( it != end )
+		m_listView->setClassInfo( it.data() );
+
+	for ( int i = 0; it != end; ++it, ++i ) {
+		ClassInfo *info = it.data();
+		LabelsMetaInfo *labels = dynamic_cast<LabelsMetaInfo*>( info->metaInfo( "labels" ) );
+		m_mapClasses.insert( i, info );
+		if ( labels )
+			m_classSelector->addItem( new QWidget(m_classSelector), labels->label( info->name() ) );
+		else
+			m_classSelector->addItem( new QWidget(m_classSelector), info->name() );
+	}
+
 
 	connect( m_listView, SIGNAL(doubleClicked(QListViewItem*,const QPoint&, int)), SLOT(slotDoubleClicked(QListViewItem*,const QPoint&, int)));
 
@@ -89,11 +107,22 @@ void ClassMainWindow::slotObjectSelected( Object *object )
 	if ( m_mapDialogs.contains( object->oid() ) ) {
 		m_mapDialogs[ object->oid() ]->setFocus();
 	} else {
-		ClassDialog *dialog = new ClassDialog( object, this );
-		dialog->show();
-		connect( dialog, SIGNAL(finished()), SLOT(slotDialogFinished()) );
-		connect( dialog, SIGNAL(objectSelected(Object*)), SLOT(slotObjectSelected(Object*)) );
-		m_mapDialogs.insert( object->oid(), dialog );
+		QFile f( QString( object->classInfo()->name() ).lower() + ".ui" );
+		if ( f.exists() ) {
+			UiClassDialog *dialog = new UiClassDialog( this );
+			dialog->setObject( object );
+			dialog->setUiFile( f.name() );
+			dialog->show();
+			connect( dialog, SIGNAL(finished()), SLOT(slotDialogFinished()) );
+			m_mapDialogs.insert( object->oid(), dialog );
+		} else {
+			ClassDialog *dialog = new ClassDialog( object, this );
+			dialog->show();
+			//connect( dialog, SIGNAL(destroyed(QObject*)), SLOT(slotDialogDestroyed(QObject*)) );
+			connect( dialog, SIGNAL(finished()), SLOT(slotDialogFinished()) );
+			connect( dialog, SIGNAL(objectSelected(Object*)), SLOT(slotObjectSelected(Object*)) );
+			m_mapDialogs.insert( object->oid(), dialog );
+		}
 	}
 }
 
@@ -102,6 +131,11 @@ void ClassMainWindow::slotDialogFinished()
 	const ClassDialog *dialog = dynamic_cast<const ClassDialog*>( sender() );
 	if ( dialog )
 		m_mapDialogs.remove( dialog->object()->oid() );
+	else {
+		const UiClassDialog *dialog = dynamic_cast<const UiClassDialog*>( sender() );
+		if ( dialog )
+			m_mapDialogs.remove( dialog->object()->oid() );
+	}
 }
 
 void ClassMainWindow::slotCurrentClassChanged( const ClassInfo *classInfo )
