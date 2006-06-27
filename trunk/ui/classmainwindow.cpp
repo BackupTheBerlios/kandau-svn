@@ -32,7 +32,7 @@
 #include "classmainwindow.h"
 #include "classdialog.h"
 #include "uiclassdialog.h"
-#include "classselector.h"
+#include "classchooser.h"
 
 ClassMainWindow::ClassMainWindow(QWidget *parent, const char *name)
  : KMainWindow(parent, name)
@@ -47,14 +47,14 @@ void ClassMainWindow::initGUI()
 	setCentralWidget( m_centralWidget );
 	QHBoxLayout *layout = new QHBoxLayout( m_centralWidget );
 
-	m_classSelector = new ClassSelector( m_centralWidget );
-	m_classSelector->setMaximumWidth( 200 );
-	m_classSelector->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
-	layout->addWidget( m_classSelector );
+	m_classChooser = new ClassChooser( m_centralWidget );
+	m_classChooser->setMaximumWidth( 200 );
+	m_classChooser->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
+	layout->addWidget( m_classChooser );
 
 	QVBoxLayout *vlayout = new QVBoxLayout( layout );
 	m_listView = new CollectionListView( 0, m_centralWidget );
-	m_listView->setClassInfo( m_classSelector->currentClass() );
+	m_listView->setClassInfo( m_classChooser->currentClass() );
 
 	ClassInfoIterator it( Classes::begin() );
 	ClassInfoIterator end( Classes::end() );
@@ -66,9 +66,9 @@ void ClassMainWindow::initGUI()
 		LabelsMetaInfo *labels = dynamic_cast<LabelsMetaInfo*>( info->metaInfo( "labels" ) );
 		m_mapClasses.insert( i, info );
 		if ( labels )
-			m_classSelector->addItem( new QWidget(m_classSelector), labels->label( info->name() ) );
+			m_classChooser->addItem( new QWidget(m_classChooser), labels->label( info->name() ) );
 		else
-			m_classSelector->addItem( new QWidget(m_classSelector), info->name() );
+			m_classChooser->addItem( new QWidget(m_classChooser), info->name() );
 	}
 
 
@@ -84,7 +84,7 @@ void ClassMainWindow::initGUI()
 
 	setupGUI();
 
-	connect( m_classSelector, SIGNAL(classSelected(const ClassInfo*)), SLOT(slotCurrentClassChanged(const ClassInfo*)) );
+	connect( m_classChooser, SIGNAL(classSelected(const ClassInfo*)), SLOT(slotCurrentClassChanged(const ClassInfo*)) );
 }
 
 void ClassMainWindow::slotSetup()

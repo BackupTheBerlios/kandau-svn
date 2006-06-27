@@ -192,8 +192,6 @@ void PropertyWidget::setValue( const QVariant& value )
 		default: {
 			break;
 		}
-		default:
-			break;
 	}
 }
 

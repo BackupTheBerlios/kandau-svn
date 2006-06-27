@@ -406,10 +406,6 @@ bool Manager::load( Collection* collection, const QString& query )
 
 	collection->simpleClear();
 
-	// Add all the objects already loaded of className query to
-	// the collection
-	bool ret;
-
 	// Add cached objects to the collection
 	ManagerObjectIterator it( m_objects.begin() );
 	ManagerObjectIterator end( m_objects.end() );
@@ -435,7 +431,7 @@ bool Manager::load( Collection* collection, const QString& query )
 	return ret;
 }
 
-bool Manager::modified()
+bool Manager::modified() const
 {
 	if ( m_removedOids.size() > 0 )
 		return true;
@@ -1037,28 +1033,3 @@ NotificationHandler* Manager::notificationHandler() const
 	return m_notificationHandler;
 }
 
-bool Manager::modified( ) const
-{
-	if ( m_removedOids.size() > 0 )
-		return true;
-
-	ManagerObjectConstIterator oit( m_objects.constBegin() );
-	ManagerObjectConstIterator oend( m_objects.constEnd() );
-	for ( ; oit != oend; ++oit )
-		if ( (*oit).object()->isModified() )
-			return true;
-
-	ManagerRelationConstIterator rit( m_relations.constBegin() );
-	ManagerRelationConstIterator rend( m_relations.constEnd() );
-	for ( ; rit != rend; ++rit )
-		if ( (*rit).isModified() )
-			return true;
-
-	ManagerCollectionConstIterator cit( m_collections.constBegin() );
-	ManagerCollectionConstIterator cend( m_collections.constEnd() );
-	for ( ; cit != cend; ++cit )
-		if ( (*cit).collection()->modified() )
-			return true;
-
-	return false;
-}

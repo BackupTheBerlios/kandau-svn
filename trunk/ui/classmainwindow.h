@@ -22,7 +22,7 @@
 
 #include <kmainwindow.h>
 
-class ClassSelector;
+class ClassChooser;
 class CollectionListView;
 class KListViewSearchLine;
 class ClassInfo;
@@ -53,9 +53,10 @@ private slots:
 	void slotSetup();
 
 private:
+	QMap<int,ClassInfo*> m_mapClasses;
 	QMap<OidType,KDialog*> m_mapDialogs;
 	QWidget *m_centralWidget;
-	ClassSelector *m_classSelector;
+	ClassChooser *m_classChooser;
 	CollectionListView *m_listView;
 	KListViewSearchLine *m_listViewSearchLine;
 

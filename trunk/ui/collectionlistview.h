@@ -22,13 +22,8 @@
 
 #include <klistview.h>
 
-<<<<<<< .mine
 #include <object.h>
 
-=======
-#include <qmap.h>
-
->>>>>>> .r80
 class ClassInfo;
 class Manager;
 

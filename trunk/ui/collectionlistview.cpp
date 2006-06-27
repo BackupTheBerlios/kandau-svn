@@ -21,7 +21,7 @@
 
 #include <classes.h>
 #include <collection.h>
-#include <labelsmetainfo.h>
+
 #include "collectionlistview.h"
 
 CollectionListView::CollectionListView( const ClassInfo *classInfo, QWidget *parent ) :
@@ -36,8 +36,7 @@ CollectionListView::CollectionListView( const ClassInfo *classInfo, QWidget *par
 void CollectionListView::fill()
 {
 	clear();
-
-	while ( columns() > 0 )
+	while (  columns() > 0 )
 		removeColumn( 0 );
 
 	if ( ! m_classInfo )
@@ -45,26 +44,14 @@ void CollectionListView::fill()
 
 	PropertiesInfoConstIterator it( m_classInfo->propertiesBegin() );
 	PropertiesInfoConstIterator end( m_classInfo->propertiesEnd() );
-
-	LabelsMetaInfo *labels = dynamic_cast<LabelsMetaInfo*>( m_classInfo->metaInfo( "labels" ) );
 	addColumn( "oid" );
-	m_map.insert( "oid", "oid" );
-	m_map2.insert( "oid", "oid" );
-	QString name;
 	for ( ; it != end; ++it ) {
-		if ( labels )
-			name = labels->label( it.data()->name() );
-		else
-			name = it.data()->name();
-		addColumn( name );
-		m_map.insert( name, it.data()->name() );
-		m_map2.insert( it.data()->name(), name );
+		addColumn( it.data()->name() );
 	}
-
 	Collection col( m_classInfo->name() );
 	CollectionIterator it2( col.begin() );
 	CollectionIterator end2( col.end() );
-	for ( ; it2 != end2; ++it2 ) {
+	for (; it2 != end2; ++it2 ) {
 		add( it2.data() );
 	}
 }
