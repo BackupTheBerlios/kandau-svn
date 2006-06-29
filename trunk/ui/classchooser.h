@@ -36,6 +36,8 @@ public:
 
 	const ClassInfo* currentClass() const;
 
+	void load();
+
 signals:
 	void classSelected( const ClassInfo *classInfo );
 

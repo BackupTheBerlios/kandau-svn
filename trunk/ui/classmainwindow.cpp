@@ -56,22 +56,10 @@ void ClassMainWindow::initGUI()
 	m_listView = new CollectionListView( 0, m_centralWidget );
 	m_listView->setClassInfo( m_classChooser->currentClass() );
 
-	ClassInfoIterator it( Classes::begin() );
-	ClassInfoIterator end( Classes::end() );
-	if ( it != end )
-		m_listView->setClassInfo( it.data() );
 
-	for ( int i = 0; it != end; ++it, ++i ) {
-		ClassInfo *info = it.data();
-		LabelsMetaInfo *labels = dynamic_cast<LabelsMetaInfo*>( info->metaInfo( "labels" ) );
-		m_mapClasses.insert( i, info );
-		if ( labels )
-			m_classChooser->addItem( new QWidget(m_classChooser), labels->label( info->name() ) );
-		else
-			m_classChooser->addItem( new QWidget(m_classChooser), info->name() );
-	}
-
-
+	m_classChooser->load();
+	m_listView->setClassInfo( m_classChooser->currentClass() );
+	
 	connect( m_listView, SIGNAL(doubleClicked(QListViewItem*,const QPoint&, int)), SLOT(slotDoubleClicked(QListViewItem*,const QPoint&, int)));
 
 	m_listViewSearchLine = new KListViewSearchLine( m_centralWidget );

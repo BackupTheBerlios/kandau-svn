@@ -17,6 +17,8 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
+#include <kdebug.h>
+
 #include <collection.h>
 #include <labelsmetainfo.h>
 
@@ -24,22 +26,7 @@
 
 ClassChooser::ClassChooser( QWidget *parent ) : QToolBox( parent )
 {
-        ClassInfoConstIterator it( Classes::begin() );
-        ClassInfoConstIterator end( Classes::end() );
-        for ( ; it != end; ++it ) {
-                ClassInfo *info = it.data();
-
-                int i = m_classes.size();
-                m_classes.resize( i + 1 );
-                m_classes[ i ] = info;
-
-                LabelsMetaInfo *labels = dynamic_cast<LabelsMetaInfo*>( info->metaInfo( "labels" ) );
-                if ( labels )
-                        addItem( new QWidget( this ), labels->label( info->name() ) );
-                else
-                        addItem( new QWidget(this), info->name() );
-        }
-        connect( this, SIGNAL(currentChanged(int)), SLOT(slotCurrentChanged(int)) );
+	connect( this, SIGNAL(currentChanged(int)), SLOT(slotCurrentChanged(int)) );
 }
 
 const ClassInfo* ClassChooser::currentClass() const
@@ -55,6 +42,25 @@ void ClassChooser::slotCurrentChanged( int index )
         if ( index < 0 || index >= m_classes.size() )
                 return;
         emit classSelected( m_classes[ index ] );
+}
+
+void ClassChooser::load()
+{
+	ClassInfoConstIterator it( Classes::begin() );
+	ClassInfoConstIterator end( Classes::end() );
+	for ( ; it != end; ++it ) {
+		ClassInfo *info = it.data();
+
+		int i = m_classes.size();
+		m_classes.resize( i + 1 );
+		m_classes[ i ] = info;
+
+		LabelsMetaInfo *labels = dynamic_cast<LabelsMetaInfo*>( info->metaInfo( "labels" ) );
+		if ( labels )
+			addItem( new QWidget( this ), labels->label( info->name() ) );
+		else
+			addItem( new QWidget(this), info->name() );
+	}
 }
 
 #include "classchooser.moc"

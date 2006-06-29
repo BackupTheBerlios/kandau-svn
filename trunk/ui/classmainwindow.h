@@ -53,7 +53,6 @@ private slots:
 	void slotSetup();
 
 private:
-	QMap<int,ClassInfo*> m_mapClasses;
 	QMap<OidType,KDialog*> m_mapDialogs;
 	QWidget *m_centralWidget;
 	ClassChooser *m_classChooser;
