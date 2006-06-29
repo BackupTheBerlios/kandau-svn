@@ -21,9 +21,11 @@
 #include <qtoolbox.h>
 #include <qlayout.h>
 #include <qfile.h>
+#include <qpopupmenu.h>
 
 #include <klistviewsearchline.h>
 #include <kstdaction.h>
+#include <klocale.h>
 
 #include <collection.h>
 #include <labelsmetainfo.h>
@@ -59,8 +61,9 @@ void ClassMainWindow::initGUI()
 
 	m_classChooser->load();
 	m_listView->setClassInfo( m_classChooser->currentClass() );
-	
+
 	connect( m_listView, SIGNAL(doubleClicked(QListViewItem*,const QPoint&, int)), SLOT(slotDoubleClicked(QListViewItem*,const QPoint&, int)));
+	connect( m_listView, SIGNAL(rightButtonClicked(QListViewItem*,const QPoint&,int)), SLOT(slotRightClick(QListViewItem*,const QPoint &,int)) );
 
 	m_listViewSearchLine = new KListViewSearchLine( m_centralWidget );
 	m_listViewSearchLine->setListView( m_listView );
@@ -117,18 +120,45 @@ void ClassMainWindow::slotObjectSelected( Object *object )
 void ClassMainWindow::slotDialogFinished()
 {
 	const ClassDialog *dialog = dynamic_cast<const ClassDialog*>( sender() );
-	if ( dialog )
+	if ( dialog ) {
 		m_mapDialogs.remove( dialog->object()->oid() );
-	else {
+		if ( dialog->object()->classInfo() == m_classChooser->currentClass() ) {
+			m_listView->fill();
+		}
+	} else {
 		const UiClassDialog *dialog = dynamic_cast<const UiClassDialog*>( sender() );
-		if ( dialog )
+		if ( dialog ) {
 			m_mapDialogs.remove( dialog->object()->oid() );
+			if ( dialog->object()->classInfo() == m_classChooser->currentClass() ) {
+				m_listView->fill();
+			}
+		}
 	}
 }
 
 void ClassMainWindow::slotCurrentClassChanged( const ClassInfo *classInfo )
 {
 	m_listView->setClassInfo( classInfo );
+	m_listView->fill();
+}
+
+void ClassMainWindow::slotRightClick( QListViewItem *, const QPoint &pos, int )
+{
+	QPopupMenu *menu = new QPopupMenu( this );
+	menu->insertItem( i18n( "&Add" ), this, SLOT(slotAdd()) );
+	menu->insertItem( i18n( "&Remove" ), this, SLOT(slotRemove()) );
+	menu->popup( pos );
+}
+
+void ClassMainWindow::slotAdd( )
+{
+	slotObjectSelected( m_listView->classInfo()->create() );
+}
+
+void ClassMainWindow::slotRemove()
+{
+	kdDebug() << k_funcinfo << m_listView->currentItem()->text( 0 ) << endl;
+	Manager::self()->remove( m_listView->classInfo()->create( stringToOid( m_listView->currentItem()->text( 0 ) ) ) );
 	m_listView->fill();
 }
 
