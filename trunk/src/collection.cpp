@@ -477,12 +477,16 @@ Removes all items from the collection.
 */
 void Collection::clear()
 {
-	QMapConstIterator<OidType,bool> it( m_collection.constBegin() );
-	QMapConstIterator<OidType,bool> end( m_collection.constEnd() );
+	// Create a copy of the map as m_collection items would be
+	// removed by the remove( it.key() ); call at each iteration
+	QMap<OidType,bool> map( m_collection );
+	QMapConstIterator<OidType,bool> it( map.constBegin() );
+	QMapConstIterator<OidType,bool> end( map.constEnd() );
 	for ( ; it != end; ++it ) {
 		remove( it.key() );
 	}
-	m_collection.clear();
+	// The collection must be empty when the function ends
+	assert( m_collection.count() == 0 );
 }
 
 /*!
