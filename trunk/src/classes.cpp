@@ -18,9 +18,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 #include <kdebug.h>
+#include <qmetaobject.h>
 
 #include "classes.h"
 #include "object.h"
+
 
 ClassInfoMap *Classes::m_classes = 0;
 ClassInfo* Classes::m_currentClass = 0;
@@ -28,12 +30,62 @@ TmpClassMap* Classes::m_tmpClasses = 0;
 
 /* PropertyInfo */
 
+PropertyInfo::PropertyInfo()
+{
+	m_name = QString::null;
+	m_type = QVariant::String;
+	m_readOnly = false;
+	m_inherited = false;
+	m_enumType = false;
+	m_setType = false;
+}
+
 PropertyInfo::PropertyInfo( const QString& name, QVariant::Type type, bool readOnly, bool inherited )
 {
 	m_name = name;
 	m_type = type;
 	m_readOnly = readOnly;
 	m_inherited = inherited;
+}
+
+bool PropertyInfo::isSetType() const
+{
+	return m_setType;
+}
+
+bool PropertyInfo::isEnumType() const
+{
+	return m_enumType;
+}
+
+void PropertyInfo::setName( const QString& name )
+{
+	m_name = name;
+}
+
+void PropertyInfo::setReadOnly( bool value )
+{
+	m_readOnly = value;
+}
+
+void PropertyInfo::setInherited( bool value )
+{
+	m_inherited = value;
+}
+
+void PropertyInfo::setSetType( bool value )
+{
+	m_setType = value;
+}
+
+void PropertyInfo::setEnumType( bool value )
+{
+	m_enumType = value;
+}
+
+void PropertyInfo::setType( QVariant::Type type )
+{
+	m_type = type;
 }
 
 QVariant::Type PropertyInfo::type() const
@@ -55,6 +107,88 @@ bool PropertyInfo::inherited() const
 {
 	return m_inherited;
 }
+
+void PropertyInfo::addKeyAndValue( const QString& key, int value )
+{
+	m_enums.append( KeyAndValue( key, value ) );
+}
+
+QStringList PropertyInfo::enumKeys() const
+{
+	QStringList ret;
+	QValueVector<KeyAndValue>::const_iterator it( m_enums.constBegin() );
+	QValueVector<KeyAndValue>::const_iterator end( m_enums.constEnd() );
+	for ( ; it != end; ++it ) {
+		ret.append( (*it).m_key );
+	}
+	return ret;
+}
+
+int PropertyInfo::keyToValue( const QString& key ) const
+{
+	QValueVector<KeyAndValue>::const_iterator it( m_enums.constBegin() );
+	QValueVector<KeyAndValue>::const_iterator end( m_enums.constEnd() );
+	for ( ; it != end; ++it ) {
+		if ( (*it).m_key == key )
+			return (*it).m_value;
+	}
+	return -1;
+}
+
+const QString& PropertyInfo::valueToKey( int value ) const
+{
+	QValueVector<KeyAndValue>::const_iterator it( m_enums.constBegin() );
+	QValueVector<KeyAndValue>::const_iterator end( m_enums.constEnd() );
+	for ( ; it != end; ++it ) {
+		if ( (*it).m_value == value )
+			return (*it).m_key;
+	}
+	return QString::null;
+}
+
+int PropertyInfo::keysToValue( const QStringList& keys ) const
+{
+	int ret = 0;
+// 	bool found;
+/*	QStringList::const_iterator kit( keys.constBegin() );
+	QStringList::const_iterator kend( keys.constEnd() );
+	for ( ; kit != kend; ++kit ) {*/
+// 		found = false;
+		QValueVector<KeyAndValue>::const_iterator it( m_enums.constBegin() );
+		QValueVector<KeyAndValue>::const_iterator end( m_enums.constEnd() );
+		for ( ; it != end; ++it ) {
+			if ( keys.contains( (*it).m_key ) ) {
+				kdDebug() << "Afegint: " << (*it).m_key << endl;
+				ret |= (*it).m_value;
+// 				break;
+			}
+		}
+/*		if ( ! found )
+			return -1;*/
+	//}
+	
+	return ret;
+}
+
+QStringList PropertyInfo::valueToKeys ( int value ) const
+{
+	QStringList ret;
+	int i;
+	int left;
+
+	left = value;
+	QValueVector<KeyAndValue>::const_iterator it( m_enums.constBegin() );
+	QValueVector<KeyAndValue>::const_iterator end( m_enums.constEnd() );
+	for ( ; it != end; ++it ) {
+		i = (*it).m_value;
+		if ( i != 0 &&  ( left & i ) == i || ( i == value ) ) {
+			left = left & ~i;
+			ret.append( (*it).m_key );
+		}
+	}
+	return ret;
+}
+
 
 /* RelationInfo */
 
@@ -389,9 +523,12 @@ void ClassInfo::addCollection( const QString& className, const QString& relation
 	m_collections.insert( name, new CollectionInfo( this, name, Classes::classInfo( className ), nToOne ) );
 }
 
-void ClassInfo::addProperty( const QString& name, QVariant::Type type, bool readOnly, bool inherited )
+//void ClassInfo::addProperty( const QString& name, QVariant::Type type, bool readOnly, bool inherited )
+void ClassInfo::addProperty( PropertyInfo* property )
 {
-	m_properties.insert( name, new PropertyInfo( name, type, readOnly, inherited ) );
+	if ( ! property->name().isNull() )
+		m_properties.insert( property->name(), property );
+	//m_properties.insert( name, new PropertyInfo( name, type, readOnly, inherited ) );
 }
 
 /*!
@@ -412,10 +549,24 @@ void ClassInfo::createProperties()
 		bool inherited = obj->metaObject()->findProperty( meta->name() ) == -1 ? true : false;
 		// TODO: Improve enums support.
 		PropertyInfo *p;
-		if ( meta->isEnumType() )
+		p = new PropertyInfo();
+		p->setName( meta->name() );
+		p->setType( QVariant::nameToType( meta->type() ) );
+		p->setReadOnly( ! meta->writable() );
+		p->setInherited( inherited );
+		p->setEnumType( meta->isEnumType() );
+		p->setSetType( meta->isSetType() );
+		
+		char* name;
+		QStrList list = meta->enumKeys();
+		for ( name = list.first(); name; name = list.next() ) {
+			p->addKeyAndValue( name, meta->keyToValue( name ) );
+		}
+		
+/*		if ( meta->isEnumType() )
 			p = new PropertyInfo( meta->name(),  QVariant::ULongLong, ! meta->writable(), inherited );
 		else
-			p = new PropertyInfo( meta->name(),  QVariant::nameToType( meta->type() ), ! meta->writable(), inherited );
+			p = new PropertyInfo( meta->name(),  QVariant::nameToType( meta->type() ), ! meta->writable(), inherited );*/
 		m_properties.insert( meta->name(), p );
 	}
 	delete obj;

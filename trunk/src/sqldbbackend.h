@@ -30,6 +30,7 @@ class QSqlCursor;
 class QSqlDatabase;
 class CollectionInfo;
 class ClassInfo;
+class PropertyInfo;
 
 /**
 @author Albert Cervera Areny
@@ -109,7 +110,7 @@ protected:
 	QString filterFieldName( const CollectionInfo *collection ) const;
 	OidType filterValue( const Collection *collection ) const;
 	QString idFieldName( const CollectionInfo *collection ) const;
-	QString sqlType( QVariant::Type type );
+	QString sqlType( const PropertyInfo *info );
 	QSqlDatabase *m_db;
 
 	// Mantains the list of removed objects (classname,oid) since last commit/rollback

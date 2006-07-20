@@ -152,4 +152,15 @@ Collection* Customer::adaptedArticles()
 	return GETCOLLECTION( adapted_articles );
 }
 
+int Customer::type() const
+{
+	return m_type;
+}
+
+void Customer::setType( int type )
+{
+	MODIFIED;
+	m_type = type;
+}
+
 #include "customer.moc"

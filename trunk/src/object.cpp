@@ -87,6 +87,14 @@ bool Property::readOnly() const
 	return m_constObject->classInfo()->property( m_name )->readOnly();
 }
 
+/*!
+Returns a const pointer to the PropertyInfo associated with this property.
+*/
+const PropertyInfo* Property::propertyInfo() const
+{
+	return m_object->classInfo()->property( m_name );
+}
+
 // PropertiesIterator
 
 /*!

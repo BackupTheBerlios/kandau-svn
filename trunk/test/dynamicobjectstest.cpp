@@ -38,8 +38,18 @@ void DynamicObjectsTest::allTests()
 	ClassInfo *ci = Classes::classInfo( "Test" );
 	ci->addObject( "Customer", "Customer_Test", &Customer::createInstance );
 	ci->addCollection( "Article", "Article_Test" );
-	ci->addProperty( "Property1", QVariant::String );
-	ci->addProperty( "Property2", QVariant::ULongLong );
+
+	PropertyInfo *p;
+	
+	p = new PropertyInfo();
+	p->setName( "Property1" );
+	p->setType( QVariant::String );
+	ci->addProperty( p );
+	
+	p = new PropertyInfo();
+	p->setName( "Property2" );
+	p->setType( QVariant::ULongLong );
+	ci->addProperty( p );
 
 	Classes::setupRelations();
 

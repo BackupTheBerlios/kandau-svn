@@ -34,9 +34,17 @@ class Article : public Object
 	Q_PROPERTY( QString code READ code WRITE setCode )
 	Q_PROPERTY( QString label READ label WRITE setLabel )
 	Q_PROPERTY( QString description READ description WRITE setDescription )
+	Q_PROPERTY( Type t READ type WRITE setType )
+	Q_ENUMS( Type )
 
 public:
 	DCLASS( Article );
+
+	enum Type {
+		Manufactured,
+		Modular,
+		Recycled
+	};
 
 	const QString& code() const;
 	void setCode( const QString& code );
@@ -47,15 +55,19 @@ public:
 	const QString& description() const;
 	void setDescription( const QString& description );
 
+	Type type() const;
+	void setType( Type type );
+
 	Article* article() const;
 	void setArticle( Article* article );
-
+	
 	Collection* orders() const;
 
 private:
 	QString m_code;
 	QString m_label;
 	QString m_description;
+	Type m_type;
 };
 
 #endif

@@ -58,12 +58,23 @@ void CollectionListView::fill()
 
 void CollectionListView::add( const Object* object )
 {
+	QString val;
 	QListViewItem *item = new QListViewItem( this );
 	item->setDropEnabled( true );
 	item->setDragEnabled( true );
 	item->setText( 0, oidToString( object->oid() ) );
-	for ( int i = 1; i < columns() - 1; ++i ) {
-		item->setText( i, object->property( columnText( i ) ).value().toString() );
+	for ( int i = 1; i < columns(); ++i ) {
+		const PropertyInfo *info = object->classInfo()->property( columnText( i ) );
+		if ( info->isEnumType() ) {
+			if ( info->isSetType() ) {
+				val = info->valueToKeys( object->property( columnText( i ) ).value().toInt() ).join( ", " );
+			} else {
+				val = info->valueToKey( object->property( columnText( i ) ).value().toInt() );
+			}
+		} else {
+			val = object->property( columnText( i ) ).value().toString();
+		}
+		item->setText( i, val );
 	}
 }
 

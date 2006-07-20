@@ -21,6 +21,7 @@
 #include <qobjectlist.h>
 #include <qlayout.h>
 #include <qwhatsthis.h>
+#include <qmetaobject.h>
 
 #include <qlineedit.h>
 #include <qtextedit.h>

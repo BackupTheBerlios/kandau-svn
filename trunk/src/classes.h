@@ -21,6 +21,7 @@
 #define CLASSES_H
 
 #include <qmap.h>
+#include <qvaluevector.h>
 
 #include "oidtype.h"
 #include "defs.h"
@@ -47,18 +48,48 @@ also contains wheather it's read-only or read-write, and inherited or not.
 class PropertyInfo
 {
 public:
-	PropertyInfo() {}
+	PropertyInfo();
 	PropertyInfo( const QString& name, QVariant::Type type, bool readOnly, bool inherited );
 	QVariant::Type type() const;
 	const QString& name() const;
 	bool readOnly() const;
 	bool inherited() const;
+	bool isSetType() const;
+	bool isEnumType() const;
+	QStringList enumKeys() const;
+
+	void setType( QVariant::Type type );
+	void setName( const QString& name );
+	void setReadOnly( bool value );
+	void setInherited( bool value );
+	void setSetType( bool value );
+	void setEnumType( bool value );
+	void addKeyAndValue( const QString& key, int value );
+	int keyToValue ( const QString& key ) const;
+	const QString& valueToKey ( int value ) const;
+	int keysToValue ( const QStringList& keys ) const;
+	QStringList valueToKeys ( int value ) const;
 
 private:
+	class KeyAndValue 
+	{
+	public:
+		KeyAndValue() : m_value( 0 ) {}
+		KeyAndValue( const QString& key, int value ) :
+			m_key( key ), 
+			m_value( value ) 
+			{}
+		QString m_key;
+		int m_value;
+	};
+
 	QString m_name;
 	QVariant::Type m_type;
 	bool m_readOnly;
 	bool m_inherited;
+	bool m_enumType;
+	bool m_setType;
+	QValueVector<KeyAndValue> m_enums;
 };
 
 
@@ -230,7 +261,8 @@ public:
 	void addObject( const QString& className, const QString& relationName, CreateObjectFunction function );
 
 	void addCollection( const QString& className, const QString& relationName, bool nToOne = true);
-	void addProperty( const QString& name, QVariant::Type type, bool readOnly = false, bool inherited = false );
+	//void addProperty( const QString& name, QVariant::Type type, bool readOnly = false, bool inherited = false );
+	void addProperty( PropertyInfo* property );
 
 	void createProperties();
 

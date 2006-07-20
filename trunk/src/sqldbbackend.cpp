@@ -577,7 +577,7 @@ bool SqlDbBackend::createSchema()
 		for ( ; pIt != pEnd; ++pIt ) {
 			prop = *pIt;
 			if ( prop->readOnly() == false )
-				exec += prop->name() + " " + sqlType( prop->type() ) + ", ";
+				exec += prop->name() + " " + sqlType( prop ) + ", ";
 		}
 
 		// Create related objects fields
@@ -680,10 +680,13 @@ bool SqlDbBackend::createSchema()
 	return true;
 }
 
-QString SqlDbBackend::sqlType( QVariant::Type type )
+QString SqlDbBackend::sqlType( const PropertyInfo* info )
 {
 	// TODO: Take a look at the unsigned integer types. The mapping isn't correct.
-	switch ( type ) {
+	if ( info->isEnumType() )
+		return "INTEGER";
+
+	switch ( info->type() ) {
 		case QVariant::CString:
 			return "VARCHAR";
 		case QVariant::String:
@@ -711,7 +714,7 @@ QString SqlDbBackend::sqlType( QVariant::Type type )
 		case QVariant::ByteArray:
 			return "BYTEA";
 		default:
-			kdDebug() << "Unclassified Type: " << QVariant::typeToName( type ) << endl;
+			kdDebug() << "Unclassified Type: " << QVariant::typeToName( info->type() ) << endl;
 			assert( false );
 			return "INTEGER";
 	}

@@ -95,4 +95,14 @@ Collection* Article::orders() const
 	return GETCOLLECTION( CustomerOrder );
 }
 
+Article::Type Article::type( ) const
+{
+	return m_type;
+}
+
+void Article::setType( Type type )
+{
+	m_type = type;
+}
+
 #include "article.moc"

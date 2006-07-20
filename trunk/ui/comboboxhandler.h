@@ -22,6 +22,8 @@
 
 #include <widgethandler.h>
 
+class QComboBox;
+
 /**
 @author Albert Cervera Areny
 */

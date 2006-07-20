@@ -30,6 +30,7 @@
 #include <labelsmetainfo.h>
 #include <dynamicobject.h>
 #include <notifier.h>
+#include <classmainwindow.h>
 
 #include "author.h"
 #include "book.h"
@@ -58,8 +59,6 @@ int main( int cargs, char **args )
 	
 	//manager->createSchema();
 	
-	
-	// Your stuff here
 	ObjectRef<Author> monzo = Author::create();
 	monzo->setFirstName( "Quim" );
 	monzo->setLastName( "Monzó" );
@@ -76,14 +75,28 @@ int main( int cargs, char **args )
 
 	// If you use the SQL backend you should declare this class before
 	// creating the schema
-	Classes::addClass( "BookExtraInfo", DynamicObject::createInstance, 0 );
+/*	Classes::addClass( "BookExtraInfo", DynamicObject::createInstance, 0 );
 	ClassInfo *ci = Classes::classInfo( "BookExtraInfo" );
-	ci->addProperty( "notes", QVariant::String );
-	ci->addProperty( "numberOfCopies", QVariant::ULongLong );
-	ci->addProperty( "dateOfAcquisition", QVariant::Date );
+	PropertyInfo *p;
+	
+	p = new PropertyInfo();
+	p->setName( "notes" );
+	p->setType( QVariant::String );
+	ci->addProperty( p );
+	
+	p = new PropertyInfo();
+	p->setName( "numberOfCopies" );
+	p->setType( QVariant::ULongLong );
+	ci->addProperty( p );
+	
+	p = new PropertyInfo();
+	p->setName( "dateOfAcquisition" );
+	p->setType( QVariant::Date );
+	ci->addProperty( p );
+
 	ci->addObject( "Book", "book", &Book::createInstance );
 	ci->addCollection( "Book", "similarBooks" );
-
+*/
 	// Browsing classes
 	ClassInfoIterator it( Classes::begin() );
 	ClassInfoIterator end( Classes::end() );
@@ -114,7 +127,14 @@ int main( int cargs, char **args )
 		}
 	}
 	
-	Notifier *notifier = dynamic_cast<Notifier*>( Manager::self()->notificationHandler() );
+	kdDebug() << k_funcinfo << "Creating class window..." << endl;
+	//Notifier *notifier = dynamic_cast<Notifier*>( Manager::self()->notificationHandler() );
+	
+	ClassMainWindow *window = new ClassMainWindow();
+	window->show();
+	app.setMainWidget( window );
+	return app.exec();
+
 /*	if ( notifier && obj )
 		notifier->registerSlot( this, SLOT( slotObjectModified(const ClassInfo*,const OidType&,const PropertyInfo*,const QVariant&) ), 0, obj->oid() );
 */

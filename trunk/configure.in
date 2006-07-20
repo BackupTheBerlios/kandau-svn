@@ -71,6 +71,7 @@ AC_CONFIG_FILES([ po/Makefile ])
 AC_CONFIG_FILES([ src/Makefile ])
 AC_CONFIG_FILES([ test/Makefile ])
 AC_CONFIG_FILES([ ui/Makefile ])
+AC_CONFIG_FILES([ web/Makefile ])
 AC_OUTPUT
 if test "$all_tests" = "bad"; then
   if test ! "$cache_file" = "/dev/null"; then

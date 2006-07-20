@@ -37,9 +37,17 @@ class Customer : public Object
 	Q_PROPERTY( QString city READ city WRITE setCity )
 	Q_PROPERTY( QString zipCode READ zipCode WRITE setZipCode )
 	Q_PROPERTY( QString country READ country WRITE setCountry )
+	Q_PROPERTY( CustomerType t READ type WRITE setType )
+	Q_SETS( CustomerType )
 
 public:
 	DCLASS( Customer );
+	
+	enum CustomerType {
+		TypeA = 1,
+		TypeB = 2,
+		TypeC = 4
+	};
 
 	const QString& code() const;
 	void setCode( const QString& code );
@@ -53,6 +61,8 @@ public:
 	void setZipCode( const QString& zipCode );
 	const QString& country() const;
 	void setCountry( const QString& country );
+	int type() const;
+	void setType( int type );
 
 	Article* defaultArticle() const;
 	void setDefaultArticle( Article *article );
@@ -68,6 +78,7 @@ private:
 	QString m_city;
 	QString m_zipCode;
 	QString m_country;
+	int m_type;
 };
 
 #endif

@@ -25,7 +25,6 @@
 
 #include <qvariant.h>
 
-#include <kmainwindow.h>
 #include <kdebug.h>
 
 #include "defs.h"
@@ -170,6 +169,7 @@ public:
 	void setValue( const QVariant& value );
 	const QString& name() const;
 	bool readOnly() const;
+	const PropertyInfo* propertyInfo() const;
 
 private:
 	Object *m_object;

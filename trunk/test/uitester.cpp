@@ -68,13 +68,13 @@ int main( int argc, char** argv )
 	//Manager *manager = new Manager( backend, notifier );
 	Manager *manager = new Manager( backend );
 	manager->setMaxObjects( 1000 );
-	Collection col( "CustomerOrder" );
+/*	Collection col( "CustomerOrder" );
 	CollectionIterator it( col.begin() );
 	CollectionIterator end( col.end() );
-	if ( it != end ) {
+	if ( it != end ) {*/
 		ClassMainWindow *window = new ClassMainWindow();
 		window->show();
 		app.setMainWidget( window );
-	}
+// 	}
 	return app.exec();
 }
