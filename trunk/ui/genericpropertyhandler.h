@@ -17,69 +17,37 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#ifndef UIFORM_H
-#define UIFORM_H
+#ifndef GENERICPROPERTYHANDLER_H
+#define GENERICPROPERTYHANDLER_H
 
-#include <qwidget.h>
-
-#include <object.h>
-
-
-class WidgetHandler;
-class WidgetHandlerFactory;
-
+#include <widgethandler.h>
 
 /**
 	@author Albert Cervera Areny <albertca@hotpop.com>
 */
-class UiForm : public QWidget
+class GenericPropertyHandler : public WidgetHandler
 {
 	Q_OBJECT
 public:
-	UiForm(QWidget *parent = 0, const char *name = 0);
-
-	void setUiFile( const QString& fileName );
-	const QString& uiFile() const;
-
-	void setObject( Object* object );
-	Object* object() const;
-
-	Property property( const QString& path );
-	bool existsProperty( const QString& path );
-
-	Object* relation( const QString& path );
-	bool existsRelation( const QString& path );
-
-	Collection* collection( const QString& path );
-	bool existsCollection( const QString& path );
-
-	static void addRelationHandler( const QString& widgetClassName, WidgetHandlerFactory* factory );
-	static void removeRelationHandler( const QString& widgetClassName );
-
-	static void addCollectionHandler( const QString& widgetClassName, WidgetHandlerFactory* factory );
-	static void removeCollectionHandler( const QString& widgetClassName );
-
-public slots:
+	GenericPropertyHandler(QObject *parent = 0, const char *name = 0);
+	
+	void setWidgetProperty( const QString& p );
+	const QString& widgetProperty() const;
+	
+	void load();
 	void save();
-
-protected:
-	void fillForm();
-
-protected slots:
-	void handlerDestroyed( QObject* object );
-
 private:
-	QString m_uiFileName;
-	ObjectRef<Object> m_object;
-	QWidget *m_widget;
-	//static QMap<QString,QString> m_properties;
-	static QMap<QString,WidgetHandlerFactory*> m_propertyHandlerFactories;
-	static QMap<QString,WidgetHandlerFactory*> m_relationHandlerFactories;
-	static QMap<QString,WidgetHandlerFactory*> m_collectionHandlerFactories;
-	QMap<QWidget*,WidgetHandler*> m_propertyHandlers;
-	QMap<QWidget*,WidgetHandler*> m_relationHandlers;
-	QMap<QWidget*,WidgetHandler*> m_collectionHandlers;
+	QString m_widget;
+	QString m_widgetProperty;
+};
 
+class GenericPropertyHandlerFactory : public WidgetHandlerFactory
+{
+public:
+	GenericPropertyHandlerFactory( const QString& property );
+	GenericPropertyHandler *create( QWidget* widget ) const;
+private:
+	QString m_property;
 };
 
 #endif

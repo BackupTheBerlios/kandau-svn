@@ -17,46 +17,32 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#ifndef WIDGETHANDLER_H
-#define WIDGETHANDLER_H
+#ifndef COMBOBOXPROPERTYHANDLER_H
+#define COMBOBOXPROPERTYHANDLER_H
 
-#include <qobject.h>
+#include <widgethandler.h>
 
-#include <object.h>
-
+class QComboBox;
 /**
-@author Albert Cervera Areny
+	@author Albert Cervera Areny <albertca@hotpop.com>
 */
-class WidgetHandler : public QObject
+class ComboBoxPropertyHandler : public WidgetHandler
 {
-	Q_OBJECT
+Q_OBJECT
 public:
-	WidgetHandler( QObject *object = 0, const char* name = 0 );
-	void setObject( Object* object );
-	Object* object() const;
-	void setWidget( QWidget *widget );
-	QWidget* widget() const;
-	virtual void load() = 0;
-	virtual void save() = 0;
+	ComboBoxPropertyHandler(QObject *parent = 0, const char *name = 0);
+	
+	QComboBox* combo() const;
 
-	Object* relation( const QString& path );
-	bool existsRelation( const QString& path );
-
-	Collection* collection( const QString& path );
-	bool existsCollection( const QString& path );
-
-	Property property( const QString& path );
-	bool existsProperty( const QString& path );
-
-private:
-	ObjectRef<Object> m_object;
-	QWidget *m_widget;
+	void load();
+	void save();
 };
 
-class WidgetHandlerFactory
+class ComboBoxPropertyHandlerFactory : public WidgetHandlerFactory
 {
 public:
-	virtual WidgetHandler* create( QWidget *widget ) const = 0;
+	ComboBoxPropertyHandler *create( QWidget* widget ) const;
 };
+
 
 #endif

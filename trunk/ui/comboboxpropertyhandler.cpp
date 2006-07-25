@@ -17,46 +17,48 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#ifndef WIDGETHANDLER_H
-#define WIDGETHANDLER_H
+#include <qwhatsthis.h>
+#include <qcombobox.h>
 
-#include <qobject.h>
+#include "comboboxpropertyhandler.h"
 
-#include <object.h>
-
-/**
-@author Albert Cervera Areny
-*/
-class WidgetHandler : public QObject
+ComboBoxPropertyHandler::ComboBoxPropertyHandler(QObject *parent, const char *name)
+ : WidgetHandler(parent, name)
 {
-	Q_OBJECT
-public:
-	WidgetHandler( QObject *object = 0, const char* name = 0 );
-	void setObject( Object* object );
-	Object* object() const;
-	void setWidget( QWidget *widget );
-	QWidget* widget() const;
-	virtual void load() = 0;
-	virtual void save() = 0;
-
-	Object* relation( const QString& path );
-	bool existsRelation( const QString& path );
-
-	Collection* collection( const QString& path );
-	bool existsCollection( const QString& path );
-
-	Property property( const QString& path );
-	bool existsProperty( const QString& path );
-
-private:
-	ObjectRef<Object> m_object;
-	QWidget *m_widget;
-};
-
-class WidgetHandlerFactory
+}
+void ComboBoxPropertyHandler::load( )
 {
-public:
-	virtual WidgetHandler* create( QWidget *widget ) const = 0;
-};
+	Property p = property( QWhatsThis::textFor( widget() ) );
+	combo()->clear();
+	if ( ! p.propertyInfo()->isEnumType() )
+		return;
 
-#endif
+	QStringList list( p.propertyInfo()->enumKeys() );
+	QStringList::const_iterator it( list.constBegin() );
+	QStringList::const_iterator end( list.constEnd() );
+	for ( ; it != end; ++it )
+		combo()->insertItem( *it );
+
+	combo()->setCurrentText( p.propertyInfo()->valueToKey( p.value().toInt() ) );
+}
+
+void ComboBoxPropertyHandler::save( )
+{
+	Property p = property( QWhatsThis::textFor( widget() ) );
+	if ( ! p.propertyInfo()->isEnumType() )
+		return;
+	p.setValue( p.propertyInfo()->keyToValue( combo()->currentText() ) );
+}
+
+QComboBox * ComboBoxPropertyHandler::combo( ) const
+{
+	return static_cast<QComboBox*>( widget() );
+}
+
+ComboBoxPropertyHandler* ComboBoxPropertyHandlerFactory::create( QWidget * widget ) const
+{
+	return new ComboBoxPropertyHandler( widget );
+}
+
+
+#include "comboboxpropertyhandler.moc"

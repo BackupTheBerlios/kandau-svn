@@ -17,46 +17,52 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#ifndef WIDGETHANDLER_H
-#define WIDGETHANDLER_H
+#include <qwhatsthis.h>
+#include <qwidget.h>
 
-#include <qobject.h>
+#include "genericpropertyhandler.h"
 
-#include <object.h>
-
-/**
-@author Albert Cervera Areny
-*/
-class WidgetHandler : public QObject
+GenericPropertyHandler::GenericPropertyHandler(QObject *parent, const char *name)
+ : WidgetHandler(parent, name)
 {
-	Q_OBJECT
-public:
-	WidgetHandler( QObject *object = 0, const char* name = 0 );
-	void setObject( Object* object );
-	Object* object() const;
-	void setWidget( QWidget *widget );
-	QWidget* widget() const;
-	virtual void load() = 0;
-	virtual void save() = 0;
+}
 
-	Object* relation( const QString& path );
-	bool existsRelation( const QString& path );
-
-	Collection* collection( const QString& path );
-	bool existsCollection( const QString& path );
-
-	Property property( const QString& path );
-	bool existsProperty( const QString& path );
-
-private:
-	ObjectRef<Object> m_object;
-	QWidget *m_widget;
-};
-
-class WidgetHandlerFactory
+void GenericPropertyHandler::load()
 {
-public:
-	virtual WidgetHandler* create( QWidget *widget ) const = 0;
-};
+	if ( ! existsProperty( QWhatsThis::textFor( widget() ) ) )
+		return;
+	Property p = property( QWhatsThis::textFor( widget() ) );
+	widget()->setProperty( m_widgetProperty, p.value() );
+}
 
-#endif
+void GenericPropertyHandler::save()
+{
+	if ( ! existsProperty( QWhatsThis::textFor( widget() ) ) )
+		return;
+	Property p = property( QWhatsThis::textFor( widget() ) );
+	p.setValue( widget()->property( m_widgetProperty ) );
+}
+
+void GenericPropertyHandler::setWidgetProperty( const QString & p )
+{
+	m_widgetProperty = p;
+}
+
+const QString & GenericPropertyHandler::widgetProperty( ) const
+{
+	return m_widgetProperty;
+}
+
+GenericPropertyHandlerFactory::GenericPropertyHandlerFactory( const QString & property )
+{
+	m_property = property;
+}
+
+GenericPropertyHandler * GenericPropertyHandlerFactory::create( QWidget * widget ) const
+{
+	GenericPropertyHandler *h = new GenericPropertyHandler( widget );
+	h->setWidgetProperty( m_property );
+	return h;
+}
+
+#include "genericpropertyhandler.moc"

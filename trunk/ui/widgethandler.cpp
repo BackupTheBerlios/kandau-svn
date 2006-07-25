@@ -87,5 +87,21 @@ bool WidgetHandler::existsCollection( const QString & path )
 	return false;
 }
 
+Property WidgetHandler::property( const QString & path )
+{
+	return m_object->property( path );
+	// TODO: Analyze path
+}
+
+bool WidgetHandler::existsProperty( const QString & path )
+{
+	if ( m_object.isNull() )
+		return false;
+	if ( m_object->containsProperty( path ) )
+		return true;
+	// TODO: Analyze path
+
+	return false;
+}
 
 #include "widgethandler.moc"

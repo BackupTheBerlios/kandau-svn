@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>489</width>
-            <height>553</height>
+            <height>622</height>
         </rect>
     </property>
     <property name="caption">
@@ -60,6 +60,49 @@
                     </property>
                     <property name="whatsThis" stdset="0">
                         <string>label</string>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+        <spacer>
+            <property name="name">
+                <cstring>spacer2_2</cstring>
+            </property>
+            <property name="orientation">
+                <enum>Vertical</enum>
+            </property>
+            <property name="sizeType">
+                <enum>Fixed</enum>
+            </property>
+            <property name="sizeHint">
+                <size>
+                    <width>20</width>
+                    <height>21</height>
+                </size>
+            </property>
+        </spacer>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>layout4</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QLabel">
+                    <property name="name">
+                        <cstring>textLabel1_3</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Type:</string>
+                    </property>
+                </widget>
+                <widget class="QComboBox">
+                    <property name="name">
+                        <cstring>comboBox1</cstring>
+                    </property>
+                    <property name="whatsThis" stdset="0">
+                        <string>t</string>
                     </property>
                 </widget>
             </hbox>

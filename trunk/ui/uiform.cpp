@@ -46,9 +46,12 @@
 #include "tablehandler.h"
 #include "defaultpropertymetainfo.h"
 #include "comboboxhandler.h"
+#include "genericpropertyhandler.h"
+#include "comboboxpropertyhandler.h"
 
 
-QMap<QString,QString> UiForm::m_properties;
+//QMap<QString,QString> UiForm::m_properties;
+QMap<QString,WidgetHandlerFactory*> UiForm::m_propertyHandlerFactories;
 QMap<QString,WidgetHandlerFactory*> UiForm::m_relationHandlerFactories;
 QMap<QString,WidgetHandlerFactory*> UiForm::m_collectionHandlerFactories;
 
@@ -58,23 +61,41 @@ UiForm::UiForm(QWidget *parent, const char *name)
 	m_widget = 0;
 	QHBoxLayout *layout = new QHBoxLayout( this );
 	layout->setAutoAdd( true );
-	if ( m_properties.isEmpty() ) {
-		m_properties[ "KColorButton" ] = "color";
-		m_properties[ "KColorCombo" ] = "color";
-		m_properties[ "QLineEdit" ] = "text";
-		m_properties[ "QTextEdit" ] = "text";
-		m_properties[ "QCheckBox" ] = "checked";
-		m_properties[ "QDateEdit" ] = "date";
-		m_properties[ "QTimeEdit" ] = "time";
-		m_properties[ "QDateTimeEdit" ] = "dateTime";
-		m_properties[ "QSlider" ] = "value";
-		m_properties[ "QScrollBar" ] = "value";
-		m_properties[ "QDial" ] = "value";
-		m_properties[ "QSpinBox" ] = "value";
-		m_properties[ "QLabel" ] = "text";
-		m_properties[ "QProgressBar" ] = "value";
-		m_properties[ "QLCDNumber" ] = "value";
-		m_properties[ "KDateWidget" ] = "date";
+	if ( m_propertyHandlerFactories.isEmpty() ) {
+		m_propertyHandlerFactories[ "QComboBox" ] = new ComboBoxPropertyHandlerFactory();
+		m_propertyHandlerFactories[ "KColorButton" ] = new GenericPropertyHandlerFactory( "color" );
+		m_propertyHandlerFactories[ "KColorCombo" ] = new GenericPropertyHandlerFactory( "color" );
+		m_propertyHandlerFactories[ "QLineEdit" ] = new GenericPropertyHandlerFactory( "text" );
+		m_propertyHandlerFactories[ "QTextEdit" ] = new GenericPropertyHandlerFactory( "text" );
+		m_propertyHandlerFactories[ "QCheckBox" ] = new GenericPropertyHandlerFactory( "checked" );
+		m_propertyHandlerFactories[ "QDateEdit" ] = new GenericPropertyHandlerFactory( "date" );
+		m_propertyHandlerFactories[ "QTimeEdit" ] = new GenericPropertyHandlerFactory( "time" );
+		m_propertyHandlerFactories[ "QDateTimeEdit" ] = new GenericPropertyHandlerFactory( "dateTime" );
+		m_propertyHandlerFactories[ "QSlider" ] = new GenericPropertyHandlerFactory( "value" );
+		m_propertyHandlerFactories[ "QScrollBar" ] = new GenericPropertyHandlerFactory( "value" );
+		m_propertyHandlerFactories[ "QDial" ] = new GenericPropertyHandlerFactory( "value" );
+		m_propertyHandlerFactories[ "QSpinBox" ] = new GenericPropertyHandlerFactory( "value" );
+		m_propertyHandlerFactories[ "QLabel" ] = new GenericPropertyHandlerFactory( "text" );
+		m_propertyHandlerFactories[ "QProgressBar" ] = new GenericPropertyHandlerFactory( "value" );
+		m_propertyHandlerFactories[ "QLCDNumber" ] = new GenericPropertyHandlerFactory( "value" );
+		m_propertyHandlerFactories[ "KDateWidget" ] = new GenericPropertyHandlerFactory( "date" );
+		
+// 		m_propertyHandlerFactories[ "KColorButton" ] = "color";
+// 		m_propertyHandlerFactories[ "KColorCombo" ] = "color";
+// 		m_propertyHandlerFactories[ "QLineEdit" ] = "text";
+// 		m_propertyHandlerFactories[ "QTextEdit" ] = "text";
+// 		m_propertyHandlerFactories[ "QCheckBox" ] = "checked";
+// 		m_propertyHandlerFactories[ "QDateEdit" ] = "date";
+// 		m_propertyHandlerFactories[ "QTimeEdit" ] = "time";
+// 		m_propertyHandlerFactories[ "QDateTimeEdit" ] = "dateTime";
+// 		m_propertyHandlerFactories[ "QSlider" ] = "value";
+// 		m_propertyHandlerFactories[ "QScrollBar" ] = "value";
+// 		m_propertyHandlerFactories[ "QDial" ] = "value";
+// 		m_propertyHandlerFactories[ "QSpinBox" ] = "value";
+// 		m_propertyHandlerFactories[ "QLabel" ] = "text";
+// 		m_propertyHandlerFactories[ "QProgressBar" ] = "value";
+// 		m_propertyHandlerFactories[ "QLCDNumber" ] = "value";
+// 		m_propertyHandlerFactories[ "KDateWidget" ] = "date";
 	}
 	if ( m_relationHandlerFactories.isEmpty() ) {
 		m_relationHandlerFactories[ "QComboBox" ] = new ComboBoxHandlerFactory();
@@ -143,11 +164,17 @@ void UiForm::fillForm( )
 			if ( m_object->property( QWhatsThis::textFor( w ) ).readOnly() )
 				w->setEnabled( false );
 
-			QMapConstIterator<QString,QString> it( m_properties.constBegin() );
-			QMapConstIterator<QString,QString> end( m_properties.constEnd() );
+			QMapConstIterator<QString,WidgetHandlerFactory*> it( m_propertyHandlerFactories.constBegin() );
+			QMapConstIterator<QString,WidgetHandlerFactory*> end( m_propertyHandlerFactories.constEnd() );
 			for ( ; it != end; ++it ) {
 				if ( m->inherits( it.key() ) ) {
-					w->setProperty( it.data(), value );
+					WidgetHandler* handler = it.data()->create( w );
+					m_propertyHandlers[ w ] = handler;
+					handler->setWidget( w );
+					handler->setObject( m_object );
+					handler->load();
+					connect( handler, SIGNAL(destroyed(QObject*)), SLOT(handlerDestroyed(QObject*)) );
+					//w->setProperty( it.data(), value );
 					break;
 				}
 			}
@@ -207,12 +234,18 @@ void UiForm::save( )
 		m = w->metaObject();
 
 		if ( existsProperty( QWhatsThis::textFor( w ) ) ) {
-			Property p = m_object->property( QWhatsThis::textFor( w ) );
+			if ( m_propertyHandlers.contains( w ) ) {
+				WidgetHandler *handler = m_propertyHandlers[ w ];
+				handler->save();
+			} else {
+				kdDebug() << k_funcinfo << "Widget type: '" << QString( m->className() ) << "', inherits '" << QString( m->superClassName() ) << "'" << endl;
+			}
+/*			Property p = m_object->property( QWhatsThis::textFor( w ) );
 			if ( m_object->property( QWhatsThis::textFor( w ) ).readOnly() )
 				continue;
 
-			QMapConstIterator<QString,QString> it( m_properties.constBegin() );
-			QMapConstIterator<QString,QString> end( m_properties.constEnd() );
+			QMapConstIterator<QString,QString> it( m_propertyHandlerFactories.constBegin() );
+			QMapConstIterator<QString,QString> end( m_propertyHandlerFactories.constEnd() );
 			for ( ; it != end; ++it ) {
 				if ( m->inherits( it.key() ) ) {
 					p.setValue( w->property( it.data() ) );
@@ -222,6 +255,7 @@ void UiForm::save( )
 			if ( it == end ) {
 				kdDebug() << k_funcinfo << "Widget type: '" << QString( m->className() ) << "', inherits '" << QString( m->superClassName() ) << "'" << endl;
 			}
+*/
 		} else if ( existsRelation( QWhatsThis::textFor( w ) ) ) {
 			if ( m_relationHandlers.contains( w ) ) {
 				WidgetHandler *handler = m_relationHandlers[ w ];

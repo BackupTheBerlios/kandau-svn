@@ -74,11 +74,11 @@
   <kdevdebugger>
     <general>
       <dbgshell>libtool</dbgshell>
-      <programargs></programargs>
-      <gdbpath></gdbpath>
-      <configGdbScript></configGdbScript>
-      <runShellScript></runShellScript>
-      <runGdbScript></runGdbScript>
+      <programargs/>
+      <gdbpath/>
+      <configGdbScript/>
+      <runShellScript/>
+      <runGdbScript/>
       <breakonloadinglibs>true</breakonloadinglibs>
       <separatetty>false</separatetty>
       <floatingtoolbar>false</floatingtoolbar>
@@ -113,7 +113,7 @@
       <directoryradio>custom</directoryradio>
       <customdirectory>/home/albert/kandau/test/</customdirectory>
       <mainprogram>/home/albert/kandau/test/uitester</mainprogram>
-      <programargs></programargs>
+      <programargs/>
       <terminal>false</terminal>
       <autocompile>true</autocompile>
       <envvars/>
@@ -127,7 +127,7 @@
     </run>
     <general>
       <useconfiguration>default</useconfiguration>
-      <activetarget>test/webtester</activetarget>
+      <activetarget>test/uitester</activetarget>
     </general>
     <configurations>
       <default>
@@ -170,7 +170,7 @@
     </codecompletion>
     <references/>
     <creategettersetter>
-      <prefixGet></prefixGet>
+      <prefixGet/>
       <prefixSet>set</prefixSet>
       <prefixVariable>m_,_</prefixVariable>
       <parameterName>theValue</parameterName>
