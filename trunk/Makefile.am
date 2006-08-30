@@ -1,4 +1,4 @@
-SUBDIRS = src ui test examples doc po web
+SUBDIRS = src ui web test examples doc po 
 
 $(top_srcdir)/configure.in: configure.in.in $(top_srcdir)/subdirs
 	cd $(top_srcdir) && $(MAKE) -f admin/Makefile.common configure.in ;

@@ -16,12 +16,12 @@ kunittest_LDADD = $(top_builddir)/src/libkandau.la $(LIB_KDECORE)
 check: kunittest
 	@./kunittest 2>&1 | grep "tests:"
 noinst_HEADERS = article.h customer.h testbackendtest.h sqlbackendtest.h \
-					xmlbackendtest.h dcopiface.h objectaccess.h customerorder.h inmemorysqlbackendtest.h \
-					multiplebackendstest.h dynamicobjectstest.h metainfotest.h desktopconfigbackendtest.h \
-				notificationstest.h classa.h classab.h classaa.h classaba.h classb.h inheritancetest.h \
+	xmlbackendtest.h dcopiface.h objectaccess.h customerorder.h inmemorysqlbackendtest.h \
+	multiplebackendstest.h dynamicobjectstest.h metainfotest.h desktopconfigbackendtest.h \
+	notificationstest.h classa.h classab.h classaa.h classaba.h classb.h inheritancetest.h \
 	listservice.h
 
-bin_PROGRAMS = dcoptester uitester webtester
+bin_PROGRAMS = dcoptester uitester webtester fastcgitester
 dcoptester_LDFLAGS = $(all_libraries) $(KDE_RPATH)
 dcoptester_LDADD = $(top_builddir)/src/libkandau.la $(LIB_KDECORE) $(LIB_KDEUI)
 dcoptester_SOURCES = dcoptester.cpp objectaccess.cpp dcopiface.skel article.cpp \
@@ -36,3 +36,6 @@ dcoptester_DEPENDENCIES = ../src
 
 webtester_SOURCES = webtester.cpp listservice.cpp
 webtester_LDADD = $(top_builddir)/web/libkandauweb.la ${LIB_KDECORE}
+
+fastcgitester_SOURCES = fastcgitester.cpp
+fastcgitester_LDADD = $(top_builddir)/web/libkandauweb.la ${LIB_KDECORE}
