@@ -28,105 +28,105 @@
 
 class QSqlCursor;
 class QSqlDatabase;
-class CollectionInfo;
-class ClassInfo;
-class PropertyInfo;
-
-/**
-@author Albert Cervera Areny
-*/
 
 #define ERROR( msg ) { kdDebug() << k_funcinfo << ": " << msg << endl; return false; }
 
-/*!
-	This class implements a backend for accessing/storing objects in a SQL database. It uses the database access classes provided by Qt.
-*/
-class SqlDbBackend : public DbBackendIface
-{
-public:
+namespace Kandau {
+
+	class CollectionInfo;
+	class ClassInfo;
+	class PropertyInfo;
+
 	/*!
-	All four isolation levels considered in SQL Standard. Though PostgreSQL, implements only ReadCommited and Serialiable.
+		This class implements a backend for accessing/storing objects in a SQL database. It uses the database access classes provided by Qt.
 	*/
-	enum IsolationLevel {
-		ReadUncommited,
-		ReadCommited,
-		RepeatableRead,
-		Serializable
+	class SqlDbBackend : public DbBackendIface
+	{
+	public:
+		/*!
+		All four isolation levels considered in SQL Standard. Though PostgreSQL, implements only ReadCommited and Serialiable.
+		*/
+		enum IsolationLevel {
+			ReadUncommited,
+			ReadCommited,
+			RepeatableRead,
+			Serializable
+		};
+	
+		SqlDbBackend( QSqlDatabase *db, IsolationLevel isolationLevel = ReadCommited );
+		virtual ~SqlDbBackend();
+	
+		QSqlDatabase *database();
+	
+		void setIsolationLevel( IsolationLevel isolationLevel );
+		IsolationLevel isolationLevel() const;
+	
+		void setup( Manager* m_manager );
+		void shutdown();
+		bool load( const OidType& oid, Object *object );
+		bool load( Collection *collection );
+		bool load( Collection *collection, const QString& query );
+		bool load( OidType* relatedOid, const OidType& oid, const RelationInfo* related );
+		bool hasChanged( Object * object );
+		bool hasChanged( Collection *collection );
+		bool hasChanged( const OidType& oid, const RelationInfo* related );
+	
+		bool createSchema();
+		bool commit();
+		OidType newOid();
+		void reset() {};
+	
+		void setOidFieldName( const QString& name );
+		const QString& oidFieldName() const;
+	
+		void setSequenceFieldName( const QString& name );
+		const QString& sequenceFieldName() const;
+	
+		void setPreloadCollections( bool preload );
+		bool preloadCollections() const;
+	
+		// Callbacks
+		void afterRollback();
+		void beforeRemove( Object* object );
+	
+	protected:
+		virtual const ClassInfo* findObject( const OidType& oid, const ClassInfo *classInfo, QSqlCursor& cursor );
+		virtual bool remove( Object *object );
+		virtual bool remove( Collection *collection, const OidType& oid );
+		virtual bool save( Object *object );
+		virtual bool save( const OidType& oid, const RelationInfo* relationInfo, const OidType& relatedOid );
+		virtual bool save( Collection *collection );
+		virtual bool load( const QSqlCursor &cursor, Object *object );
+	
+		void commitObjects();
+		void commitRelations();
+		void commitCollections();
+	
+		QString expandDotsString( const QString& string );
+	
+		SeqType newSeq();
+	
+		QString filterFieldName( const CollectionInfo *collection ) const;
+		OidType filterValue( const Collection *collection ) const;
+		QString idFieldName( const CollectionInfo *collection ) const;
+		QString sqlType( const PropertyInfo *info );
+		QSqlDatabase *m_db;
+	
+		// Mantains the list of removed objects (classname,oid) since last commit/rollback
+		QValueVector<QPair<QString,OidType> > m_removedObjects;
+		// The first OidType (key) stores the Object that references the second OidType
+		QMap<OidType, QMap<QString,OidType> > m_removedRelations;
+	
+	private:
+		QString m_oidFieldName;
+		QString m_sequenceFieldName;
+		bool m_preloadCollections;
+	
+		Manager *m_manager;
+	
+		IsolationLevel m_isolationLevel;
 	};
 
-	SqlDbBackend( QSqlDatabase *db, IsolationLevel isolationLevel = ReadCommited );
-	virtual ~SqlDbBackend();
-
-	QSqlDatabase *database();
-
-	void setIsolationLevel( IsolationLevel isolationLevel );
-	IsolationLevel isolationLevel() const;
-
-	void setup( Manager* m_manager );
-	void shutdown();
-	bool load( const OidType& oid, Object *object );
-	bool load( Collection *collection );
-	bool load( Collection *collection, const QString& query );
-	bool load( OidType* relatedOid, const OidType& oid, const RelationInfo* related );
-	bool hasChanged( Object * object );
-	bool hasChanged( Collection *collection );
-	bool hasChanged( const OidType& oid, const RelationInfo* related );
-
-	bool createSchema();
-	bool commit();
-	OidType newOid();
-	void reset() {};
-
-	void setOidFieldName( const QString& name );
-	const QString& oidFieldName() const;
-
-	void setSequenceFieldName( const QString& name );
-	const QString& sequenceFieldName() const;
-
-	void setPreloadCollections( bool preload );
-	bool preloadCollections() const;
-
-	// Callbacks
-	void afterRollback();
-	void beforeRemove( Object* object );
-
-protected:
-	virtual const ClassInfo* findObject( const OidType& oid, const ClassInfo *classInfo, QSqlCursor& cursor );
-	virtual bool remove( Object *object );
-	virtual bool remove( Collection *collection, const OidType& oid );
-	virtual bool save( Object *object );
-	virtual bool save( const OidType& oid, const RelationInfo* relationInfo, const OidType& relatedOid );
-	virtual bool save( Collection *collection );
-	virtual bool load( const QSqlCursor &cursor, Object *object );
-
-	void commitObjects();
-	void commitRelations();
-	void commitCollections();
-
-	QString expandDotsString( const QString& string );
-
-	SeqType newSeq();
-
-	QString filterFieldName( const CollectionInfo *collection ) const;
-	OidType filterValue( const Collection *collection ) const;
-	QString idFieldName( const CollectionInfo *collection ) const;
-	QString sqlType( const PropertyInfo *info );
-	QSqlDatabase *m_db;
-
-	// Mantains the list of removed objects (classname,oid) since last commit/rollback
-	QValueVector<QPair<QString,OidType> > m_removedObjects;
-	// The first OidType (key) stores the Object that references the second OidType
-	QMap<OidType, QMap<QString,OidType> > m_removedRelations;
-
-private:
-	QString m_oidFieldName;
-	QString m_sequenceFieldName;
-	bool m_preloadCollections;
-
-	Manager *m_manager;
-
-	IsolationLevel m_isolationLevel;
-
-};
+}
 
 #endif

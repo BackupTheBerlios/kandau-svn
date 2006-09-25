@@ -22,36 +22,37 @@
 
 #include "dbbackendiface.h"
 
-/**
-@author Albert Cervera Areny
-*/
-class TestBackend : public DbBackendIface
-{
-public:
-	TestBackend();
-	virtual ~TestBackend();
+namespace Kandau {
 
-	void setup( Manager *manager );
-	void shutdown();
-	bool load( const OidType& oid, Object *object );
-	bool load( Collection *collection );
-	bool load( Collection *collection, const QString& query );
-	bool load( OidType* relatedOid, const OidType& oid, const RelationInfo* related );
-	bool createSchema();
-	bool hasChanged( Object * object );
-	bool hasChanged( Collection *collection );
-	bool hasChanged( const OidType& oid, const RelationInfo* related );
+	class TestBackend : public DbBackendIface
+	{
+	public:
+		TestBackend();
+		virtual ~TestBackend();
+	
+		void setup( Manager *manager );
+		void shutdown();
+		bool load( const OidType& oid, Object *object );
+		bool load( Collection *collection );
+		bool load( Collection *collection, const QString& query );
+		bool load( OidType* relatedOid, const OidType& oid, const RelationInfo* related );
+		bool createSchema();
+		bool hasChanged( Object * object );
+		bool hasChanged( Collection *collection );
+		bool hasChanged( const OidType& oid, const RelationInfo* related );
+	
+		bool commit();
+		OidType newOid();
+		void reset();
+	
+		/* Callbacks */
+		void beforeRemove( Object* /*object*/ ) {};
+		void afterRollback() {};
+	private:
+		OidType m_lastOid;
+		Manager *m_manager;
+	};
 
-	bool commit();
-	OidType newOid();
-	void reset();
-
-	/* Callbacks */
-	void beforeRemove( Object* /*object*/ ) {};
-	void afterRollback() {};
-private:
-	OidType m_lastOid;
-	Manager *m_manager;
-};
+}
 
 #endif

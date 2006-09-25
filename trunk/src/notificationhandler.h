@@ -22,18 +22,20 @@
 
 #include "oidtype.h"
 
-class Object;
 class QString;
 class QVariant;
-class ClassInfo;
 
-/**
-	@author Albert Cervera Areny <albertca@hotpop.com>
-*/
-class NotificationHandler{
-public:
-	virtual bool propertyModified( const ClassInfo* classInfo, const OidType& object, const QString& property, const QVariant& newValue ) = 0;
-	virtual ~NotificationHandler() {};
-};
+namespace Kandau {
+
+	class ClassInfo;
+	class Object;
+
+	class NotificationHandler{
+	public:
+		virtual bool propertyModified( const ClassInfo* classInfo, const OidType& object, const QString& property, const QVariant& newValue ) = 0;
+		virtual ~NotificationHandler() {};
+	};
+
+}
 
 #endif

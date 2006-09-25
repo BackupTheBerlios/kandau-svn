@@ -25,50 +25,51 @@
 class QDomDocument;
 class QDomElement;
 
-/**
-@author Albert Cervera Areny
-*/
-class XmlDbBackend : public DbBackendIface
-{
-public:
-	XmlDbBackend( const QString& fileName, bool truncate = false );
-	virtual ~XmlDbBackend();
+namespace Kandau {
 
-	void setup( Manager* manager );
-	void shutdown();
-	void init();
-
-	bool load( const OidType& oid, Object *object );
+	class XmlDbBackend : public DbBackendIface
+	{
+	public:
+		XmlDbBackend( const QString& fileName, bool truncate = false );
+		virtual ~XmlDbBackend();
 	
-	bool load( Collection *collection );
-	bool load( Collection *collection, const QString& query );
-	bool load( OidType* relatedOid, const OidType& oid, const RelationInfo* related );
+		void setup( Manager* manager );
+		void shutdown();
+		void init();
+	
+		bool load( const OidType& oid, Object *object );
+		
+		bool load( Collection *collection );
+		bool load( Collection *collection, const QString& query );
+		bool load( OidType* relatedOid, const OidType& oid, const RelationInfo* related );
+	
+		bool remove( Collection* collection, const OidType& oid );
+	
+		bool createSchema();
+	
+		bool hasChanged( Object * object );
+		bool hasChanged( Collection *collection );
+		bool hasChanged( const OidType& oid, const RelationInfo* related );
+	
+		OidType newOid();
+	
+		bool commit();
+	
+		void reset() {};
+	
+		void afterRollback();
+		void beforeRemove( Object* /*object*/ ) {};
+	
+	protected:
+		OidType elementToObject( const QDomElement& e );
+		void objectToElement( Object* object, QDomDocument *doc, QDomElement *parent );
+	
+	private:
+		QString m_fileName;
+		OidType m_currentOid;
+		Manager *m_manager;
+	};
 
-	bool remove( Collection* collection, const OidType& oid );
-
-	bool createSchema();
-
-	bool hasChanged( Object * object );
-	bool hasChanged( Collection *collection );
-	bool hasChanged( const OidType& oid, const RelationInfo* related );
-
-	OidType newOid();
-
-	bool commit();
-
-	void reset() {};
-
-	void afterRollback();
-	void beforeRemove( Object* /*object*/ ) {};
-
-protected:
-	OidType elementToObject( const QDomElement& e );
-	void objectToElement( Object* object, QDomDocument *doc, QDomElement *parent );
-
-private:
-	QString m_fileName;
-	OidType m_currentOid;
-	Manager *m_manager;
-};
+}
 
 #endif

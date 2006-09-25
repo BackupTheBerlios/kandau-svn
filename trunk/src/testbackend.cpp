@@ -23,6 +23,8 @@
 #include "manager.h"
 #include "object.h"
 
+using namespace Kandau;
+
 TestBackend::TestBackend()
  : DbBackendIface()
 {

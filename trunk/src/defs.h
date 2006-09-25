@@ -18,6 +18,11 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-class Object;
-typedef Object*(*CreateObjectFunction)(void);
-typedef void (*CreateRelationsFunction)(void);
+namespace Kandau {
+
+	class Object;
+
+	typedef Object*(*CreateObjectFunction)(void);
+	typedef void (*CreateRelationsFunction)(void);
+
+}

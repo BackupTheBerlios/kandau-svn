@@ -28,8 +28,9 @@
 #include "object.h"
 #include "manager.h"
 #include "dbbackendiface.h"
-#include "testbackend.h"
 #include "notificationhandler.h"
+
+using namespace Kandau;
 
 Manager* Manager::m_self = 0;
 

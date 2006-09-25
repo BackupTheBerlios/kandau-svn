@@ -27,70 +27,73 @@
 #include "notificationhandler.h"
 #include "oidtype.h"
 
-class ClassInfo;
-class Object;
-class PropertyInfo;
 class QVariant;
 
-class PossibleEvents
-{
-public:
-	PossibleEvents();
-	PossibleEvents( const PossibleEvents &p );
-	PossibleEvents( const ClassInfo *classInfo, const OidType& object, const QString &property );
-	const ClassInfo* classInfo() const;
-	const OidType& object() const;
-	const QString& property() const;
-private:
-	const ClassInfo *m_classInfo;
-	QString m_property;
-	OidType m_object;
-};
-
-class ObjectAndSlot
-{
-public:
-	ObjectAndSlot();
-	ObjectAndSlot( const ObjectAndSlot& p );
-	ObjectAndSlot( const QObject* object, const QString& slot );
-	const QObject* object() const;
-	const QString& slot() const;
-	bool operator<( const ObjectAndSlot& p ) const;
-	bool operator==( const ObjectAndSlot& p ) const;
-private:
-	const QObject* m_object;
-	QString m_slot;
-};
-
-typedef QMap<QString,QValueList<ObjectAndSlot> > MapPropertySlots;
-typedef QMapConstIterator<QString,QValueList<ObjectAndSlot> > MapConstIteratorPropertySlots;
-
-typedef QMap<OidType,MapPropertySlots> MapObjectProperty;
-typedef QMapConstIterator<OidType,MapPropertySlots> MapConstIteratorObjectProperty;
-
-typedef QMap<const ClassInfo*,MapObjectProperty> MapClassInfoObject;
-typedef QMapConstIterator<const ClassInfo*,MapObjectProperty> MapConstIteratorClassInfoObject;
-
-typedef QMap<ObjectAndSlot,QValueList<PossibleEvents> > MapSlotEvents;
-typedef QMapConstIterator<ObjectAndSlot, QValueList<PossibleEvents> > MapSlotEventsConstIterator;
-
-/**
-	@author Albert Cervera Areny <albertca@hotpop.com>
-*/
-class Notifier : public QObject, public NotificationHandler
-{
-	Q_OBJECT
-public:
-	void registerSlot( const QObject *dstObject, const char* slot, const ClassInfo* classInfo = 0, const OidType& object = 0, const QString& property = QString::null );
-	void unregisterSlot( const QObject *object, const char* slot );
-	bool propertyModified( const ClassInfo* classInfo, const OidType& object, const QString& property, const QVariant& newValue );
+namespace Kandau {
 	
-signals:
-	void modified( const ClassInfo* classInfo, const OidType& object, const PropertyInfo *property, const QVariant& newValue );
+	class ClassInfo;
+	class Object;
+	class PropertyInfo;
 
-private:
-	MapSlotEvents m_slotEvents;
-	MapClassInfoObject m_eventSlots;
-};
+	class PossibleEvents
+	{
+	public:
+		PossibleEvents();
+		PossibleEvents( const PossibleEvents &p );
+		PossibleEvents( const ClassInfo *classInfo, const OidType& object, const QString &property );
+		const ClassInfo* classInfo() const;
+		const OidType& object() const;
+		const QString& property() const;
+	private:
+		const ClassInfo *m_classInfo;
+		QString m_property;
+		OidType m_object;
+	};
+	
+	class ObjectAndSlot
+	{
+	public:
+		ObjectAndSlot();
+		ObjectAndSlot( const ObjectAndSlot& p );
+		ObjectAndSlot( const QObject* object, const QString& slot );
+		const QObject* object() const;
+		const QString& slot() const;
+		bool operator<( const ObjectAndSlot& p ) const;
+		bool operator==( const ObjectAndSlot& p ) const;
+	private:
+		const QObject* m_object;
+		QString m_slot;
+	};
+	
+	typedef QMap<QString,QValueList<ObjectAndSlot> > MapPropertySlots;
+	typedef QMapConstIterator<QString,QValueList<ObjectAndSlot> > MapConstIteratorPropertySlots;
+	
+	typedef QMap<OidType,MapPropertySlots> MapObjectProperty;
+	typedef QMapConstIterator<OidType,MapPropertySlots> MapConstIteratorObjectProperty;
+	
+	typedef QMap<const ClassInfo*,MapObjectProperty> MapClassInfoObject;
+	typedef QMapConstIterator<const ClassInfo*,MapObjectProperty> MapConstIteratorClassInfoObject;
+	
+	typedef QMap<ObjectAndSlot,QValueList<PossibleEvents> > MapSlotEvents;
+	typedef QMapConstIterator<ObjectAndSlot, QValueList<PossibleEvents> > MapSlotEventsConstIterator;
+	
+	
+	class Notifier : public QObject, public NotificationHandler
+	{
+		Q_OBJECT
+	public:
+		void registerSlot( const QObject *dstObject, const char* slot, const ClassInfo* classInfo = 0, const OidType& object = 0, const QString& property = QString::null );
+		void unregisterSlot( const QObject *object, const char* slot );
+		bool propertyModified( const ClassInfo* classInfo, const OidType& object, const QString& property, const QVariant& newValue );
+		
+	signals:
+		void modified( const ClassInfo* classInfo, const OidType& object, const PropertyInfo *property, const QVariant& newValue );
+	
+	private:
+		MapSlotEvents m_slotEvents;
+		MapClassInfoObject m_eventSlots;
+	};
+
+}
 
 #endif

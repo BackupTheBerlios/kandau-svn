@@ -26,6 +26,8 @@
 #include "classes.h"
 #include "object.h"
 
+using namespace Kandau;
+
 XmlDbBackend::XmlDbBackend( const QString& fileName, bool truncate )
 {
 	m_currentOid = 1;

@@ -34,6 +34,8 @@
 #include "object.h"
 #include "tokenizer.h"
 
+using namespace Kandau;
+
 SqlDbBackend::SqlDbBackend( QSqlDatabase *db, IsolationLevel isolationLevel )
 {
 	assert( db );
@@ -858,13 +860,16 @@ QString SqlDbBackend::expandDotsString( const QString& string )
 	QString className;
 	QString relationName;
 	QString expanded;
+	QStringList tables;
 
 	assert( string.contains( "." ) );
 
-	MTokenizer tokenizer( string, "." );
+	Tokenizer tokenizer( string, "." );
 	className = tokenizer.nextToken();
 	relationName = tokenizer.nextToken();
+	tables << className;
 	do {
+		
 		if ( ! Classes::contains( className ) ) {
 			kdDebug() << k_funcinfo << "Class '" << className << "' not found." << endl;
 			return string;
@@ -891,7 +896,7 @@ QString SqlDbBackend::expandDotsString( const QString& string )
 				expanded += className + "." + oidFieldName() + "=";
 				expanded += relationName + "." + className + " AND ";
 				expanded += relationName + "." + rel->childrenClassInfo()->name() + "=";
-				expanded += rel->childrenClassInfo()->name() + "." + oidFieldName() + "AND ";
+				expanded += rel->childrenClassInfo()->name() + "." + oidFieldName() + "  AND ";
 				className = rel->childrenClassInfo()->name();
 			}
 		} else {
@@ -901,9 +906,11 @@ QString SqlDbBackend::expandDotsString( const QString& string )
 			return expanded;
 		}
 		relationName = tokenizer.nextToken();
+		tables << className;
 	} while ( ! relationName.isNull() );
 	expanded += className + "." + tokenizer.tail() + " ";
 	kdDebug() << k_funcinfo << "Expanded string: " << expanded  << endl;
+	kdDebug() << k_funcinfo << "Tables: " << tables << endl;
 	return expanded;
 }
 
@@ -922,13 +929,13 @@ bool SqlDbBackend::load( Collection* collection, const QString& query )
 		seps << "=";
 		seps << ">";
 		seps << "<";
-		MTokenizer tokenizer( query, seps );
+		Tokenizer tokenizer( query, seps );
 		QString token;
 		int lastIndex = 0;
-		kdDebug() << k_funcinfo << "A punt d'embuclar: " << query << endl;
+		kdDebug() << k_funcinfo << "Before loop: " << query << endl;
 		token = tokenizer.nextToken();
 		while ( ! token.isNull() ) {
-			kdDebug() << k_funcinfo << "Bucle: " << token << endl;
+			kdDebug() << k_funcinfo << "Loop: " << token << endl;
 			if ( token.contains( "." ) && ! token.contains( "*" ) ) {
 				newQuery += expandDotsString( token );
 			} else {

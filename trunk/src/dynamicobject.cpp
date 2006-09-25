@@ -19,6 +19,8 @@
  ***************************************************************************/
 #include "dynamicobject.h"
 
+using namespace Kandau;
+
 DynamicObject* DynamicObject::create( Manager* manager )
 {
 	DynamicObject *o = new DynamicObject();

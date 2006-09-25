@@ -23,14 +23,18 @@
 
 #include <qvariant.h>
 
-// OidType is just a number which can be very very large.
-// 0 is considered to be reserved and means "not assigned"
-typedef unsigned long long OidType;
+namespace Kandau {
 
+	// OidType is just a number which can be very very large.
+	// 0 is considered to be reserved and means "not assigned"
+	typedef unsigned long long OidType;
+	
+	
+	QString oidToString( OidType oid );
+	QVariant oidToVariant( OidType oid );
+	OidType stringToOid( QString oid );
+	OidType variantToOid( QVariant oid );
 
-QString oidToString( OidType oid );
-QVariant oidToVariant( OidType oid );
-OidType stringToOid( QString oid );
-OidType variantToOid( QVariant oid );
+}
 
 #endif

@@ -24,6 +24,8 @@
 #include "classes.h"
 #include "object.h"
 
+using namespace Kandau;
+
 InMemorySqlDbBackend::InMemorySqlDbBackend( QSqlDatabase * db )
 {
 	m_currentOid = 1;
@@ -230,8 +232,9 @@ bool InMemorySqlDbBackend::createSchema()
 		PropertiesInfoConstIterator pEnd( currentClass->propertiesEnd() );
 		for ( ; pIt != pEnd; ++pIt ) {
 			prop = *pIt;
+			
 			if ( prop->readOnly() == false )
-				exec += prop->name() + " " + sqlType( prop->type() ) + ", ";
+				exec += prop->name() + " " + sqlType( prop ) + ", ";
 		}
 
 		// Create related objects fields
@@ -377,10 +380,13 @@ bool InMemorySqlDbBackend::commit()
 	return m_db->commit();
 }
 
-QString InMemorySqlDbBackend::sqlType( QVariant::Type type )
+QString InMemorySqlDbBackend::sqlType( const PropertyInfo* info )
 {
-	// TODO: Review the unsigned integer. Type mapping might be incorrect.
-	switch ( type ) {
+	// TODO: Take a look at the unsigned integer types. The mapping isn't correct.
+	if ( info->isEnumType() )
+		return "INTEGER";
+
+	switch ( info->type() ) {
 		case QVariant::CString:
 			return "VARCHAR";
 		case QVariant::String:
@@ -408,7 +414,7 @@ QString InMemorySqlDbBackend::sqlType( QVariant::Type type )
 		case QVariant::ByteArray:
 			return "BYTEA";
 		default:
-			kdDebug() << "Unclassified Type: " << QVariant::typeToName( type ) << endl;
+			kdDebug() << "Unclassified Type: " << QVariant::typeToName( info->type() ) << endl;
 			assert( false );
 			return "INTEGER";
 	}

@@ -21,6 +21,8 @@
 
 #include "labelsmetainfo.h"
 
+using namespace Kandau;
+
 LabelsMetaInfo::LabelsMetaInfo( const LabelDescription *labels ) : QObject()
 {
 	assert( labels );

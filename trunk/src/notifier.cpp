@@ -23,6 +23,8 @@
 #include "object.h"
 #include "notifier.h"
 
+using namespace Kandau;
+
 PossibleEvents::PossibleEvents()
 {
 	m_classInfo = 0;

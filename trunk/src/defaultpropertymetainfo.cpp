@@ -23,6 +23,8 @@
 
 #include "defaultpropertymetainfo.h"
 
+using namespace Kandau;
+
 DefaultPropertyMetaInfo::DefaultPropertyMetaInfo( const QString& defaultProperty ) : QObject()
 {
 	m_defaultProperty = defaultProperty;

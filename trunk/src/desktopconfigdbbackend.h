@@ -25,53 +25,55 @@
 #include <oidtype.h>
 
 class KSimpleConfig;
-class Manager;
-class Object;
-class Collection;
 class KConfig;
 
-/**
-	@author Albert Cervera Areny <albertca@hotpop.com>
-*/
-class DesktopConfigDbBackend : public DbBackendIface
-{
-public:
-	DesktopConfigDbBackend( const QString& fileName );
-	virtual ~DesktopConfigDbBackend();
+namespace Kandau {
+
+	class Manager;
+	class Object;
+	class Collection;
+
+	class DesktopConfigDbBackend : public DbBackendIface
+	{
+	public:
+		DesktopConfigDbBackend( const QString& fileName );
+		virtual ~DesktopConfigDbBackend();
+		
+		void setup( Manager* manager );
 	
-	void setup( Manager* manager );
-
-	void shutdown();
-	bool load( const OidType& oid, Object *object );
-	bool load( Collection *collection );
-	bool load( Collection *collection, const QString& query );
-	bool load( OidType* relatedOid, const OidType& oid, const RelationInfo* related );
-
-	bool createSchema();
-
-	bool hasChanged( Object * object );
-	bool hasChanged( Collection *collection );
-	bool hasChanged( const OidType& oid, const RelationInfo* related );
-
-	bool commit();
-
-	OidType newOid();
-
-	void reset();
-
-	/* Callbacks */
-
-	void beforeRemove( Object *object );
-
-	void afterRollback();
+		void shutdown();
+		bool load( const OidType& oid, Object *object );
+		bool load( Collection *collection );
+		bool load( Collection *collection, const QString& query );
+		bool load( OidType* relatedOid, const OidType& oid, const RelationInfo* related );
 	
-	//
-	void init();
-	void objectToElement( const Object *object, KConfig *config );
-private:
-	Manager *m_manager;
-	QString m_fileName;
-	OidType m_currentOid;
-};
+		bool createSchema();
+	
+		bool hasChanged( Object * object );
+		bool hasChanged( Collection *collection );
+		bool hasChanged( const OidType& oid, const RelationInfo* related );
+	
+		bool commit();
+	
+		OidType newOid();
+	
+		void reset();
+	
+		/* Callbacks */
+	
+		void beforeRemove( Object *object );
+	
+		void afterRollback();
+		
+		//
+		void init();
+		void objectToElement( const Object *object, KConfig *config );
+	private:
+		Manager *m_manager;
+		QString m_fileName;
+		OidType m_currentOid;
+	};
+
+}
 
 #endif

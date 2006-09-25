@@ -24,6 +24,8 @@
 
 #include "desktopconfigdbbackend.h"
 
+using namespace Kandau;
+
 DesktopConfigDbBackend::DesktopConfigDbBackend( const QString& fileName )
 {
 	m_fileName = fileName;

@@ -20,22 +20,24 @@
 
 #include "seqtype.h"
 
-QString seqToString( SeqType seq )
+using namespace Kandau;
+
+QString Kandau::seqToString( SeqType seq )
 {
 	return QString::number( seq );
 }
 
-QVariant seqToVariant( SeqType seq )
+QVariant Kandau::seqToVariant( SeqType seq )
 {
 	return QVariant( seq );
 }
 
-SeqType stringToSeq( QString seq )
+SeqType Kandau::stringToSeq( QString seq )
 {
 	return seq.toULongLong();
 }
 
-SeqType variantToSeq( QVariant seq )
+SeqType Kandau::variantToSeq( QVariant seq )
 {
 	return seq.toULongLong();
 }

@@ -19,23 +19,25 @@
  ***************************************************************************/
 
 #include "oidtype.h"
+
+using namespace Kandau;
  
-QString oidToString( OidType oid )
+QString Kandau::oidToString( OidType oid )
 {
 	return QString::number( oid );
 }
 
-QVariant oidToVariant( OidType oid )
+QVariant Kandau::oidToVariant( OidType oid )
 {
 	return QVariant( oid );
 }
 
-OidType stringToOid( QString oid )
+OidType Kandau::stringToOid( QString oid )
 {
 	return oid.toULongLong();
 }
 
-OidType variantToOid( QVariant oid )
+OidType Kandau::variantToOid( QVariant oid )
 {
 	return oid.toULongLong();
 }

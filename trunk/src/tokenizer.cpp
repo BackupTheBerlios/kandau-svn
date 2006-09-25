@@ -24,15 +24,16 @@
 
 #include "tokenizer.h"
 
+using namespace Kandau;
 
-MTokenizer::MTokenizer( const QString& text, const QStringList& symbols )
+Tokenizer::Tokenizer( const QString& text, const QStringList& symbols )
 {
 	m_text = text;
 	m_symbols = QRegExp::escape( symbols.join( QString::null ) ); //\s=><\(\)
 	m_index = 0;
 }
 
-QString MTokenizer::nextToken()
+QString Tokenizer::nextToken()
 {
 	QString token;
 	int nextIndex;
@@ -45,17 +46,17 @@ QString MTokenizer::nextToken()
 	return token;
 }
 
-QString MTokenizer::head()
+QString Tokenizer::head()
 {
 	return m_text.left( m_index );
 }
 
-QString MTokenizer::tail()
+QString Tokenizer::tail()
 {
 	return m_text.right( m_text.length() - m_index );
 }
 
-int MTokenizer::currentIndex()
+int Tokenizer::currentIndex()
 {
 	return m_index;
 }

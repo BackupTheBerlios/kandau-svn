@@ -22,14 +22,18 @@
 
 #include <qvariant.h>
 
-// SeqType is just a number which can be very very large.
-// 0 is considered to be reserved and means "not assigned"
-typedef unsigned long long SeqType;
+namespace Kandau {
+	
+	// SeqType is just a number which can be very very large.
+	// 0 is considered to be reserved and means "not assigned"
+	typedef unsigned long long SeqType;
+	
+	
+	QString seqToString( SeqType seq );
+	QVariant seqToVariant( SeqType seq );
+	SeqType stringToSeq( QString seq );
+	SeqType variantToSeq( QVariant seq );
 
-
-QString seqToString( SeqType seq );
-QVariant seqToVariant( SeqType seq );
-SeqType stringToSeq( QString seq );
-SeqType variantToSeq( QVariant seq );
+}
 
 #endif

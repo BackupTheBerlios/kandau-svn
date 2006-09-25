@@ -22,19 +22,20 @@
 
 #include <qobject.h>
 
-class Object;
+namespace Kandau {
 
-/**
-	@author Albert Cervera Areny <albertca@hotpop.com>
-*/
-class DefaultPropertyMetaInfo : public QObject
-{
-Q_OBJECT
-public:
-	DefaultPropertyMetaInfo( const QString& defaultProperty );
-	QString defaultPropertyValue( const Object* object );
-private:
-	QString m_defaultProperty;
-};
+	class Object;
+
+	class DefaultPropertyMetaInfo : public QObject
+	{
+	Q_OBJECT
+	public:
+		DefaultPropertyMetaInfo( const QString& defaultProperty );
+		QString defaultPropertyValue( const Object* object );
+	private:
+		QString m_defaultProperty;
+	};
+
+}
 
 #endif

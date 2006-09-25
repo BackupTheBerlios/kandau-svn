@@ -27,7 +27,8 @@
 #include "manager.h"
 #include "tokenizer.h"
 
-// CollectionIterator
+using namespace Kandau;
+
 CollectionIterator::CollectionIterator()
 {
 	m_classInfo = 0;
@@ -262,7 +263,7 @@ void Collection::setQuery( const QString& query, Manager* manager )
 	if ( Classes::contains( query ) )
 		m_classInfo = Classes::classInfo( query );
 	else {
-		MTokenizer tokenizer( query, " " );
+		Tokenizer tokenizer( query, " " );
 		tokenizer.nextToken(); // First item should be SELECT
 		QString c = tokenizer.nextToken();
 		c = c.left( c.find( '.' ) );

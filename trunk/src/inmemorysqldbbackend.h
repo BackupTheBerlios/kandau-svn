@@ -28,48 +28,49 @@
 class QSqlDatabase;
 class QSqlCursor;
 
-/**
-@author Albert Cervera Areny
-*/
-class InMemorySqlDbBackend : public DbBackendIface
-{
-public:
-	InMemorySqlDbBackend( QSqlDatabase* db );
-	virtual ~InMemorySqlDbBackend();
+namespace Kandau {
 
-	void setup( Manager *manager );
-	void init();
-	void shutdown();
-	bool load( const OidType& oid, Object *object );
-	bool load( Collection *collection );
-	bool load( Collection *collection, const QString& query );
-	bool load( OidType* relatedOid, const OidType& oid, const RelationInfo* related );
+	class InMemorySqlDbBackend : public DbBackendIface
+	{
+	public:
+		InMemorySqlDbBackend( QSqlDatabase* db );
+		virtual ~InMemorySqlDbBackend();
+	
+		void setup( Manager *manager );
+		void init();
+		void shutdown();
+		bool load( const OidType& oid, Object *object );
+		bool load( Collection *collection );
+		bool load( Collection *collection, const QString& query );
+		bool load( OidType* relatedOid, const OidType& oid, const RelationInfo* related );
+	
+		bool createSchema();
+		bool hasChanged( Object * object );
+		bool hasChanged( Collection *collection );
+		bool hasChanged( const OidType& oid, const RelationInfo* related );
+	
+		OidType newOid();
+		bool commit();
+		void reset() {};
+	
+		// Callbacks
+		void afterRollback();
+		void beforeRemove( Object* /*object*/ ) {};
+	
+	protected:
+		QString sqlType( const PropertyInfo *info );
+		void loadObject( const QSqlCursor& cursor, Object* object );
+		void saveObject( Object* object );
+	
+		QString idFieldName( CollectionInfo *collection ) const;
+	
+	private:
+		QSqlDatabase *m_db;
+		OidType m_currentOid;
+		QStringList m_savedCollections;
+		Manager *m_manager;
+	};
 
-	bool createSchema();
-	bool hasChanged( Object * object );
-	bool hasChanged( Collection *collection );
-	bool hasChanged( const OidType& oid, const RelationInfo* related );
-
-	OidType newOid();
-	bool commit();
-	void reset() {};
-
-	// Callbacks
-	void afterRollback();
-	void beforeRemove( Object* /*object*/ ) {};
-
-protected:
-	QString sqlType( QVariant::Type type );
-	void loadObject( const QSqlCursor& cursor, Object* object );
-	void saveObject( Object* object );
-
-	QString idFieldName( CollectionInfo *collection ) const;
-
-private:
-	QSqlDatabase *m_db;
-	OidType m_currentOid;
-	QStringList m_savedCollections;
-	Manager *m_manager;
-};
+}
 
 #endif

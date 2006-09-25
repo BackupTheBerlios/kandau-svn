@@ -24,22 +24,23 @@
 
 class QStringList;
 
-/**
-	@author Albert Cervera Areny <albertca@hotpop.com>
-*/
-class MTokenizer{
-public:
-	MTokenizer( const QString& text, const QStringList& symbols );
-	QString nextToken();
-	QString head();
-	QString tail();
-	int currentIndex();
+namespace Kandau {
 
-private:
-	QString m_text;
-	QString m_symbols;
-	int m_index;
-	int m_nextIndex;
-};
+	class Tokenizer{
+	public:
+		Tokenizer( const QString& text, const QStringList& symbols );
+		QString nextToken();
+		QString head();
+		QString tail();
+		int currentIndex();
+
+	private:
+		QString m_text;
+		QString m_symbols;
+		int m_index;
+		int m_nextIndex;
+	};
+
+}
 
 #endif

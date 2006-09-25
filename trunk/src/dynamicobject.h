@@ -22,23 +22,24 @@
 
 #include <object.h>
 
-/**
-@author Albert Cervera Areny
-*/
-class DynamicObject : public Object
-{
-	Q_OBJECT
-public:
-	static DynamicObject* create( Manager* manager = 0 );
-	static DynamicObject* create( OidType oid, Manager* manager = 0 );
-	static Object* createInstance();
-	DynamicObject* createObjectInstance() const;
+namespace Kandau {
 
-	bool setProperty( const char* name, const QVariant& value );
-	QVariant propertyValue( const char* name ) const;
+	class DynamicObject : public Object
+	{
+		Q_OBJECT
+	public:
+		static DynamicObject* create( Manager* manager = 0 );
+		static DynamicObject* create( OidType oid, Manager* manager = 0 );
+		static Object* createInstance();
+		DynamicObject* createObjectInstance() const;
+	
+		bool setProperty( const char* name, const QVariant& value );
+		QVariant propertyValue( const char* name ) const;
+	
+	private:
+		QMap<QString,QVariant> m_properties;
+	};
 
-private:
-	QMap<QString,QVariant> m_properties;
-};
+}
 
 #endif

@@ -22,26 +22,25 @@
 
 #include <qobject.h>
 
-/**
-	@author Albert Cervera Areny <albertca@hotpop.com>
-*/
-
-struct LabelDescription
-{
-	const char *name;
-	const char *description;
-};
-
 #define LabelDescriptionLast { 0, 0 }
 
-class LabelsMetaInfo : public QObject
-{
-	Q_OBJECT
-public:
-	LabelsMetaInfo( const LabelDescription *labels );
-	const QString& label( const QString& name );
-private:
-	QMap<QString,QString> m_labels;
-};
+namespace Kandau {
+
+	struct LabelDescription
+	{
+		const char *name;
+		const char *description;
+	};
+	
+	class LabelsMetaInfo : public QObject
+	{
+		Q_OBJECT
+	public:
+		LabelsMetaInfo( const LabelDescription *labels );
+		const QString& label( const QString& name );
+	private:
+		QMap<QString,QString> m_labels;
+	};
+}
 
 #endif

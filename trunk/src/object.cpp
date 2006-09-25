@@ -23,6 +23,7 @@
 
 #include "object.h"
 
+using namespace Kandau;
 
 // Property
 

@@ -23,6 +23,7 @@
 #include "classes.h"
 #include "object.h"
 
+using namespace Kandau;
 
 ClassInfoMap *Classes::m_classes = 0;
 ClassInfo* Classes::m_currentClass = 0;
