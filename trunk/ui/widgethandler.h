@@ -39,6 +39,7 @@ public:
 	virtual void load() = 0;
 	virtual void save() = 0;
 
+	RelationInfo* relationInfo( const QString& path );
 	Object* relation( const QString& path );
 	bool existsRelation( const QString& path );
 

@@ -20,6 +20,8 @@
 #include <qwhatsthis.h>
 #include <qcombobox.h>
 
+#include <klocale.h>
+
 #include "comboboxhandler.h"
 #include "defaultpropertymetainfo.h"
 
@@ -30,39 +32,45 @@ ComboBoxHandler::ComboBoxHandler(QObject *parent, const char *name) : WidgetHand
 
 void ComboBoxHandler::load( )
 {
-	Object *rel = relation( QWhatsThis::textFor( widget() ) );
+	kdDebug() << "Relation: " << QWhatsThis::textFor( widget() ) << endl;
+	Object *obj = relation( QWhatsThis::textFor( widget() ) );
+	RelationInfo *rel = relationInfo( QWhatsThis::textFor( widget() ) );
 	combo()->clear();
+
+	kdDebug() << "Combo cleared" << endl;
 	if ( ! rel )
 		return;
 
-	DefaultPropertyMetaInfo *defaultProperty = dynamic_cast<DefaultPropertyMetaInfo*>( rel->classInfo()->metaInfo( "defaultProperty" ) );
+	DefaultPropertyMetaInfo *defaultProperty = dynamic_cast<DefaultPropertyMetaInfo*>( rel->relatedClassInfo()->metaInfo( "defaultProperty" ) );
 
-	Collection col( rel->classInfo()->name() );
+	Collection col( rel->relatedClassInfo()->name() );
 	CollectionIterator it( col.begin() );
 	CollectionIterator end( col.end() );
-	Object *obj;
+	Object *cur;
 	int item;
-	combo()->insertItem( "null" );
+	combo()->insertItem( i18n( "(None)" ) );
 	m_oids[ 0 ] = 0;
+	kdDebug() << "Looking for items" << endl;
 	for ( ; it != end; ++it ) {
-		obj = *it;
+		cur = *it;
+		kdDebug() << "One item" << endl;
 		if ( defaultProperty )
-			combo()->insertItem( defaultProperty->defaultPropertyValue( obj ) );
+			combo()->insertItem( defaultProperty->defaultPropertyValue( cur ) );
 		else
-			combo()->insertItem( oidToString( obj->oid() ) );
+			combo()->insertItem( oidToString( cur->oid() ) );
 
-		if ( obj->oid() == rel->oid() )
+		if ( obj && cur->oid() == obj->oid() )
 			item = combo()->count() - 1;
-		m_oids[ combo()->count() - 1 ] = obj->oid();
+		m_oids[ combo()->count() - 1 ] = cur->oid();
 	}
 	combo()->setCurrentItem( item );
 }
 
 void ComboBoxHandler::save( )
 {
-	Object *rel = relation( QWhatsThis::textFor( widget() ) );
-	if ( ! rel )
-		return;
+//	Object *rel = relation( QWhatsThis::textFor( widget() ) );
+//	if ( ! rel )
+//		return;
 
 	object()->setObject( QWhatsThis::textFor( widget() ), m_oids[ combo()->currentItem() ] );
 }

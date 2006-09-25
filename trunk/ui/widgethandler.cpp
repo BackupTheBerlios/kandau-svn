@@ -43,6 +43,17 @@ Object * WidgetHandler::object( ) const
 	return m_object;
 }
 
+RelationInfo* WidgetHandler::relationInfo( const QString& path )
+{
+	if ( m_object.isNull() )
+		return 0;
+	if ( m_object->classInfo()->containsObject( path ) )
+		return m_object->classInfo()->object( path );
+	// TODO: Analyze path
+
+	return 0;
+}
+
 Object * WidgetHandler::relation( const QString & path )
 {
 	if ( m_object.isNull() )
