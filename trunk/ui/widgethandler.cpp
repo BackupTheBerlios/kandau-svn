@@ -19,6 +19,9 @@
  ***************************************************************************/
 #include "widgethandler.h"
 
+using namespace Kandau;
+using namespace Kandau::Ui;
+
 WidgetHandler::WidgetHandler( QObject *object, const char* name ) : QObject( object, name )
 {
 }

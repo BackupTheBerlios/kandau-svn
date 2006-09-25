@@ -24,62 +24,62 @@
 
 #include <object.h>
 
+namespace Kandau {
+	namespace Ui {
 
-class WidgetHandler;
-class WidgetHandlerFactory;
-
-
-/**
-	@author Albert Cervera Areny <albertca@hotpop.com>
-*/
-class UiForm : public QWidget
-{
-	Q_OBJECT
-public:
-	UiForm(QWidget *parent = 0, const char *name = 0);
-
-	void setUiFile( const QString& fileName );
-	const QString& uiFile() const;
-
-	void setObject( Object* object );
-	Object* object() const;
-
-	Property property( const QString& path );
-	bool existsProperty( const QString& path );
-
-	Object* relation( const QString& path );
-	bool existsRelation( const QString& path );
-
-	Collection* collection( const QString& path );
-	bool existsCollection( const QString& path );
-
-	static void addRelationHandler( const QString& widgetClassName, WidgetHandlerFactory* factory );
-	static void removeRelationHandler( const QString& widgetClassName );
-
-	static void addCollectionHandler( const QString& widgetClassName, WidgetHandlerFactory* factory );
-	static void removeCollectionHandler( const QString& widgetClassName );
-
-public slots:
-	void save();
-
-protected:
-	void fillForm();
-
-protected slots:
-	void handlerDestroyed( QObject* object );
-
-private:
-	QString m_uiFileName;
-	ObjectRef<Object> m_object;
-	QWidget *m_widget;
-	//static QMap<QString,QString> m_properties;
-	static QMap<QString,WidgetHandlerFactory*> m_propertyHandlerFactories;
-	static QMap<QString,WidgetHandlerFactory*> m_relationHandlerFactories;
-	static QMap<QString,WidgetHandlerFactory*> m_collectionHandlerFactories;
-	QMap<QWidget*,WidgetHandler*> m_propertyHandlers;
-	QMap<QWidget*,WidgetHandler*> m_relationHandlers;
-	QMap<QWidget*,WidgetHandler*> m_collectionHandlers;
-
-};
+		class WidgetHandler;
+		class WidgetHandlerFactory;
+		
+		class UiForm : public QWidget
+		{
+			Q_OBJECT
+		public:
+			UiForm(QWidget *parent = 0, const char *name = 0);
+		
+			void setUiFile( const QString& fileName );
+			const QString& uiFile() const;
+		
+			void setObject( Object* object );
+			Object* object() const;
+		
+			Property property( const QString& path );
+			bool existsProperty( const QString& path );
+		
+			Object* relation( const QString& path );
+			bool existsRelation( const QString& path );
+		
+			Collection* collection( const QString& path );
+			bool existsCollection( const QString& path );
+		
+			static void addRelationHandler( const QString& widgetClassName, WidgetHandlerFactory* factory );
+			static void removeRelationHandler( const QString& widgetClassName );
+		
+			static void addCollectionHandler( const QString& widgetClassName, WidgetHandlerFactory* factory );
+			static void removeCollectionHandler( const QString& widgetClassName );
+		
+		public slots:
+			void save();
+		
+		protected:
+			void fillForm();
+		
+		protected slots:
+			void handlerDestroyed( QObject* object );
+		
+		private:
+			QString m_uiFileName;
+			ObjectRef<Object> m_object;
+			QWidget *m_widget;
+			//static QMap<QString,QString> m_properties;
+			static QMap<QString,WidgetHandlerFactory*> m_propertyHandlerFactories;
+			static QMap<QString,WidgetHandlerFactory*> m_relationHandlerFactories;
+			static QMap<QString,WidgetHandlerFactory*> m_collectionHandlerFactories;
+			QMap<QWidget*,WidgetHandler*> m_propertyHandlers;
+			QMap<QWidget*,WidgetHandler*> m_relationHandlers;
+			QMap<QWidget*,WidgetHandler*> m_collectionHandlers;
+		};
+	
+	}
+}
 
 #endif

@@ -24,35 +24,36 @@
 
 #include <object.h>
 
-/**
-@author Albert Cervera Areny <albertca@hotpop.com>
-*/
-class PropertyWidget : public QWidget
-{
-	Q_OBJECT
+namespace Kandau {
+	namespace Ui {
 
-public:
-	PropertyWidget( QWidget *parent = 0 );
-	PropertyWidget( const Property& property, QWidget *parent = 0 );
+		class PropertyWidget : public QWidget
+		{
+			Q_OBJECT
+		public:
+			PropertyWidget( QWidget *parent = 0 );
+			PropertyWidget( const Property& property, QWidget *parent = 0 );
+		
+			void setProperty( const Property& property );
+		
+			void setReadOnly( bool readOnly );
+			bool readOnly() const;
+		
+			virtual void setValue( const QVariant& value );
+			virtual QVariant value() const;
+		
+		protected:
+			virtual QWidget* createWidget();
+			QWidget *widget() const;
+		
+		private:
+			QVariant m_value;
+			bool m_readOnly;
+			const PropertyInfo* m_propertyInfo;
+			QWidget *m_widget;
+			QVBoxLayout *m_layout;
+		};
 
-	void setProperty( const Property& property );
-
-	void setReadOnly( bool readOnly );
-	bool readOnly() const;
-
-	virtual void setValue( const QVariant& value );
-	virtual QVariant value() const;
-
-protected:
-	virtual QWidget* createWidget();
-	QWidget *widget() const;
-
-private:
-	QVariant m_value;
-	bool m_readOnly;
-	const PropertyInfo* m_propertyInfo;
-	QWidget *m_widget;
-	QVBoxLayout *m_layout;
-};
-
+	}
+}
 #endif

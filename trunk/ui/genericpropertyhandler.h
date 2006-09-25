@@ -22,32 +22,35 @@
 
 #include <widgethandler.h>
 
-/**
-	@author Albert Cervera Areny <albertca@hotpop.com>
-*/
-class GenericPropertyHandler : public WidgetHandler
-{
-	Q_OBJECT
-public:
-	GenericPropertyHandler(QObject *parent = 0, const char *name = 0);
-	
-	void setWidgetProperty( const QString& p );
-	const QString& widgetProperty() const;
-	
-	void load();
-	void save();
-private:
-	QString m_widget;
-	QString m_widgetProperty;
-};
+namespace Kandau {
+	namespace Ui {
 
-class GenericPropertyHandlerFactory : public WidgetHandlerFactory
-{
-public:
-	GenericPropertyHandlerFactory( const QString& property );
-	GenericPropertyHandler *create( QWidget* widget ) const;
-private:
-	QString m_property;
-};
+		class GenericPropertyHandler : public WidgetHandler
+		{
+			Q_OBJECT
+		public:
+			GenericPropertyHandler(QObject *parent = 0, const char *name = 0);
+			
+			void setWidgetProperty( const QString& p );
+			const QString& widgetProperty() const;
+			
+			void load();
+			void save();
+		private:
+			QString m_widget;
+			QString m_widgetProperty;
+		};
+		
+		class GenericPropertyHandlerFactory : public WidgetHandlerFactory
+		{
+		public:
+			GenericPropertyHandlerFactory( const QString& property );
+			GenericPropertyHandler *create( QWidget* widget ) const;
+		private:
+			QString m_property;
+		};
+
+	}
+}
 
 #endif

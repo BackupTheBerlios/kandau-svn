@@ -24,6 +24,9 @@
 
 #include "classchooser.h"
 
+using namespace Kandau;
+using namespace Kandau::Ui;
+
 ClassChooser::ClassChooser( QWidget *parent ) : QToolBox( parent )
 {
 	connect( this, SIGNAL(currentChanged(int)), SLOT(slotCurrentChanged(int)) );

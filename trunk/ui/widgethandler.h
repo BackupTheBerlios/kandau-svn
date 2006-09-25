@@ -24,40 +24,43 @@
 
 #include <object.h>
 
-/**
-@author Albert Cervera Areny
-*/
-class WidgetHandler : public QObject
-{
-	Q_OBJECT
-public:
-	WidgetHandler( QObject *object = 0, const char* name = 0 );
-	void setObject( Object* object );
-	Object* object() const;
-	void setWidget( QWidget *widget );
-	QWidget* widget() const;
-	virtual void load() = 0;
-	virtual void save() = 0;
+namespace Kandau {
+	namespace Ui {
 
-	RelationInfo* relationInfo( const QString& path );
-	Object* relation( const QString& path );
-	bool existsRelation( const QString& path );
+		class WidgetHandler : public QObject
+		{
+			Q_OBJECT
+		public:
+			WidgetHandler( QObject *object = 0, const char* name = 0 );
+			void setObject( Object* object );
+			Object* object() const;
+			void setWidget( QWidget *widget );
+			QWidget* widget() const;
+			virtual void load() = 0;
+			virtual void save() = 0;
+		
+			RelationInfo* relationInfo( const QString& path );
+			Object* relation( const QString& path );
+			bool existsRelation( const QString& path );
+		
+			Collection* collection( const QString& path );
+			bool existsCollection( const QString& path );
+		
+			Property property( const QString& path );
+			bool existsProperty( const QString& path );
+		
+		private:
+			ObjectRef<Object> m_object;
+			QWidget *m_widget;
+		};
+		
+		class WidgetHandlerFactory
+		{
+		public:
+			virtual WidgetHandler* create( QWidget *widget ) const = 0;
+		};
 
-	Collection* collection( const QString& path );
-	bool existsCollection( const QString& path );
-
-	Property property( const QString& path );
-	bool existsProperty( const QString& path );
-
-private:
-	ObjectRef<Object> m_object;
-	QWidget *m_widget;
-};
-
-class WidgetHandlerFactory
-{
-public:
-	virtual WidgetHandler* create( QWidget *widget ) const = 0;
-};
+	}
+}
 
 #endif

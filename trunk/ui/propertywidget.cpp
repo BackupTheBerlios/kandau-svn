@@ -31,6 +31,8 @@
 
 #include "propertywidget.h"
 
+using namespace Kandau::Ui;
+
 PropertyWidget::PropertyWidget( QWidget *parent ) : QWidget( parent )
 {
 	m_widget = 0;

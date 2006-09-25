@@ -22,47 +22,53 @@
 
 #include <kmainwindow.h>
 
-class ClassChooser;
-class CollectionListView;
 class KListViewSearchLine;
-class ClassInfo;
 class QListViewItem;
 class KDialog;
 
-/**
-	@author Albert Cervera Areny <albertca@hotpop.com>
-*/
-class ClassMainWindow : public KMainWindow
-{
-	Q_OBJECT
-public:
-	ClassMainWindow(QWidget *parent = 0, const char *name = 0);
+namespace Kandau {
 
-protected:
-	void initGUI();
-	void fillListView();
+	class ClassInfo;
 
-protected slots:
-	void slotObjectSelected( Object *object );
-	void slotDialogFinished();
-	void slotDoubleClicked ( QListViewItem *item, const QPoint &, int );
-	void slotCurrentClassChanged( const ClassInfo* );
-	void slotSave();
-	void slotRightClick( QListViewItem *item, const QPoint &, int );
-	void slotAdd();
-	void slotRemove();
+	namespace Ui {
 
-private slots:
-	void slotSetup();
+		class ClassChooser;
+		class CollectionListView;
 
-private:
-	QMap<OidType,KDialog*> m_mapDialogs;
-	QWidget *m_centralWidget;
-	ClassChooser *m_classChooser;
-	CollectionListView *m_listView;
-	KListViewSearchLine *m_listViewSearchLine;
-
-	ClassInfo *m_currentClass;
-};
+		class ClassMainWindow : public KMainWindow
+		{
+			Q_OBJECT
+		public:
+			ClassMainWindow(QWidget *parent = 0, const char *name = 0);
+		
+		protected:
+			void initGUI();
+			void fillListView();
+		
+		protected slots:
+			void slotObjectSelected( Object *object );
+			void slotDialogFinished();
+			void slotDoubleClicked ( QListViewItem *item, const QPoint &, int );
+			void slotCurrentClassChanged( const ClassInfo* );
+			void slotSave();
+			void slotRightClick( QListViewItem *item, const QPoint &, int );
+			void slotAdd();
+			void slotRemove();
+		
+		private slots:
+			void slotSetup();
+		
+		private:
+			QMap<OidType,KDialog*> m_mapDialogs;
+			QWidget *m_centralWidget;
+			ClassChooser *m_classChooser;
+			CollectionListView *m_listView;
+			KListViewSearchLine *m_listViewSearchLine;
+		
+			ClassInfo *m_currentClass;
+		};
+	
+	}
+}
 
 #endif

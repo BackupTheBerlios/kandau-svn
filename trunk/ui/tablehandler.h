@@ -24,32 +24,34 @@
 
 #include "widgethandler.h"
 
-/**
-@author Albert Cervera Areny
-*/
-class TableHandler : public WidgetHandler
-{
-	Q_OBJECT
-public:
-	TableHandler( QObject* parent = 0, const char* name = 0 );
+namespace Kandau {
+	namespace Ui {
 
-	QTable* table() const;
+		class TableHandler : public WidgetHandler
+		{
+			Q_OBJECT
+		public:
+			TableHandler( QObject* parent = 0, const char* name = 0 );
+		
+			QTable* table() const;
+		
+			void load();
+			void save();
+		
+		protected slots:
+			void tablePopup( int row, int col, const QPoint& pos );
+			void tableAddRow();
+			void tableRemoveRow();
+		private:
+			QValueVector<OidType> m_removed;
+		};
+		
+		class TableHandlerFactory : public WidgetHandlerFactory
+		{
+		public:
+			TableHandler *create( QWidget* widget ) const;
+		};
 
-	void load();
-	void save();
-
-protected slots:
-	void tablePopup( int row, int col, const QPoint& pos );
-	void tableAddRow();
-	void tableRemoveRow();
-private:
-	QValueVector<OidType> m_removed;
-};
-
-class TableHandlerFactory : public WidgetHandlerFactory
-{
-public:
-	TableHandler *create( QWidget* widget ) const;
-};
-
+	}
+}
 #endif

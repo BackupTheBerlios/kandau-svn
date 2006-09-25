@@ -24,6 +24,9 @@
 
 #include "collectionlistview.h"
 
+using namespace Kandau;
+using namespace Kandau::Ui;
+
 CollectionListView::CollectionListView( const ClassInfo *classInfo, QWidget *parent ) :
 	KListView(parent)
 {

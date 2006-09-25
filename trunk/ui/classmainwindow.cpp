@@ -36,6 +36,8 @@
 #include "uiclassdialog.h"
 #include "classchooser.h"
 
+using namespace Kandau::Ui;
+
 ClassMainWindow::ClassMainWindow(QWidget *parent, const char *name)
  : KMainWindow(parent, name)
 {

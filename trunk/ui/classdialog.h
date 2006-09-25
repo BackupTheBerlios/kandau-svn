@@ -23,41 +23,47 @@
 #include <kdialogbase.h>
 #include <object.h>
 
-class PropertyWidget;
 class KTabWidget;
 
-/**
-	@author Albert Cervera Areny <albertca@hotpop.com>
-*/
-class ClassDialog : public KDialogBase
-{
-	Q_OBJECT
-public:
-	ClassDialog( Object* object, QWidget *parent = 0 );
+namespace Kandau { 
+	
+	namespace Ui {
 
-	Object* object() const;
+		class PropertyWidget;
+		
+		class ClassDialog : public KDialogBase
+		{
+			Q_OBJECT
+		public:
+			ClassDialog( Object* object, QWidget *parent = 0 );
+		
+			Object* object() const;
+		
+		signals:
+			void objectSelected( Object* object );
+			void okClicked( Object* object );
+			void cancelClicked( Object* object );
+		
+		protected:
+			static void updateObjectLabel( KURLLabel *objLabel, const Object *obj );
+			void slotOk();
+			void slotCancel();
+		
+		private slots:
+			void slotObjectSelected( const QString& oid );
+			void slotChangeClicked();
+			void slotObjectModified( const ClassInfo* classInfo, const OidType& object, const PropertyInfo *property, const QVariant& newValue );
+		
+		private:
+			QMap<QString,PropertyWidget*> m_mapProperties;
+			QMap<QString,KURLLabel*> m_mapObjects;
+			QMap<const QWidget*,RelationInfo*> m_mapChangeButtons;
+			ObjectRef<Object> m_object;
+			KTabWidget *m_tab;
+		};
+	
+	}
 
-signals:
-	void objectSelected( Object* object );
-	void okClicked( Object* object );
-	void cancelClicked( Object* object );
-
-protected:
-	static void updateObjectLabel( KURLLabel *objLabel, const Object *obj );
-	void slotOk();
-	void slotCancel();
-
-private slots:
-	void slotObjectSelected( const QString& oid );
-	void slotChangeClicked();
-	void slotObjectModified( const ClassInfo* classInfo, const OidType& object, const PropertyInfo *property, const QVariant& newValue );
-
-private:
-	QMap<QString,PropertyWidget*> m_mapProperties;
-	QMap<QString,KURLLabel*> m_mapObjects;
-	QMap<const QWidget*,RelationInfo*> m_mapChangeButtons;
-	ObjectRef<Object> m_object;
-	KTabWidget *m_tab;
-};
+}
 
 #endif

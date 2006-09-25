@@ -23,29 +23,33 @@
 #include <qtoolbox.h>
 #include <qvaluevector.h>
 
-class ClassInfo;
+namespace Kandau {
 
-/**
-@author Albert Cervera Areny
-*/
-class ClassChooser : public QToolBox
-{
-	Q_OBJECT
-public:
-	ClassChooser( QWidget *parent );
+	class ClassInfo;
+	
+	namespace Ui {
 
-	const ClassInfo* currentClass() const;
-
-	void load();
-
-signals:
-	void classSelected( const ClassInfo *classInfo );
-
-protected slots:
-	void slotCurrentChanged( int index );
-
-private:
-	QValueVector<const ClassInfo*> m_classes;
-};
+		class ClassChooser : public QToolBox
+		{
+			Q_OBJECT
+		public:
+			ClassChooser( QWidget *parent );
+		
+			const ClassInfo* currentClass() const;
+		
+			void load();
+		
+		signals:
+			void classSelected( const ClassInfo *classInfo );
+		
+		protected slots:
+			void slotCurrentChanged( int index );
+		
+		private:
+			QValueVector<const ClassInfo*> m_classes;
+		};
+	
+	}
+}
 
 #endif

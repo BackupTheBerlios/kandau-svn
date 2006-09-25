@@ -21,6 +21,9 @@
 
 #include <uiform.h>
 
+using namespace Kandau;
+using namespace Kandau::Ui;
+
 UiClassDialog::UiClassDialog(QWidget *parent, const char *name)
  : KDialogBase(parent, name)
 {

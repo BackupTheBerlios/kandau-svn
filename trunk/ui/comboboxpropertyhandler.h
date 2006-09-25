@@ -23,26 +23,29 @@
 #include <widgethandler.h>
 
 class QComboBox;
-/**
-	@author Albert Cervera Areny <albertca@hotpop.com>
-*/
-class ComboBoxPropertyHandler : public WidgetHandler
-{
-Q_OBJECT
-public:
-	ComboBoxPropertyHandler(QObject *parent = 0, const char *name = 0);
-	
-	QComboBox* combo() const;
 
-	void load();
-	void save();
-};
+namespace Kandau {
+	namespace Ui {
 
-class ComboBoxPropertyHandlerFactory : public WidgetHandlerFactory
-{
-public:
-	ComboBoxPropertyHandler *create( QWidget* widget ) const;
-};
+		class ComboBoxPropertyHandler : public WidgetHandler
+		{
+		Q_OBJECT
+		public:
+			ComboBoxPropertyHandler(QObject *parent = 0, const char *name = 0);
+			
+			QComboBox* combo() const;
+		
+			void load();
+			void save();
+		};
+		
+		class ComboBoxPropertyHandlerFactory : public WidgetHandlerFactory
+		{
+		public:
+			ComboBoxPropertyHandler *create( QWidget* widget ) const;
+		};
 
+	}
+}
 
 #endif

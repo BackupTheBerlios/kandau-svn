@@ -25,6 +25,8 @@
 #include "comboboxhandler.h"
 #include "defaultpropertymetainfo.h"
 
+using namespace Kandau;
+using namespace Kandau::Ui;
 
 ComboBoxHandler::ComboBoxHandler(QObject *parent, const char *name) : WidgetHandler(parent, name)
 {

@@ -49,6 +49,8 @@
 #include "genericpropertyhandler.h"
 #include "comboboxpropertyhandler.h"
 
+using namespace Kandau;
+using namespace Kandau::Ui;
 
 //QMap<QString,QString> UiForm::m_properties;
 QMap<QString,WidgetHandlerFactory*> UiForm::m_propertyHandlerFactories;

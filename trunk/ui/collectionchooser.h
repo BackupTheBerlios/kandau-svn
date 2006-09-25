@@ -24,43 +24,47 @@
 
 #include <object.h>
 
-class CollectionListView;
 class KPushButton;
 
-/**
-	@author Albert Cervera Areny <albertca@hotpop.com>
-*/
-class CollectionChooser : public QWidget
-{
-	Q_OBJECT
-public:
-	CollectionChooser(QWidget *parent = 0, const char *name = 0);
+namespace Kandau {
+	namespace Ui {
 
-	void setCollection( Collection* collection );
-	Collection* collection() const;
-	void setObject( Object* object );
-	Object* object() const;
-	void setCollectionName( const QString& collectionName );
-	const QString& collectionName() const;
+		class CollectionListView;
 
-protected slots:
-	void addClicked();
-	void addAllClicked();
-	void removeClicked();
-	void removeAllClicked();
-	void droppedAvailable( QDropEvent* event );
-	void droppedChoosen( QDropEvent* event );
+		class CollectionChooser : public QWidget
+		{
+			Q_OBJECT
+		public:
+			CollectionChooser(QWidget *parent = 0, const char *name = 0);
+		
+			void setCollection( Collection* collection );
+			Collection* collection() const;
+			void setObject( Object* object );
+			Object* object() const;
+			void setCollectionName( const QString& collectionName );
+			const QString& collectionName() const;
+		
+		protected slots:
+			void addClicked();
+			void addAllClicked();
+			void removeClicked();
+			void removeAllClicked();
+			void droppedAvailable( QDropEvent* event );
+			void droppedChoosen( QDropEvent* event );
+		
+		private:
+			CollectionRef<Collection> m_collection;
+			ObjectRef<Object> m_object;
+			QString m_collectionName;
+			CollectionListView *m_available;
+			CollectionListView *m_choosen;
+			KPushButton *m_add;
+			KPushButton *m_addAll;
+			KPushButton *m_remove;
+			KPushButton *m_removeAll;
+		};
 
-private:
-	CollectionRef<Collection> m_collection;
-	ObjectRef<Object> m_object;
-	QString m_collectionName;
-	CollectionListView *m_available;
-	CollectionListView *m_choosen;
-	KPushButton *m_add;
-	KPushButton *m_addAll;
-	KPushButton *m_remove;
-	KPushButton *m_removeAll;
-};
+	}
+}
 
 #endif

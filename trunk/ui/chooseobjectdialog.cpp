@@ -28,6 +28,9 @@
 #include "collectionlistview.h"
 #include "chooseobjectdialog.h"
 
+using namespace Kandau;
+using namespace Kandau::Ui;
+
 ChooseObjectDialog::ChooseObjectDialog( Collection *collection, Object *currentObject, QWidget *parent ) :
 	KDialogBase(parent)
 {

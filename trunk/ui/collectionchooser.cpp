@@ -28,6 +28,9 @@
 #include "collectionchooser.h"
 #include "collectionlistview.h"
 
+using namespace Kandau;
+using namespace Kandau::Ui;
+
 CollectionChooser::CollectionChooser(QWidget *parent, const char *name)
  : QWidget(parent, name)
 {

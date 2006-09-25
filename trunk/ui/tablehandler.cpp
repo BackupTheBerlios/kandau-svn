@@ -25,6 +25,7 @@
 #include "tablehandler.h"
 #include "collection.h"
 
+using namespace Kandau::Ui;
 
 TableHandler::TableHandler( QObject * parent, const char* name ) : WidgetHandler( parent, name )
 {

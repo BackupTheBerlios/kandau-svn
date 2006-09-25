@@ -22,31 +22,38 @@
 
 #include <kdialogbase.h>
 
-class Collection;
-class Object;
+
+
 class KListViewSearchLine;
-class CollectionListView;
 
-/**
-	@author Albert Cervera Areny <albertca@hotpop.com>
-*/
-class ChooseObjectDialog : public KDialogBase
-{
-Q_OBJECT
-public:
-	ChooseObjectDialog( Collection *collection, Object *currentObject, QWidget *parent = 0 );
-	Object* selectedObject() const;
-	void setCollection( Collection *collection );
-	Collection *collection() const;
+namespace Kandau {
 
-public slots:
-	void slotDoubleClicked( QListViewItem*, const QPoint&, int );
+	class Object;
+	class Collection;
 
-private:
-	Object *m_currentObject;
-	Collection *m_collection;
-	KListViewSearchLine *m_searchLine;
-	CollectionListView *m_listView;
-};
+	namespace Ui {
 
+		class CollectionListView;
+
+		class ChooseObjectDialog : public KDialogBase
+		{
+		Q_OBJECT
+		public:
+			ChooseObjectDialog( Collection *collection, Object *currentObject, QWidget *parent = 0 );
+			Object* selectedObject() const;
+			void setCollection( Collection *collection );
+			Collection *collection() const;
+		
+		public slots:
+			void slotDoubleClicked( QListViewItem*, const QPoint&, int );
+		
+		private:
+			Object *m_currentObject;
+			Collection *m_collection;
+			KListViewSearchLine *m_searchLine;
+			CollectionListView *m_listView;
+		};
+
+	}
+}
 #endif

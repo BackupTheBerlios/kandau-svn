@@ -24,35 +24,39 @@
 
 #include <object.h>
 
-class ClassInfo;
-class Manager;
+namespace Kandau {
 
-/**
-	@author Albert Cervera Areny <albertca@hotpop.com>
-*/
-class CollectionListView : public KListView
-{
-Q_OBJECT
+	class ClassInfo;
+	class Manager;
 
-public:
-	CollectionListView( const ClassInfo *classInfo = 0, QWidget *parent = 0 );
-	void setClassInfo( const ClassInfo *classInfo );
-	const ClassInfo* classInfo() const;
-	void fill();
+	namespace Ui {
 
-	void setManager( Manager* manager );
-	Manager* manager() const;
+		class CollectionListView : public KListView
+		{
+		Q_OBJECT
+		
+		public:
+			CollectionListView( const ClassInfo *classInfo = 0, QWidget *parent = 0 );
+			void setClassInfo( const ClassInfo *classInfo );
+			const ClassInfo* classInfo() const;
+			void fill();
+		
+			void setManager( Manager* manager );
+			Manager* manager() const;
+		
+			void add( const Object* object );
+			void remove( const OidType& oid );
+			Object* currentObject() const;
+			OidType currentOid() const;
+		protected:
+			QDragObject* dragObject();
+		
+		private:
+			const ClassInfo *m_classInfo;
+			Manager *m_manager;
+		};
 
-	void add( const Object* object );
-	void remove( const OidType& oid );
-	Object* currentObject() const;
-	OidType currentOid() const;
-protected:
-	QDragObject* dragObject();
-
-private:
-	const ClassInfo *m_classInfo;
-	Manager *m_manager;
-};
+	}
+}
 
 #endif

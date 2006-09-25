@@ -21,19 +21,24 @@
 #define DIALOGGENERATOR_H
 
 class KDialog;
-class Object;
-class Property;
 class QWidget;
 
-/**
-	@author Albert Cervera Areny <albertca@hotpop.com>
-*/
-class DialogGenerator
-{
-public:
-//	static KMainWindow* generateMainWindow();
-	static KDialog* generateDialog( QWidget* parent, Object *object );
-	//static QWidget* createInput( QWidget* parent, const Property& property );
-};
+namespace Kandau {
+
+	class Object;
+	class Property;
+
+	namespace Ui {
+
+		class DialogGenerator
+		{
+		public:
+		//	static KMainWindow* generateMainWindow();
+			static KDialog* generateDialog( QWidget* parent, Object *object );
+			//static QWidget* createInput( QWidget* parent, const Property& property );
+		};
+
+	}
+}
 
 #endif

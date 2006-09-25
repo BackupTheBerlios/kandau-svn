@@ -24,28 +24,31 @@
 
 #include <object.h>
 
-class UiForm;
+namespace Kandau {
+	namespace Ui {
 
-/**
-@author Albert Cervera Areny
-*/
-class UiClassDialog : public KDialogBase
-{
-Q_OBJECT
-public:
-	UiClassDialog(QWidget *parent = 0, const char *name = 0);
+		class UiForm;
+		
+		class UiClassDialog : public KDialogBase
+		{
+		Q_OBJECT
+		public:
+			UiClassDialog(QWidget *parent = 0, const char *name = 0);
+		
+			void setObject( Object* object );
+			Object* object() const;
+		
+			void setUiFile( const QString& fileName );
+			const QString& uiFile() const;
+		
+		protected slots:
+			void slotOkClicked();
+		
+		private:
+			UiForm *m_form;
+		};
 
-	void setObject( Object* object );
-	Object* object() const;
-
-	void setUiFile( const QString& fileName );
-	const QString& uiFile() const;
-
-protected slots:
-	void slotOkClicked();
-
-private:
-	UiForm *m_form;
-};
+	}
+}
 
 #endif

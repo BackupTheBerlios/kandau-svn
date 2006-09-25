@@ -22,6 +22,8 @@
 
 #include "comboboxpropertyhandler.h"
 
+using namespace Kandau::Ui;
+
 ComboBoxPropertyHandler::ComboBoxPropertyHandler(QObject *parent, const char *name)
  : WidgetHandler(parent, name)
 {

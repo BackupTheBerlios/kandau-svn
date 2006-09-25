@@ -24,28 +24,30 @@
 
 class QComboBox;
 
-/**
-@author Albert Cervera Areny
-*/
-class ComboBoxHandler : public WidgetHandler
-{
-	Q_OBJECT
-public:
-	ComboBoxHandler( QObject* parent = 0, const char* name = 0 );
+namespace Kandau {
+	namespace Ui {
 
-	QComboBox* combo() const;
+		class ComboBoxHandler : public WidgetHandler
+		{
+			Q_OBJECT
+		public:
+			ComboBoxHandler( QObject* parent = 0, const char* name = 0 );
+		
+			QComboBox* combo() const;
+		
+			void load();
+			void save();
+		private:
+			QMap<int,OidType> m_oids;
+		};
+		
+		class ComboBoxHandlerFactory : public WidgetHandlerFactory
+		{
+		public:
+			ComboBoxHandler *create( QWidget* widget ) const;
+		};
 
-	void load();
-	void save();
-private:
-	QMap<int,OidType> m_oids;
-};
-
-class ComboBoxHandlerFactory : public WidgetHandlerFactory
-{
-public:
-	ComboBoxHandler *create( QWidget* widget ) const;
-};
-
+	}
+}
 
 #endif

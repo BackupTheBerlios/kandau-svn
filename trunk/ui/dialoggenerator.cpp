@@ -20,6 +20,8 @@
 #include "dialoggenerator.h"
 #include "classdialog.h"
 
+using namespace Kandau::Ui;
+
 KDialog* DialogGenerator::generateDialog( QWidget* parent, Object* object )
 {
 	//KDialogBase *dialog = new KDialogBase( parent );

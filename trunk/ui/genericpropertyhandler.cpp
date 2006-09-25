@@ -22,6 +22,9 @@
 
 #include "genericpropertyhandler.h"
 
+using namespace Kandau;
+using namespace Kandau::Ui;
+
 GenericPropertyHandler::GenericPropertyHandler(QObject *parent, const char *name)
  : WidgetHandler(parent, name)
 {

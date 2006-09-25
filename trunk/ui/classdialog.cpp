@@ -44,6 +44,9 @@
 #include "propertywidget.h"
 #include "collectionchooser.h"
 
+using namespace Kandau;
+using namespace Kandau::Ui;
+
 /**
  *
  * @param object
