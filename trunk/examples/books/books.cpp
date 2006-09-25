@@ -35,6 +35,9 @@
 #include "author.h"
 #include "book.h"
 
+using namespace Kandau;
+using namespace Kandau::Ui;
+
 int main( int cargs, char **args )
 {
 	Classes::setup();
@@ -61,7 +64,7 @@ int main( int cargs, char **args )
 	
 	ObjectRef<Author> monzo = Author::create();
 	monzo->setFirstName( "Quim" );
-	monzo->setLastName( "Monzó" );
+	monzo->setLastName( "Monzo" );
 	monzo->setBirthYear( 1952 );
 	monzo->setBiography( "Born in Barcelona in 1952, has worked as a graphic designer, translator, journalist and has contributed to radio and TV programms." );
 	

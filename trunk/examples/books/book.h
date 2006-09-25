@@ -22,11 +22,9 @@
 
 #include <object.h>
 
-class Author;
+using namespace Kandau;
 
-/**
-	@author Albert Cervera Areny <albertca@hotpop.com>
-*/
+class Author;
 
 class Book : public Object
 {

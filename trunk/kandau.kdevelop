@@ -110,9 +110,9 @@
       <prio>0</prio>
     </make>
     <run>
-      <directoryradio>custom</directoryradio>
+      <directoryradio>executable</directoryradio>
       <customdirectory>/home/albert/kandau/test/</customdirectory>
-      <mainprogram>/home/albert/kandau/test/fastcgitester</mainprogram>
+      <mainprogram>test/uitester</mainprogram>
       <programargs></programargs>
       <terminal>false</terminal>
       <autocompile>true</autocompile>
@@ -123,12 +123,12 @@
         <uitester/>
         <kunittest/>
         <webtester/>
-        <fastcgitester></fastcgitester>
+        <fastcgitester/>
       </runarguments>
     </run>
     <general>
       <useconfiguration>default</useconfiguration>
-      <activetarget>test/uitester</activetarget>
+      <activetarget>test/kunittest</activetarget>
     </general>
     <configurations>
       <default>

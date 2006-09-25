@@ -22,11 +22,11 @@
 
 #include <object.h>
 
-class Collection;
+using namespace Kandau;
 
-/**
-	@author Albert Cervera Areny <albertca@hotpop.com>
-*/
+namespace Kandau {
+	class Collection;
+}
 
 class Author : public Object
 {
