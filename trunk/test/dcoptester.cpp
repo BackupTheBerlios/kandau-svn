@@ -34,6 +34,8 @@
 
 #include "objectaccess.h"
 
+using namespace Kandau;
+
 static const KCmdLineOptions options[] =
 {
   {"verbose", "Verbose output", 0},

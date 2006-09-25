@@ -34,6 +34,8 @@
 
 #define CHECK( x, y ) check( __FILE__, __LINE__, #x, x, y )
 
+using namespace Kandau;
+
 class Tester
 {
 public:

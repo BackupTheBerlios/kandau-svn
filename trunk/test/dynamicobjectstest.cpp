@@ -76,8 +76,8 @@ void DynamicObjectsTest::allTests()
 
 	QSqlDatabase *db = QSqlDatabase::addDatabase( "QPSQL7" );
 	db->setDatabaseName( dbname );
-	db->setUserName( "albert" );
-	db->setPassword( "" );
+	db->setUserName( "ak213" );
+	db->setPassword( "ak" );
 	db->setHostName( "localhost" );
 	if ( ! db->open() ) {
 		kdDebug() << "Failed to open database: " << db->lastError().text() << endl;

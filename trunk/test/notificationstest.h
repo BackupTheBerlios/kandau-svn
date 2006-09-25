@@ -27,9 +27,12 @@
 
 #include "tester.h"
 
-class ClassInfo;
 class QVariant;
-class PropertyInfo;
+
+namespace Kandau {
+	class PropertyInfo;
+	class ClassInfo;
+}
 
 /**
 	@author Albert Cervera Areny <albertca@hotpop.com>

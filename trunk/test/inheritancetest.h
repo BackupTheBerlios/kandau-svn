@@ -22,11 +22,10 @@
 
 #include <tester.h>
 
-class Manager;
+namespace Kandau {
+	class Manager;
+}
 
-/**
-	@author Albert Cervera Areny <albertca@hotpop.com>
-*/
 class InheritanceTest : public Tester
 {
 public:
@@ -34,7 +33,7 @@ public:
 	void sql();
 	void allTests();
 private:
-	Manager *m_manager;
+	Kandau::Manager *m_manager;
 };
 
 #endif

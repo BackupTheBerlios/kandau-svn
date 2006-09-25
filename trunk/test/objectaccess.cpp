@@ -27,6 +27,8 @@
 
 #include "objectaccess.h"
 
+using namespace Kandau;
+
 ObjectAccess::ObjectAccess( KApplication *app ) : QObject(), DCOPObject( "ObjectAccess" )
 {
 	if ( !app->dcopClient()->isRegistered() ) {
@@ -105,7 +107,7 @@ QString ObjectAccess::create( const QString& className ) const
 	if ( ! Classes::contains( className ) )
 		return 0;
 	Object *obj = Classes::classInfo( className )->create();
-	return oidToString( obj->oid() );
+	return Kandau::oidToString( obj->oid() );
 }
 
 QStringList ObjectAccess::objects() const

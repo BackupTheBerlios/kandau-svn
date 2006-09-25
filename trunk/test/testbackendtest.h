@@ -29,7 +29,9 @@
 
 #include "tester.h"
 
-class Manager;
+namespace Kandau { 
+	class Manager; 
+}
 
 class TestBackendTest : public Tester
 {
@@ -65,7 +67,8 @@ public:
 	*/
 	void setObjectObjects();
 
-	/*!
+	/*!	return oidToString( obj->oid() );
+
 	This function iterates through all available classes and checks
 	that none of the "get" functions set the modified flag to the object
 	and all "set" functions set the flag.

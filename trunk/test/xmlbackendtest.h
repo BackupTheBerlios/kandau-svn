@@ -20,12 +20,11 @@
 #ifndef XMLBACKENDTEST_H
 #define XMLBACKENDTEST_H
 
-/**
-@author Albert Cervera Areny
-*/
 #include "tester.h"
 
-class Manager;
+namespace Kandau {
+	class Manager;
+}
 
 class XmlBackendTest : public Tester
 {

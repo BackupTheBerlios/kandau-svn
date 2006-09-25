@@ -36,6 +36,8 @@
 
 #include "multiplebackendstest.h"
 
+using namespace Kandau;
+
 void MultipleBackendsTest::xml2xml()
 {
 	DbBackendIface *backend1 = new XmlDbBackend( "database.xml" );
@@ -94,8 +96,8 @@ void MultipleBackendsTest::xml2sql()
 
 	QSqlDatabase *db = QSqlDatabase::addDatabase( "QPSQL7" );
 	db->setDatabaseName( dbname );
-	db->setUserName( "albert" );
-	db->setPassword( "" );
+	db->setUserName( "ak213" );
+	db->setPassword( "ak" );
 	db->setHostName( "localhost" );
 	if ( ! db->open() ) {
 		kdDebug() << "Failed to open database: " << db->lastError().text() << endl;
@@ -116,8 +118,8 @@ void MultipleBackendsTest::sql2xml()
 	QString dbname = "testmultiple";
 	QSqlDatabase *db = QSqlDatabase::addDatabase( "QPSQL7" );
 	db->setDatabaseName( dbname );
-	db->setUserName( "albert" );
-	db->setPassword( "" );
+	db->setUserName( "ak213" );
+	db->setPassword( "ak" );
 	db->setHostName( "localhost" );
 	if ( ! db->open() ) {
 		kdDebug() << "Failed to open database: " << db->lastError().text() << endl;

@@ -24,11 +24,9 @@
 
 #include <object.h>
 
-class Customer;
+using namespace Kandau;
 
-/**
-@author Albert Cervera Areny
-*/
+class Customer;
 
 class CustomerOrder : public Object
 {

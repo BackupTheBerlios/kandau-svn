@@ -22,11 +22,10 @@
 
 #include <tester.h>
 
-class Manager;
+namespace Kandau {
+	class Manager;
+}
 
-/**
-@author Albert Cervera Areny
-*/
 class MultipleBackendsTest : public Tester
 {
 public:

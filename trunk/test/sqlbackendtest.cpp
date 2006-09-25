@@ -253,7 +253,7 @@ void SqlBackendTest::collections()
 	o1->articles()->add( a1 );
 	Manager::self()->commit();
 
-	Collection col2( "SELECT Customer.* WHERE Customer.Customer_CustomerOrder.Article_CustomerOrder.description like '%foo%'" );
+	Collection col2( "SELECT Customer.* WHERE Customer.Customer_CustomerOrder.Article_CustomerOrder.description LIKE '%foo%'" );
 	Customer *customer;
 	CollectionIterator it2( col2.begin() );
 	CollectionIterator end2( col2.end() );
@@ -430,8 +430,8 @@ void SqlBackendTest::allTests()
 
 	QSqlDatabase *db = QSqlDatabase::addDatabase( "QPSQL7" );
 	db->setDatabaseName( dbname );
-	db->setUserName( "albert" );
-	db->setPassword( "" );
+	db->setUserName( "ak213" );
+	db->setPassword( "ak" );
 	db->setHostName( "localhost" );
 	if ( ! db->open() ) {
 		kdDebug() << "Failed to open database: " << db->lastError().text() << endl;

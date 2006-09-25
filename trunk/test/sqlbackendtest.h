@@ -22,11 +22,9 @@
 
 #include "tester.h"
 
-/**
-@author Albert Cervera Areny
-*/
-
-class Manager;
+namespace Kandau {
+	class Manager;
+}
 
 class SqlBackendTest : public Tester
 {

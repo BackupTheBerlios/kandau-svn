@@ -22,9 +22,8 @@
 
 #include "classab.h"
 
-/**
-	@author Albert Cervera Areny <albertca@hotpop.com>
-*/
+using namespace Kandau;
+
 class ClassABA : public ClassAB
 {
 	Q_OBJECT

@@ -22,11 +22,9 @@
 
 #include <object.h>
 
-class Article;
+using namespace Kandau;
 
-/**
-@author Albert Cervera Areny
-*/
+class Article;
 
 class Customer : public Object
 {

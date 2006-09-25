@@ -27,13 +27,11 @@
 
 #include "dcopiface.h"
 
-/**
-@author Albert Cervera Areny
-*/
+using namespace Kandau;
+
 class ObjectAccess : public QObject, virtual public DCOPIface
 {
-Q_OBJECT
-
+	Q_OBJECT
 public:
 	ObjectAccess( KApplication *app );
 

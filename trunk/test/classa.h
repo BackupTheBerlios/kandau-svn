@@ -24,9 +24,8 @@
 
 #include <object.h>
 
-/**
-	@author Albert Cervera Areny <albertca@hotpop.com>
-*/
+using namespace Kandau;
+
 class ClassA : public Object
 {
 	Q_OBJECT

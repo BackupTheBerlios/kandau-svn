@@ -25,9 +25,8 @@
 #include <object.h>
 #include <defs.h>
 
-/**
-@author Albert Cervera Areny
-*/
+using namespace Kandau;
+
 class Article : public Object
 {
 	Q_OBJECT
