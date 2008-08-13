@@ -109,3 +109,5 @@ There are lots of things to think about. Here are some of them:
 	- Allow DynamicObjects inherit from existing (dynamic or not) classes.
 
 	- Improve enums support. Provide the list of options and whether it's a set or not. Improve enums support for ui too, creating a ComboBox when it's not a set, and a list with multiple selection when it is.
+
+
