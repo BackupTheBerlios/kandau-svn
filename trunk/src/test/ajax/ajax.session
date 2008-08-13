@@ -1,0 +1,15 @@
+<!DOCTYPE webprojectsession>
+<webprojectsession>
+  <session usePreviewPrefix="0" previewPrefix="" >
+    <itemcursorpositions>
+      <item line="17" column="56" url="index.html" />
+      <item line="0" column="0" url="estil.css" />
+      <item line="0" column="0" url="kandau.js" />
+      <item line="0" column="0" url="list.js" />
+      <item line="0" column="0" url="rpcdefs.js" />
+    </itemcursorpositions>
+    <uploadprofiles defaultProfile="@" >
+      <profile remote_host="" remote_port="" remote_path="" remote_protocol="ftp" user="" name="@" />
+    </uploadprofiles>
+  </session>
+</webprojectsession>

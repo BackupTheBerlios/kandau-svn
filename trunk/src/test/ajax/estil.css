@@ -1,0 +1,27 @@
+table
+{
+	font-size: 13px;
+	font-family: Arial,Verdana,Helvetica, sans-serif;
+	background-color: #FFCCCC;
+	border-color: #FF9999;
+	border-width: 2px;
+	border-style: solid;
+}
+
+th
+{
+	text-align: left;
+	padding: 10px;
+}
+
+td
+{
+	text-align: left;
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+h1
+{
+	text-align: left;
+}

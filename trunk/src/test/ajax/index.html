@@ -1,0 +1,44 @@
+<html>
+	<head>
+		<link href="estil.css" rel="stylesheet" type="text/css">
+		<script type="text/javascript" src="kandau.js"/></script>
+		<script type="text/javascript" src="list.js"></script>
+		<script type="text/javascript" src="prototype.js"></script>
+		<script type="text/javascript" src="rico.js"></script>
+		<script type="text/javascript" src="rpcdefs.js"></script>
+		<meta/>
+		<title>Ajax Example</title>
+	</head>
+	<body>
+		<h1>Ajax Example</h1>
+		<p>This is my first ajax example.</p>
+		<form>
+			<input type="text" id="txt1" onkeyup="showHint(this.value)" />
+		</form>
+		<p>Suggestions: <span id="txtHint"/></p>
+
+<!--		<span id="list1"><script>createList("list1")</script></span>
+		<button onclick="remoteCall('list','add');">Add element</button>
+		<a href="javascript:remoteCall('list','add');">Add element</a>
+-->		<div id="accordionDiv">
+			<div id="overviewPanel">
+				<div id="overviewHeader">
+				Overview
+				</div>
+				<div id="panel1Content">
+				... content text ...
+				</div>
+			</div>
+		</div>
+
+		<script>new Rico.Accordion( $('accordionDiv'), {panelHeight:300} );</script>
+		<script>
+		function receiveClasses( type, data, evt ) {
+			print "Hi julai"
+		}
+		var classes = new dojo.rpc.JsonService(classesStub);
+		classes.classes().
+		</script>
+
+	</body>
+</html>

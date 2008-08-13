@@ -1,0 +1,19 @@
+<!DOCTYPE webproject>
+<webproject>
+  <project type="Local" name="ajax" encoding="iso 8859-15" >
+    <upload/>
+    <author>Albert Cervera i Areny</author>
+    <email>albert@wickywicky.net</email>
+    <defaultDTD>-//W3C//DTD XHTML 1.1//EN</defaultDTD>
+    <item url="" uploadstatus="1" />
+    <templates>templates/</templates>
+    <toolbars>toolbars/</toolbars>
+    <item modified_time="1153956838" url="index.html" uploadstatus="1" />
+    <annotations/>
+    <item modified_time="1153951976" url="estil.css" uploadstatus="1" />
+    <item modified_time="1153957854" url="kandau.js" uploadstatus="1" />
+    <item modified_time="1153953472" url="alert.js" uploadstatus="1" />
+    <item modified_time="1153957679" url="list.js" uploadstatus="1" />
+    <item url="rpcdefs.js" uploadstatus="1" />
+  </project>
+</webproject>

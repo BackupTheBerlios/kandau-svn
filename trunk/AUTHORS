@@ -1,1 +1,5 @@
-Albert Cervera Areny <albertca@gmx.net>
+* Albert Cervera Areny <albertca@gmx.net>
+Main developer
+
+* Percy Camilo Triveño Aucahuasi <orgyforever@gmail.com>
+Upgraded kandau (core lib) to use Qt 4.4 and KDE 4.1 version. Upgraded the build system from autotools to CMake.

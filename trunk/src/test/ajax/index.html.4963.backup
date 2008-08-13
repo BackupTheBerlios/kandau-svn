@@ -1,0 +1,32 @@
+<html>
+	<head>
+		<link href="estil.css" rel="stylesheet" type="text/css">
+		<meta/>
+		<title>Ajax Example</title>
+		<script type="text/javascript" src="kandau.js"/>
+		<script type="text/javascript" src="table.js"/>
+	</head>
+	<body>
+		<h1>Ajax Example</h1>
+		<p>This is my first ajax example.</p>
+		<form>
+			<input type="text" id="txt1" onkeyup="showHint(this.value)" />
+		</form>
+		<p>Suggestions: <span id="txtHint"/></p>
+		<span id="list1"><script>createList("list1")</script></span>
+		<span id="test">
+			<script>
+				node = document.getElementById( "test" )
+				node.innerHTML = <script>hola</script>
+
+			</script>
+		</span>
+
+<!--		<table>
+			<tr><th>Title</th><th>ISBN</th><th>Year</th><th>Author</th></tr>
+			<tr><td>Benzina</td><td>84-7727-434-7</td><td>1983</td><td>Quim Monzó</td></tr>
+			<tr><td>Sentimental</td><td>85-7727-434-7</td><td>1980</td><td>Sergi Pàmies</td></tr>
+		</table>
+-->
+	</body>
+</html>
