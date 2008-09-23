@@ -126,23 +126,14 @@ QString PropertyInfo::valueToKey( int value ) const
 int PropertyInfo::keysToValue( const QStringList& keys ) const
 {
     int ret = 0;
-//  bool found;
-/*  QStringList::const_iterator kit( keys.constBegin() );
-    QStringList::const_iterator kend( keys.constEnd() );
-    for ( ; kit != kend; ++kit ) {*/
-//      found = false;
-        QVector<KeyAndValue>::const_iterator it( m_enums.constBegin() );
-        QVector<KeyAndValue>::const_iterator end( m_enums.constEnd() );
-        for ( ; it != end; ++it ) {
-            if ( keys.contains( (*it).m_key ) ) {
-                kdDebug() << "Afegint: " << (*it).m_key << endl;
-                ret |= (*it).m_value;
-//              break;
-            }
+    QVector<KeyAndValue>::const_iterator it( m_enums.constBegin() );
+    QVector<KeyAndValue>::const_iterator end( m_enums.constEnd() );
+    for ( ; it != end; ++it ) {
+        if ( keys.contains( (*it).m_key ) ) {
+            kdDebug() << "Afegint: " << (*it).m_key << endl;
+            ret |= (*it).m_value;
         }
-/*      if ( ! found )
-            return -1;*/
-    //}
+    }
 
     return ret;
 }
