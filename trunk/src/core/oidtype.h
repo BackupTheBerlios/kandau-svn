@@ -22,10 +22,11 @@
 
 
 #include <QtCore/QVariant>
+#include <QtGlobal>
 
 // OidType is just a number which can be very very large.
 // 0 is considered to be reserved and means "not assigned"
-typedef unsigned long long OidType;
+typedef quint64 OidType;
 
 QString oidToString( OidType oid );
 QVariant oidToVariant( OidType oid );
