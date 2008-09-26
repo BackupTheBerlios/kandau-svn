@@ -17,12 +17,11 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#include <q3sqlcursor.h>
-#include <qsqldatabase.h>
-//Added by qt3to4:
+
 #include <QSqlError>
 
 #include <QStringList>
+#include <Q3SqlCursor>
 
 #include "inmemorysqldbbackend.h"
 #include "classes.h"
@@ -65,25 +64,23 @@ void InMemorySqlDbBackend::init()
 		ClassInfo* info = (*m_it);
 
 		// Don't try to read from recordset if table doesn't exist
-		//if ( tables.filter( info->name(), false ).count() == 0 ) // TODO Qt3 -> Qt4 by Percy
         if ( tables.filter( info->name(), Qt::CaseInsensitive ).count() == 0 )
 			continue;
 
-		//Q3SqlCursor cursor( info->name().toLower()); // TODO Qt3 -> Qt4 by Percy
-        Q3SqlCursor cursor( info->name().toLower());
-		cursor.select();
-		// if ( m_db->lastError().type() != QSqlError::NoError ) { // TODO Qt3 -> Qt4 by Percy
+        QSqlQuery query(*m_db);
+        query.exec(QString("SELECT * FROM %1").arg(info->name()));
+
         if ( m_db->lastError().type() != QSqlError::NoError ) {
 			//kdDebug() << k_funcinfo << exec << endl;
 			kdDebug() << k_funcinfo << m_db->lastError().text()  << endl;
 		}
 
-		while ( cursor.next() ) {
-			oid = variantToOid( cursor.value( "dboid" ) );
+		while ( query.isActive() && query.next() ) {
+			oid = variantToOid( query.record().value( "dboid" ) );
 
 			Object* object = Classes::classInfo( info->name() )->create( oid, m_manager, true );
 			assert( object );
-			loadObject( cursor, object );
+			loadObject( query.record(), object );
 			if ( oid > maxOid )
 				maxOid = oid;
 		}
@@ -91,7 +88,7 @@ void InMemorySqlDbBackend::init()
 	m_currentOid = maxOid + 1;	// m_currentOid = max oid found + 1
 }
 
-void InMemorySqlDbBackend::loadObject( const Q3SqlCursor& cursor, Object* object )
+void InMemorySqlDbBackend::loadObject( const QSqlRecord& cursor, Object* object )
 {
 	assert( object );
 	PropertiesIterator pIt( object->propertiesBegin() );
@@ -114,18 +111,27 @@ void InMemorySqlDbBackend::loadObject( const Q3SqlCursor& cursor, Object* object
 	for ( ; cIt != cEnd; ++cIt ) {
 		if ( (*cIt)->collectionInfo()->isNToOne() )
 			continue;
-	
-		//Q3SqlCursor cCursor( (*cIt)->collectionInfo()->name().toLower() ); // TODO Qt3 -> Qt4 by Percy
-        Q3SqlCursor cCursor( (*cIt)->collectionInfo()->name().toLower() );
-		cCursor.select( object->classInfo()->name() + "=" + oidToString( object->oid() ) );  
-		// if ( m_db->lastError().type() != QSqlError::NoError ) { // TODO Qt3 -> Qt4 by Percy
+
+        QString queryString;
+        QString whereClause;
+        QSqlQuery query(*m_db);
+
+        queryString = QString("SELECT * FROM %1 ").arg( (*cIt)->collectionInfo()->name().toLower() );
+        whereClause = QString("WHERE %1 = %2").arg( object->classInfo()->name(),
+                                                    oidToString( object->oid() ) );
+
+        queryString += whereClause;
+        qDebug() << queryString;
+        query.exec(queryString);
+
+
         if ( m_db->lastError().type() != QSqlError::NoError ) {
-			//kdDebug() << k_funcinfo << exec << endl;
 			kdDebug() << k_funcinfo << m_db->lastError().text()  << endl;
 		}
 
-		while ( cCursor.next() ) {
-			(*cIt)->simpleAdd( variantToOid( cCursor.value( (*cIt)->collectionInfo()->childrenClassInfo()->name() ) ) );
+		while ( query.isActive() && query.next() ) {
+            QSqlRecord record = query.record();
+			(*cIt)->simpleAdd( variantToOid( record.value( (*cIt)->collectionInfo()->childrenClassInfo()->name() ) ) );
 		}
 	}
 }
@@ -134,7 +140,7 @@ void InMemorySqlDbBackend::saveObject( Object* object )
 {
 	assert( object );
 	assert( object->classInfo() );
-	//Q3SqlCursor cursor( object->classInfo()->name().toLower() ); // TODO Qt3 -> Qt4 by Percy
+
     Q3SqlCursor cursor( object->classInfo()->name().toLower() );
 	cursor.select();
 	//if ( m_db->lastError().type() != QSqlError::NoError ) { // TODO Qt3 -> Qt4 by Percy
@@ -168,7 +174,7 @@ void InMemorySqlDbBackend::saveObject( Object* object )
 	for ( ; cIt != cEnd; ++cIt ) {
 		if ( (*cIt)->collectionInfo()->isNToOne() )
 			continue;
-		
+
 		// Ensure data is only inserted once
 		if ( m_savedCollections.contains( (*cIt)->collectionInfo()->name() ) )
 			continue;
@@ -179,7 +185,7 @@ void InMemorySqlDbBackend::saveObject( Object* object )
         Q3SqlCursor cCursor( (*cIt)->collectionInfo()->name().toLower() );
 		cCursor.select();
 		// if ( m_db->lastError().type() != QSqlError::NoError ) { // TODO Qt3 -> Qt4 by Percy
-        if ( m_db->lastError().type() != QSqlError::NoError ) { 
+        if ( m_db->lastError().type() != QSqlError::NoError ) {
 			//kdDebug() << k_funcinfo << exec << endl;
 			kdDebug() << k_funcinfo << m_db->lastError().text()  << endl;
 		}

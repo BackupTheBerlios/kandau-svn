@@ -105,9 +105,8 @@ public:
 	CollectionIterator& operator=(const CollectionIterator& it);
 
 private:
-	// QMapIterator<OidType,bool> m_it; // DEPRECATED Qt3 -> Qt4 by Percy
     QMap<OidType,bool>::iterator m_it;
-	const ClassInfo* m_classInfo; 
+	const ClassInfo* m_classInfo;
 	Manager* m_manager;
 };
 
@@ -132,7 +131,6 @@ public:
 	CollectionConstIterator& operator=(const CollectionConstIterator& it);
 
 private:
-	//QMutableMapIterator<OidType,bool> m_it; // DEPRECATED Qt3 -> Qt4 by Percy
     QMap<OidType,bool>::const_iterator m_it;
 	const ClassInfo* m_classInfo;
 	Manager* m_manager;

@@ -24,11 +24,8 @@
 #include "oidtype.h"
 #include "seqtype.h"
 #include "object.h"
-//Added by qt3to4:
-#include <Q3SqlCursor>
 
-class QSqlDatabase;
-class Q3SqlCursor;
+#include <QtSql>
 
 /**
 @author Albert Cervera Areny
@@ -62,7 +59,7 @@ public:
 
 protected:
 	QString sqlType( QVariant::Type type );
-	void loadObject( const Q3SqlCursor& cursor, Object* object );
+	void loadObject( const QSqlRecord& cursor, Object* object );
 	void saveObject( Object* object );
 
 	QString idFieldName( CollectionInfo *collection ) const;
