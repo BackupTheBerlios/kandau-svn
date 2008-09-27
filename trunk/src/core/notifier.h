@@ -20,9 +20,9 @@
 #ifndef NOTIFIER_H
 #define NOTIFIER_H
 
-#include <q3valuelist.h>
-#include <qobject.h>
-#include <qmap.h>
+#include <QObject>
+#include <QMap>
+#include <QList>
 
 #include "notificationhandler.h"
 #include "oidtype.h"
@@ -62,23 +62,8 @@ private:
 	QString m_slot;
 };
 
-// DEPRECATED Qt3 -> Qt4 by Percy
-/*
-typedef QMap<QString,Q3ValueList<ObjectAndSlot> > MapPropertySlots;
-typedef QMapConstIterator<QString,Q3ValueList<ObjectAndSlot> > MapConstIteratorPropertySlots;
-
-typedef QMap<OidType,MapPropertySlots> MapObjectProperty;
-typedef QMapConstIterator<OidType,MapPropertySlots> MapConstIteratorObjectProperty;
-
-typedef QMap<const ClassInfo*,MapObjectProperty> MapClassInfoObject;
-typedef QMapConstIterator<const ClassInfo*,MapObjectProperty> MapConstIteratorClassInfoObject;
-
-typedef QMap<ObjectAndSlot,Q3ValueList<PossibleEvents> > MapSlotEvents;
-typedef QMapConstIterator<ObjectAndSlot, Q3ValueList<PossibleEvents> > MapSlotEventsConstIterator;
-*/
-
-typedef QMap<QString,Q3ValueList<ObjectAndSlot> > MapPropertySlots;
-typedef QMap<QString,Q3ValueList<ObjectAndSlot> >::const_iterator MapConstIteratorPropertySlots;
+typedef QMap<QString,QList<ObjectAndSlot> > MapPropertySlots;
+typedef QMap<QString,QList<ObjectAndSlot> >::const_iterator MapConstIteratorPropertySlots;
 
 typedef QMap<OidType,MapPropertySlots> MapObjectProperty;
 typedef QMap<OidType,MapPropertySlots>::const_iterator MapConstIteratorObjectProperty;
@@ -86,8 +71,8 @@ typedef QMap<OidType,MapPropertySlots>::const_iterator MapConstIteratorObjectPro
 typedef QMap<const ClassInfo*,MapObjectProperty> MapClassInfoObject;
 typedef QMap<const ClassInfo*,MapObjectProperty>::const_iterator MapConstIteratorClassInfoObject;
 
-typedef QMap<ObjectAndSlot,Q3ValueList<PossibleEvents> > MapSlotEvents;
-typedef QMap<ObjectAndSlot, Q3ValueList<PossibleEvents> >::const_iterator MapSlotEventsConstIterator;
+typedef QMap<ObjectAndSlot,QList<PossibleEvents> > MapSlotEvents;
+typedef QMap<ObjectAndSlot, QList<PossibleEvents> >::const_iterator MapSlotEventsConstIterator;
 
 /**
 	@author Albert Cervera Areny <albertca@hotpop.com>
@@ -99,7 +84,7 @@ public:
 	void registerSlot( const QObject *dstObject, const char* slot, const ClassInfo* classInfo = 0, const OidType& object = 0, const QString& property = QString::null );
 	void unregisterSlot( const QObject *object, const char* slot );
 	bool propertyModified( const ClassInfo* classInfo, const OidType& object, const QString& property, const QVariant& newValue );
-	
+
 signals:
 	void modified( const ClassInfo* classInfo, const OidType& object, const PropertyInfo *property, const QVariant& newValue );
 

@@ -17,9 +17,7 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#include <qvariant.h>
-//Added by qt3to4:
-#include <Q3ValueList>
+#include <QVariant>
 
 #include "classes.h"
 #include "object.h"
@@ -107,12 +105,12 @@ void Notifier::registerSlot( const QObject *dstObject, const char* slot, const C
 
 void Notifier::unregisterSlot( const QObject *object, const char* slot )
 {
-	Q3ValueList<PossibleEvents> list = m_slotEvents[ ObjectAndSlot( object, slot ) ];
-	Q3ValueListIterator<PossibleEvents> it( list.begin() );
-	Q3ValueListIterator<PossibleEvents> end( list.end() );
+	QList<PossibleEvents> list = m_slotEvents[ ObjectAndSlot( object, slot ) ];
+	QList<PossibleEvents>::iterator it( list.begin() );
+	QList<PossibleEvents>::iterator end( list.end() );
 	for ( ; it != end; ++it ) {
 		PossibleEvents e( *it );
-		m_eventSlots[ e.classInfo() ][ e.object() ][ e.property() ].remove( ObjectAndSlot( object, slot ) );
+        m_eventSlots[ e.classInfo() ][ e.object() ][ e.property() ].removeAll( ObjectAndSlot( object, slot ) );
 	}
 	m_slotEvents.remove( ObjectAndSlot( object, slot ) );
 }
@@ -121,11 +119,11 @@ bool Notifier::propertyModified( const ClassInfo* classInfo, const OidType& obje
 {
 	MapSlotEventsConstIterator it( m_slotEvents.constBegin() );
 	MapSlotEventsConstIterator end( m_slotEvents.constEnd() );
-	Q3ValueList<PossibleEvents> list;
+	QList<PossibleEvents> list;
 	for ( ; it != end; ++it ) {
 		list = *it;
-		Q3ValueListIterator<PossibleEvents> lit( list.begin() );
-		Q3ValueListIterator<PossibleEvents> lend( list.end() );
+		QList<PossibleEvents>::iterator lit( list.begin() );
+		QList<PossibleEvents>::iterator lend( list.end() );
 		for ( ; lit != lend; ++lit ) {
 			const PossibleEvents &e = (*lit);
 			if ( e.classInfo() != 0 && e.classInfo() != classInfo )
