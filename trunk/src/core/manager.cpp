@@ -382,7 +382,7 @@ bool Manager::remove( Object* object )
 	for ( ; cit != cend; ++cit )
 		cit.data()->clear();
 
-	uint num = m_objects.count() - 1;
+	int num = m_objects.count() - 1;
 	//Backend hook
 	m_dbBackend->beforeRemove( object );
 

@@ -240,7 +240,7 @@ bool InMemorySqlDbBackend::createSchema()
 	QStringList constraints;
 	QString exec;
 	PropertyInfo *prop;
-	uint i;
+	int i;
 
 	// Create the tables
 	ClassInfoIterator it ( Classes::begin() );

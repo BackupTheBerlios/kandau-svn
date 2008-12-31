@@ -149,7 +149,7 @@ QStringList PropertyInfo::valueToKeys ( int value ) const
     QVector<KeyAndValue>::const_iterator end( m_enums.constEnd() );
     for ( ; it != end; ++it ) {
         i = (*it).m_value;
-        if ( i != 0 &&  ( left & i ) == i || ( i == value ) ) {
+        if ( (i != 0 && ( left & i ) == i) || ( i == value ) ) {
             left = left & ~i;
             ret.append( (*it).m_key );
         }
@@ -432,4 +432,4 @@ PropertiesConstIterator& PropertiesConstIterator::operator=(const PropertiesCons
     m_it = it.m_it;
     return *this;
 }
- 
+

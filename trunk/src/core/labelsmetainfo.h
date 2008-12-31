@@ -39,7 +39,7 @@ class LabelsMetaInfo : public QObject
 	Q_OBJECT
 public:
 	LabelsMetaInfo( const LabelDescription *labels );
-	const QString& label( const QString& name );
+	QString label( const QString& name );
 private:
 	QMap<QString,QString> m_labels;
 };

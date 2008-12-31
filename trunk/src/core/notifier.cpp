@@ -132,8 +132,8 @@ bool Notifier::propertyModified( const ClassInfo* classInfo, const OidType& obje
 				continue;
 			if ( ! e.property().isNull() && e.property() != property )
 				continue;
-			const ObjectAndSlot &s = it.key();
-            // TODO by Qt3 -> Qt4 Percy
+			// TODO by Qt3 -> Qt4 Percy
+			// const ObjectAndSlot &s = it.key();
 			//connect( this, SIGNAL(modified(const ClassInfo*,const OidType&,const PropertyInfo*,const QVariant&)), s.object(), s.slot() );
 		}
 	}

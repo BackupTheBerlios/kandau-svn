@@ -165,11 +165,11 @@ void ClassInfo::addProperty( PropertyInfo* property )
 }
 
 /*!
-Used internally. This function fills in the classInfo properties structure 
-from the QObject information. The function is called from Classes::setup() 
-as if it is called from the ClassInfo::addClass() function and a property 
-is of type QPixmap, Qt will abort because a QPaintDevice is created before 
-a QApplication. That's why Classes::setup() sould be called after creating 
+Used internally. This function fills in the classInfo properties structure
+from the QObject information. The function is called from Classes::setup()
+as if it is called from the ClassInfo::addClass() function and a property
+is of type QPixmap, Qt will abort because a QPaintDevice is created before
+a QApplication. That's why Classes::setup() sould be called after creating
 a QApplication object.
 */
 void ClassInfo::createProperties()
@@ -191,7 +191,7 @@ void ClassInfo::createProperties()
 		p->setEnumType( meta.isEnumType() );
 		// TODO: Change setSetType to setFlagType...
 		p->setSetType( meta.isFlagType() );
-		
+
 		//char* name; // DEPRECATED Qt3 -> Qt4 by Percy
 		//meta.enumerator(); // DEPRECATED Qt3 -> Qt4 by Percy
         //meta.enumerator()
@@ -208,7 +208,7 @@ void ClassInfo::createProperties()
         for ( int i = 0; i < list.count(); i++)
             p->addKeyAndValue( list[i], meta.enumerator().keyToValue( list[i].toAscii() ) );
 
-		
+
 		m_properties.insert( meta.name(), p );
 	}
 	delete obj;
@@ -430,7 +430,7 @@ void ClassInfo::addChild( const ClassInfo* child )
 }
 
 /*!
-@param classInfo 
+@param classInfo
 @return True if the class inherits classInfo
 */
 bool ClassInfo::inherits( const ClassInfo* classInfo ) const
@@ -514,7 +514,7 @@ void Classes::setup()
 }
 
 /*!
-Returns a list with all class names. There is no order except that it guarantees 
+Returns a list with all class names. There is no order except that it guarantees
 that any given class will be before any of its children.
 @return StringList with all class names.
 */
@@ -537,7 +537,7 @@ QStringList Classes::parentsFirst()
 				list.insert( it2, info->name() );
 				break;
 			}
-		}	
+		}
 	}
 	QStringList ret;
 	QStringList::iterator it3( list.begin() );
@@ -558,7 +558,7 @@ void Classes::setupRelationsHierarchy()
 		info = Classes::classInfo( *it );
 		if ( ! info->parent() )
 			continue;
-		
+
 		QStringList ancestors = info->ancestors();
 		QStringList::const_iterator ait( ancestors.constBegin() );
 		QStringList::const_iterator aend( ancestors.constEnd() );
@@ -648,7 +648,7 @@ void Classes::setupRelations()
 			}
 		}
 	}
-	for ( uint i = 0; i < list.count(); ++i ) {
+	for ( int i = 0; i < list.count(); ++i ) {
 		QStringList str = list[ i ];
 		ClassInfo *t = Classes::classInfo( str[0] );
 		t->addCollection( str[1], str[2] );

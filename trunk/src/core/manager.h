@@ -274,7 +274,7 @@ private:
 	Contains the maximum number of objects that should be loaded.
 	Take into account that it includes modified and unmodified objects.
 	*/
-	uint m_maxObjects;
+	int m_maxObjects;
 
 	/*!
 	The object that is called when an event occurrs

@@ -54,7 +54,7 @@ void DesktopConfigDbBackend::init()
 
 	//KSimpleConfig config( m_fileName ); // DEPRECATED KDE3 -> KDE4 by Percy
     KConfig config( m_fileName );
-	
+
 	QStringList groups = config.groupList();
 	QStringList::ConstIterator it( groups.begin() );
 	QStringList::ConstIterator end( groups.end() );
@@ -62,7 +62,7 @@ void DesktopConfigDbBackend::init()
 	for ( ; it != end; ++it ) {
 		map = config.entryMap( *it );
 		ObjectRef<Object> obj;
-		if ( map.contains( "oid" ) ) 
+		if ( map.contains( "oid" ) )
 			obj = Classes::classInfo( *it )->create( stringToOid( map["oid"] ), m_manager, true );
 		else
 			obj = Classes::classInfo( *it )->create( m_manager );
@@ -74,7 +74,7 @@ void DesktopConfigDbBackend::init()
         QMap<QString, QString>::const_iterator mit( map.begin() );
         QMap<QString, QString>::const_iterator mend( map.end() );
 		for ( ; mit != mend; ++mit ) {
-			if ( mit.key() != "oid" ) 
+			if ( mit.key() != "oid" )
 				//obj->setProperty( mit.key(), mit.data() ); // DEPRECATED Qt3 -> Qt4 by Percy
                 obj->setProperty( mit.key().toAscii(), QVariant(mit.value()) );
 		}
@@ -128,10 +128,12 @@ bool DesktopConfigDbBackend::hasChanged( const OidType& /*oid*/, const RelationI
 
 void DesktopConfigDbBackend::objectToElement( const Object *object, KConfig *config )
 {
+    Q_UNUSED(object);
+    Q_UNUSED(config);
     // TODO by KDE3 -> KDE4 by Percy
     /*
 	config->setGroup( object->classInfo()->name() );
-	
+
 	//config->writeEntry( "oid", object->oid() ); // DEPRECATED KDE3 -> KDE4 by Percy
     config->entryMap.insert( "oid", object->oid() );
 	PropertiesConstIterator it( object->propertiesConstBegin() );

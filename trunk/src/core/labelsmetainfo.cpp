@@ -33,12 +33,12 @@ LabelsMetaInfo::LabelsMetaInfo( const LabelDescription *labels ) : QObject()
 	}
 }
 
-const QString& LabelsMetaInfo::label( const QString& name )
+QString LabelsMetaInfo::label( const QString& name )
 {
 	if ( m_labels.contains( name ) )
 		return m_labels[ name ];
 	else
-		return QString::null;
+		return QString();
 }
 
 #include "labelsmetainfo.moc"

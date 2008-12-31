@@ -39,9 +39,11 @@ Maybe needs to return a class or just a string...
 class DbBackendIface
 {
 public:
+	DbBackendIface() {}
+	virtual ~DbBackendIface() {}
 	/*!
 	Called at the Manager constructor
-	@param manager Pointer to the Manager this backend 
+	@param manager Pointer to the Manager this backend
 	*/
 	virtual void setup( Manager* manager ) = 0;
 
@@ -104,7 +106,7 @@ public:
 
 	/*!
 	Decides whether the relation changed in the database since last load
-	@param oid Oid of the object 
+	@param oid Oid of the object
 	@param related Type of relation we want to check if has changed.
 	*/
 	virtual bool hasChanged( const OidType& oid, const RelationInfo* related ) = 0;

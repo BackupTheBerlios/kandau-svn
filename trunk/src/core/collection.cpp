@@ -40,6 +40,7 @@ CollectionInfo constructor. Note that it's browsable by default.
 */
 CollectionInfo::CollectionInfo( const ClassInfo* parent, const QString& name, const ClassInfo* children, bool nToOne )
 {
+    Q_UNUSED(nToOne);
     m_parentClassInfo = parent;
     m_name = name;
     m_browsable = true;
@@ -369,7 +370,7 @@ void Collection::setQuery( const QString& query, Manager* manager )
 		QString c = tokenizer.nextToken();
 		//c = c.left( c.find( '.' ) ); // DEPRECATED Qt3 -> Qt4 by Percy
         c = c.left( c.indexOf( '.' ) );
-        
+
 		if ( ! Classes::contains( c ) ) {
 			kdDebug() << k_funcinfo << "Could not find class '" << c << "'" << endl;
 			m_classInfo = 0;

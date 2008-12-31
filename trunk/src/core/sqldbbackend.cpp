@@ -297,7 +297,7 @@ bool SqlDbBackend::save( Object *object )
 	// we set the generated flag to each property field.
 	// Note that this is necesary as we want relation fields to take their
 	// default values when inserted.
-	for ( uint i = 0; i < record->count(); ++i ) {
+	for ( int i = 0; i < record->count(); ++i ) {
 		record->setGenerated( i, false );
 	}
 
@@ -409,7 +409,7 @@ bool SqlDbBackend::save( const OidType& oid, const RelationInfo* relationInfo, c
 	// we set the generated flag to each property field.
 	// Note that this is necesary as we want relation fields to take their
 	// default values when inserted.
-	for ( uint i = 0; i < record->count(); ++i ) {
+	for ( int i = 0; i < record->count(); ++i ) {
 		record->setGenerated( i, false );
 	}
 
@@ -559,7 +559,7 @@ bool SqlDbBackend::createSchema()
 	QStringList constraints;
 	QString exec;
 	PropertyInfo *prop;
-	uint i;
+	int i;
 
 	// This sequence is incremented every time a new object is created
 	m_db->exec( "CREATE SEQUENCE seq_dboid;" );
@@ -969,7 +969,7 @@ const QString & SqlDbBackend::oidFieldName( ) const
 
 void SqlDbBackend::setSequenceFieldName( const QString & name )
 {
-	m_sequenceFieldName;
+	m_sequenceFieldName = name;
 }
 
 const QString & SqlDbBackend::sequenceFieldName( ) const
